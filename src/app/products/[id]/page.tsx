@@ -2,7 +2,9 @@
 import { PrismaClient } from '@prisma/client';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import AddToCartButton from '@/components/AddToCartButton';
+// 1. Importamos el nuevo componente de controles en lugar del botón simple
+import ProductPurchaseControls from '@/components/ProductPurchaseControls';
+import { getBcvRate, formatToVes } from '@/lib/currency';
 
 const prisma = new PrismaClient();
 
@@ -21,7 +23,12 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
   const productId = Number(params.id);
   if (isNaN(productId)) { notFound(); }
   
-  const product = await getProductDetails(productId);
+  const [product, bcvRate] = await Promise.all([
+    getProductDetails(productId),
+    getBcvRate()
+  ]);
+
+  const priceVes = bcvRate ? product.priceUSD * bcvRate : null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -31,13 +38,27 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
         </div>
         <div className="flex flex-col">
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900">{product.name}</h1>
-          <div className="mt-4"><p className="text-3xl text-gray-900">${product.priceUSD.toFixed(2)} USD</p></div>
-          <div className="mt-6"><h3 className="sr-only">Descripción</h3><p className="text-base text-gray-700 space-y-6">{product.description || 'No hay descripción disponible para este producto.'}</p></div>
-          <div className="mt-6 text-sm text-gray-500">
-            {product.sku && <p>SKU: {product.sku}</p>}
-            {product.stock > 0 ? (<p className="text-green-600">En Stock: {product.stock} unidades</p>) : (<p className="text-red-600">Agotado</p>)}
+          
+          <div className="mt-4">
+            <p className="text-3xl text-gray-900">${product.priceUSD.toFixed(2)} USD</p>
+            {priceVes ? (
+              <p className="text-xl text-gray-600 mt-1">
+                o {formatToVes(priceVes)}
+              </p>
+            ) : (
+              <p className="text-sm text-amber-600 mt-1">Tasa Bs. no disponible</p>
+            )}
           </div>
-          <div className="mt-10"><AddToCartButton product={product} /></div>
+
+          <div className="mt-6"><h3 className="sr-only">Descripción</h3><p className="text-base text-gray-700 space-y-6">{product.description || 'No hay descripción disponible para este producto.'}</p></div>
+          
+          <div className="mt-6 text-sm text-gray-500">
+            {product.stock > 0 ? (<p className="text-green-600 font-medium">En Stock: {product.stock} unidades</p>) : (<p className="text-red-600 font-medium">Agotado</p>)}
+          </div>
+
+          {/* 2. Reemplazamos el botón antiguo por nuestros nuevos controles */}
+          <ProductPurchaseControls product={product} />
+
         </div>
       </div>
     </div>

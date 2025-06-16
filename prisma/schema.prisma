@@ -10,6 +10,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// 1. Se define un Enum para los roles de usuario
+enum Role {
+  ADMIN
+  ORDERS_USER
+}
+
+// 2. Se añade el nuevo modelo para los usuarios
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  role      Role     @default(ORDERS_USER)
+  createdAt DateTime @default(now())
+}
+
 model Product {
   id          Int      @id @default(autoincrement())
   name        String
@@ -26,16 +41,20 @@ model Product {
 }
 
 model Order {
-  id            Int      @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   total         Float
   customerName  String
   customerEmail String
+  // --- CAMPOS NUEVOS ---
+  identityCard  String? // Cédula, opcional por si acaso
+  phone         String? // Teléfono, opcional
+  instagram     String? // Instagram, opcional
+  // --- FIN DE CAMPOS NUEVOS ---
   address       String?
-  status        String   @default("PENDIENTE_DE_PAGO")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  items OrderItem[]
+  status        String      @default("PENDIENTE_DE_PAGO")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  items         OrderItem[]
 }
 
 model OrderItem {

@@ -11,15 +11,18 @@ interface CartItem {
   quantity: number;
 }
 
+// 1. Añadimos los nuevos campos a nuestra interfaz de datos del cliente
 interface CustomerData {
   name: string;
   email: string;
   address: string;
+  identityCard: string;
+  phone: string;
+  instagram?: string; // Lo hacemos opcional con '?'
 }
 
 export async function POST(request: Request) {
   try {
-    // Usamos las interfaces para darle a TypeScript la información que necesita
     const { customerData, items }: { customerData: CustomerData; items: CartItem[] } = await request.json();
 
     if (!items || items.length === 0) {
@@ -48,7 +51,6 @@ export async function POST(request: Request) {
       total += product.priceUSD * item.quantity;
     }
 
-    // Usamos el tipo 'Prisma.TransactionClient' para 'tx' para mayor seguridad
     const order = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const newOrder = await tx.order.create({
         data: {
@@ -56,6 +58,10 @@ export async function POST(request: Request) {
           customerEmail: customerData.email,
           address: customerData.address,
           total: total,
+          // 2. Añadimos los nuevos campos aquí para que se guarden en la base de datos
+          identityCard: customerData.identityCard,
+          phone: customerData.phone,
+          instagram: customerData.instagram,
         },
       });
 
