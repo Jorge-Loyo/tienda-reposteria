@@ -32,8 +32,9 @@ export default function LoginPage() {
         throw new Error(data.error || 'Error en el inicio de sesión');
       }
 
-      // Si el login es exitoso, redirigimos al dashboard de admin
+      // Si el login es exitoso, redirigimos y refrescamos para que el layout se actualice
       router.push('/admin');
+      router.refresh();
 
     } catch (err) {
       setError((err as Error).message);
@@ -45,29 +46,18 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-128px)] bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center">Iniciar Sesión de Administrador</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+        <h1 className="text-2xl font-bold text-center">Acceso de Personal</h1>
+        <p className="text-center text-sm text-gray-500">Ingresa tus credenciales para continuar</p>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-1.5">
             <Label htmlFor="email">Correo Electrónico</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="correo@ejemplo.com" />
           </div>
-          <div>
+          <div className="space-y-1.5">
             <Label htmlFor="password">Contraseña</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && <p className="text-sm text-center font-medium text-red-500">{error}</p>}
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
           </Button>

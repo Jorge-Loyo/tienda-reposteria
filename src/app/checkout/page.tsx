@@ -16,14 +16,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { bcvRate } = useCurrency();
 
-  const [customerData, setCustomerData] = useState({
-    name: '',
-    email: '',
-    identityCard: '',
-    phone: '',
-    instagram: '',
-    address: '',
-  });
+  const [customerData, setCustomerData] = useState({ name: '', email: '', identityCard: '', phone: '', instagram: '', address: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [locationMessage, setLocationMessage] = useState('');
   const [mapImageUrl, setMapImageUrl] = useState<string | null>(null);
@@ -43,17 +36,17 @@ export default function CheckoutPage() {
       navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
         try {
-          // Llamamos a nuestra propia API que actúa como proxy
+          // Llamamos a nuestra API de geocodificación
           const response = await fetch(`/api/geocode?lat=${latitude}&lon=${longitude}`);
-          if (!response.ok) {
-            throw new Error('El servidor no pudo obtener la dirección.');
-          }
+          if (!response.ok) throw new Error('El servidor no pudo obtener la dirección.');
           const data = await response.json();
-
           setCustomerData(prev => ({ ...prev, address: data.addressString }));
-          setMapImageUrl(data.mapUrl);
-          setLocationMessage('¡Ubicación y dirección encontradas!');
+          
+          // Construimos la URL a nuestro propio proxy de mapas y la guardamos en el estado
+          const mapProxyUrl = `/api/map?lat=${latitude}&lon=${longitude}`;
+          setMapImageUrl(mapProxyUrl);
 
+          setLocationMessage('¡Ubicación y dirección encontradas!');
         } catch (error) {
            console.error("Error fetching address via proxy:", error);
            setLocationMessage('No se pudo obtener la dirección.');
@@ -62,7 +55,6 @@ export default function CheckoutPage() {
           console.error("Geolocation browser error:", error);
           setLocationMessage('No se pudo obtener la ubicación desde el navegador.');
       }, { timeout: 10000 });
-
     } else {
       setLocationMessage('Geolocalización no es soportada por este navegador.');
     }
@@ -71,16 +63,11 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    // ... (la lógica de submit no cambia) ...
     try {
-      const response = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerData, items }),
-      });
+      const response = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ customerData, items }), });
       const order = await response.json();
-      if (!response.ok) {
-        throw new Error(order.error || 'Error al crear el pedido');
-      }
+      if (!response.ok) { throw new Error(order.error || 'Error al crear el pedido'); }
       clearCart();
       router.push(`/order/success/${order.id}`);
     } catch (error) {
@@ -116,16 +103,7 @@ export default function CheckoutPage() {
           
           {mapImageUrl && (
             <div className="mt-4 rounded-md overflow-hidden border">
-              {/* Usamos una etiqueta <img> estándar para evitar problemas de optimización */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={mapImageUrl}
-                alt="Mapa de la ubicación"
-                width="400"
-                height="200"
-                className="w-full"
-                style={{ objectFit: 'cover' }}
-              />
+              <img src={mapImageUrl} alt="Mapa de la ubicación" width="400" height="200" className="w-full" style={{ objectFit: 'cover' }}/>
             </div>
           )}
         </div>
