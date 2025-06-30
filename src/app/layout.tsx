@@ -31,13 +31,14 @@ export default async function RootLayout({
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center h-16">
                 <div className="flex-shrink-0">
-                  <Link href="/" className="text-xl font-bold text-gray-800 hover:text-indigo-600 transition-colors">
-                    Casa Dulce Oriente
+                  {/* Usando el color primario del tema */}
+                  <Link href="/" className="text-2xl font-bold text-primary transition-colors">
+                    Casa Dulce
                   </Link>
                 </div>
                 <nav className="hidden md:flex items-center gap-8">
-                  <Link href="/tienda" className="text-sm font-medium text-gray-600 hover:text-indigo-600">Tienda</Link>
-                  <Link href="/admin" className="text-sm font-medium text-gray-600 hover:text-indigo-600">Admin</Link>
+                  <Link href="/tienda" className="text-sm font-medium text-gray-600 hover:text-primary">Tienda</Link>
+                  <Link href="/ofertas" className="text-sm font-medium text-gray-600 hover:text-primary">Ofertas</Link>
                 </nav>
                 <div className="flex items-center gap-4">
                   <CartIcon />
@@ -47,7 +48,7 @@ export default async function RootLayout({
             </div>
           </header>
 
-          <main className="bg-gray-50 min-h-screen">
+          <main className="bg-gray-50">
             {children}
           </main>
           

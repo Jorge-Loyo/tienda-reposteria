@@ -10,19 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 1. Se define un Enum para los roles de usuario
-enum Role {
-  ADMIN
-  ORDERS_USER
-}
+// El bloque `enum Role` se ha eliminado porque no es compatible con SQLite.
+// El campo 'role' en el modelo User ya es un String, lo cual es correcto.
 
 // 2. Se añade el nuevo modelo para los usuarios
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  role      Role     @default(ORDERS_USER)
-  createdAt DateTime @default(now())
+  id                   Int       @id @default(autoincrement())
+  email                String    @unique
+  password             String
+  role                 String    @default("ORDERS_USER")
+  createdAt            DateTime  @default(now())
+  passwordResetToken   String?   @unique // Token único para el reseteo
+  passwordResetExpires DateTime? // Fecha en la que el token expira
 }
 
 model Product {
@@ -45,12 +44,10 @@ model Order {
   total         Float
   customerName  String
   customerEmail String
-  // --- CAMPOS NUEVOS ---
+  address       String?
   identityCard  String? // Cédula, opcional por si acaso
   phone         String? // Teléfono, opcional
   instagram     String? // Instagram, opcional
-  // --- FIN DE CAMPOS NUEVOS ---
-  address       String?
   status        String      @default("PENDIENTE_DE_PAGO")
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -58,13 +55,11 @@ model Order {
 }
 
 model OrderItem {
-  id       Int   @id @default(autoincrement())
-  quantity Int
-  price    Float
-
-  order   Order @relation(fields: [orderId], references: [id])
-  orderId Int
-
+  id        Int     @id @default(autoincrement())
+  quantity  Int
+  price     Float
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   Int
   product   Product @relation(fields: [productId], references: [id])
   productId Int
 }
