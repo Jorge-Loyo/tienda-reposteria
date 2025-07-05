@@ -1,4 +1,3 @@
-// src/app/page.tsx
 import { PrismaClient } from '@prisma/client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -8,13 +7,50 @@ import { Truck, Clock, ShieldCheck } from 'lucide-react';
 
 const prisma = new PrismaClient();
 
+// 1. La función ahora busca tanto ofertas como productos nuevos.
 async function getFeaturedProducts() {
   try {
-    const products = await prisma.product.findMany({
-      where: { published: true }, take: 4, orderBy: { createdAt: 'desc' },
-      select: { id: true, name: true, priceUSD: true, imageUrl: true, stock: true },
+    const now = new Date();
+
+    // Primero, obtenemos los productos con ofertas activas
+    const offerProducts = await prisma.product.findMany({
+      where: {
+        published: true,
+        isOfferActive: true,
+        offerPriceUSD: { not: null },
+        offerEndsAt: { gte: now },
+      },
+      orderBy: { createdAt: 'desc' },
+      select: { 
+        id: true, name: true, priceUSD: true, imageUrl: true, stock: true,
+        isOfferActive: true, offerPriceUSD: true, offerEndsAt: true 
+      },
     });
-    return products;
+
+    // Luego, obtenemos los productos más recientes
+    const latestProducts = await prisma.product.findMany({
+      where: { published: true },
+      orderBy: { createdAt: 'desc' },
+      select: { 
+        id: true, name: true, priceUSD: true, imageUrl: true, stock: true,
+        isOfferActive: true, offerPriceUSD: true, offerEndsAt: true 
+      },
+    });
+
+    // Combinamos las listas, damos prioridad a las ofertas y eliminamos duplicados
+    const combinedMap = new Map();
+    // Añadimos primero los productos en oferta
+    offerProducts.forEach(p => combinedMap.set(p.id, p));
+    // Luego, añadimos los productos más nuevos si no están ya en el mapa
+    latestProducts.forEach(p => {
+      if (!combinedMap.has(p.id)) {
+        combinedMap.set(p.id, p);
+      }
+    });
+
+    // Convertimos el mapa de vuelta a un array y tomamos los primeros 4 productos
+    return Array.from(combinedMap.values()).slice(0, 4);
+
   } catch (error) {
     console.error("Error al obtener productos destacados:", error);
     return [];
@@ -24,7 +60,6 @@ async function getFeaturedProducts() {
 function FeatureCard({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) {
   return (
     <div className="text-center p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-      {/* Usando el color de acento del tema */}
       <div className="flex justify-center items-center mb-4 text-accent">
         {icon}
       </div>
@@ -56,7 +91,6 @@ export default async function HomePage() {
           <p className="max-w-2xl mx-auto text-lg text-gray-200 mb-8 drop-shadow-md">
             Encuentra todos los insumos de la más alta calidad para que tus creaciones sean inolvidables.
           </p>
-          {/* El botón ahora usa el estilo primario por defecto */}
           <Button asChild size="lg">
             <Link href="/tienda">Explorar Catálogo</Link>
           </Button>
@@ -71,6 +105,7 @@ export default async function HomePage() {
           </h2>
           {featuredProducts.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {/* 2. El componente ProductCard ahora recibirá los datos de la oferta y los mostrará correctamente */}
               {featuredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} bcvRate={bcvRate} />
               ))}
@@ -79,7 +114,6 @@ export default async function HomePage() {
             <p className="text-center text-gray-500">Próximamente productos destacados.</p>
           )}
           <div className="text-center mt-12">
-            {/* Este botón ahora usa la variante "outline" que también hereda el color primario */}
             <Button asChild variant="outline">
               <Link href="/tienda">Ver todos los productos</Link>
             </Button>
