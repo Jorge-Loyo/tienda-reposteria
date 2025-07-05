@@ -1,4 +1,3 @@
-// src/components/CreateUserForm.tsx
 'use client';
 
 import { useState } from 'react';
@@ -13,11 +12,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { Role } from '@/app/admin/users/page'; // Importamos el tipo Role
 
-export default function CreateUserForm() {
+// Mapeo de roles a nombres más amigables
+const roleNames: Record<Role, string> = {
+    ADMIN: 'Administrador',
+    ORDERS_USER: 'Usuario de Pedidos',
+    CLIENT: 'Cliente',
+    CLIENT_VIP: 'Cliente VIP',
+};
+
+// El componente ahora recibe la lista de roles disponibles como prop
+export default function CreateUserForm({ availableRoles }: { availableRoles: Role[] }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('ORDERS_USER');
+  // Establecemos 'CLIENT' como el rol por defecto
+  const [role, setRole] = useState<Role>('CLIENT');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -39,11 +49,11 @@ export default function CreateUserForm() {
         throw new Error(data.error || 'No se pudo crear el usuario.');
       }
 
-      alert('¡Usuario creado con éxito!');
-      // Limpiamos el formulario y refrescamos la página para ver al nuevo usuario en la lista
+      // Reemplazamos alert() por un mensaje en consola para un entorno más seguro
+      console.log('¡Usuario creado con éxito!');
       setEmail('');
       setPassword('');
-      setRole('ORDERS_USER');
+      setRole('CLIENT');
       router.refresh();
 
     } catch (err) {
@@ -67,13 +77,18 @@ export default function CreateUserForm() {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="role">Rol</Label>
-          <Select value={role} onValueChange={setRole}>
+          {/* El 'onValueChange' ahora espera un tipo 'Role' */}
+          <Select value={role} onValueChange={(value: Role) => setRole(value)}>
             <SelectTrigger>
               <SelectValue placeholder="Seleccionar rol" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ADMIN">Administrador</SelectItem>
-              <SelectItem value="ORDERS_USER">Usuario de Pedidos</SelectItem>
+              {/* Generamos las opciones del menú dinámicamente */}
+              {availableRoles.map((roleKey) => (
+                <SelectItem key={roleKey} value={roleKey}>
+                  {roleNames[roleKey]}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

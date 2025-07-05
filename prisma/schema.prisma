@@ -19,10 +19,14 @@ model Category {
 
 model User {
   id                   Int       @id @default(autoincrement())
+  name                 String?
   email                String    @unique
   password             String
   role                 String    @default("ORDERS_USER")
   createdAt            DateTime  @default(now())
+  instagram            String?
+  phoneNumber          String?
+  address              String?
   passwordResetToken   String?   @unique
   passwordResetExpires DateTime?
 }
@@ -39,11 +43,13 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  orderItems OrderItem[]
+  isOfferActive Boolean   @default(false)
+  offerPriceUSD Float? // Precio especial de la oferta (opcional)
+  offerEndsAt   DateTime? // Fecha y hora en que termina la oferta (opcional)
 
-  // Relación con Categoría
+  orderItems OrderItem[]
   categoryId Int
-  category   Category @relation(fields: [categoryId], references: [id])
+  category   Category    @relation(fields: [categoryId], references: [id])
 }
 
 model Order {
@@ -55,6 +61,7 @@ model Order {
   identityCard  String?
   phone         String?
   instagram     String?
+  paymentMethod String?
   status        String      @default("PENDIENTE_DE_PAGO")
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt

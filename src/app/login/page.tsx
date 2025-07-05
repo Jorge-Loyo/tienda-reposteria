@@ -33,7 +33,7 @@ export default function LoginPage() {
       }
 
       // Si el login es exitoso, redirigimos y refrescamos para que el layout se actualice
-      router.push('/admin');
+      router.push('/perfil');
       router.refresh();
 
     } catch (err) {

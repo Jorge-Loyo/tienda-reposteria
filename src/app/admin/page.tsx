@@ -1,5 +1,3 @@
-// src/app/admin/page.tsx
-
 import { PrismaClient } from '@prisma/client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -63,9 +61,12 @@ export default async function AdminDashboardPage() {
           <Button asChild>
               <Link href="/admin/products">Gestionar Productos</Link>
           </Button>
-          {/* --- NUEVO BOTÓN PARA CATEGORÍAS --- */}
           <Button variant="outline" asChild>
               <Link href="/admin/categories">Gestionar Categorías</Link>
+          </Button>
+          {/* --- NUEVO BOTÓN PARA USUARIOS --- */}
+          <Button variant="outline" asChild>
+              <Link href="/admin/users">Gestionar Usuarios</Link>
           </Button>
       </div>
 

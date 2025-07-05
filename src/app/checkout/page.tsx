@@ -1,7 +1,6 @@
-// src/app/checkout/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCartStore } from '@/store/cartStore';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -11,8 +10,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCurrency } from '@/context/CurrencyContext';
 import { formatToVes } from '@/lib/currency';
 
+// Mapeo de métodos de pago a nombres más amigables
+const paymentMethodNames: { [key: string]: string } = {
+  EFECTIVO_USD: 'Efectivo (Dólares)',
+  EFECTIVO_BS: 'Efectivo (Bolívares)',
+  ZELLE: 'Transferencia Zelle',
+  BANESCO: 'Transferencia Banesco',
+  BDV: 'Transferencia Banco de Venezuela',
+};
+
 export default function CheckoutPage() {
-  const { items, clearCart } = useCartStore();
+  // Obtenemos el método de pago del store del carrito
+  const { items, clearCart, paymentMethod } = useCartStore();
   const router = useRouter();
   const { bcvRate } = useCurrency();
 
@@ -21,39 +30,60 @@ export default function CheckoutPage() {
   const [locationMessage, setLocationMessage] = useState('');
   const [mapImageUrl, setMapImageUrl] = useState<string | null>(null);
 
+  // useEffect para cargar los datos del usuario si tiene sesión iniciada
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          const userData = await response.json();
+          // Rellenamos el formulario con los datos del perfil del usuario
+          setCustomerData(prev => ({
+            ...prev,
+            name: userData.name || '',
+            email: userData.email || '',
+            instagram: userData.instagram || '',
+            phone: userData.phoneNumber || '',
+            address: userData.address || '',
+          }));
+        }
+      } catch (error) {
+        console.log("No hay sesión de usuario activa, se procederá como invitado.");
+      }
+    };
+
+    fetchUserData();
+  }, []); // El array vacío asegura que se ejecute solo una vez al montar el componente
+
   const totalUsd = items.reduce((acc, item) => acc + (Number(item.priceUSD) || 0) * (Number(item.quantity) || 0), 0);
   const totalVes = bcvRate ? totalUsd * bcvRate : null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setCustomerData({ ...customerData, [e.target.name]: e.target.value });
   };
-
+  
+  // La lógica de geolocalización no cambia
   const handleGetLocation = () => {
     if (navigator.geolocation) {
       setLocationMessage('Obteniendo ubicación...');
       setMapImageUrl(null);
-
       navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
         try {
-          // Llamamos a nuestra API de geocodificación
           const response = await fetch(`/api/geocode?lat=${latitude}&lon=${longitude}`);
           if (!response.ok) throw new Error('El servidor no pudo obtener la dirección.');
           const data = await response.json();
           setCustomerData(prev => ({ ...prev, address: data.addressString }));
-          
-          // Construimos la URL a nuestro propio proxy de mapas y la guardamos en el estado
           const mapProxyUrl = `/api/map?lat=${latitude}&lon=${longitude}`;
           setMapImageUrl(mapProxyUrl);
-
           setLocationMessage('¡Ubicación y dirección encontradas!');
         } catch (error) {
-           console.error("Error fetching address via proxy:", error);
-           setLocationMessage('No se pudo obtener la dirección.');
+          console.error("Error fetching address via proxy:", error);
+          setLocationMessage('No se pudo obtener la dirección.');
         }
       }, (error) => {
-          console.error("Geolocation browser error:", error);
-          setLocationMessage('No se pudo obtener la ubicación desde el navegador.');
+        console.error("Geolocation browser error:", error);
+        setLocationMessage('No se pudo obtener la ubicación desde el navegador.');
       }, { timeout: 10000 });
     } else {
       setLocationMessage('Geolocalización no es soportada por este navegador.');
@@ -63,13 +93,17 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // ... (la lógica de submit no cambia) ...
     try {
-      const response = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ customerData, items }), });
+      // Incluimos el método de pago en los datos que se envían para crear la orden
+      const response = await fetch('/api/orders', { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify({ customerData, items, paymentMethod }), 
+      });
       const order = await response.json();
       if (!response.ok) { throw new Error(order.error || 'Error al crear el pedido'); }
       clearCart();
-      router.push(`/order/success/${order.id}`);
+      router.push(`/order/${order.id}/pago`);
     } catch (error) {
       console.error(error);
       alert((error as Error).message);
@@ -89,18 +123,17 @@ export default function CheckoutPage() {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Tus Datos</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5"><Label htmlFor="name">Nombre Completo</Label><Input type="text" name="name" id="name" required onChange={handleChange} /></div>
-            <div className="space-y-1.5"><Label htmlFor="identityCard">Cédula de Identidad</Label><Input type="text" name="identityCard" id="identityCard" required onChange={handleChange} /></div>
+            <div className="space-y-1.5"><Label htmlFor="name">Nombre Completo</Label><Input type="text" name="name" id="name" required onChange={handleChange} value={customerData.name} /></div>
+            <div className="space-y-1.5"><Label htmlFor="identityCard">Cédula de Identidad</Label><Input type="text" name="identityCard" id="identityCard" required onChange={handleChange} value={customerData.identityCard} /></div>
           </div>
-          <div className="space-y-1.5"><Label htmlFor="email">Correo Electrónico</Label><Input type="email" name="email" id="email" required onChange={handleChange} /></div>
+          <div className="space-y-1.5"><Label htmlFor="email">Correo Electrónico</Label><Input type="email" name="email" id="email" required onChange={handleChange} value={customerData.email} disabled={!!customerData.email} className={customerData.email ? "bg-gray-100" : ""} /></div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5"><Label htmlFor="phone">Nº de Teléfono</Label><Input type="tel" name="phone" id="phone" required onChange={handleChange} /></div>
-            <div className="space-y-1.5"><Label htmlFor="instagram">Instagram / Alias (Opcional)</Label><Input type="text" name="instagram" id="instagram" onChange={handleChange} /></div>
+            <div className="space-y-1.5"><Label htmlFor="phone">Nº de Teléfono</Label><Input type="tel" name="phone" id="phone" required onChange={handleChange} value={customerData.phone} /></div>
+            <div className="space-y-1.5"><Label htmlFor="instagram">Instagram / Alias (Opcional)</Label><Input type="text" name="instagram" id="instagram" onChange={handleChange} value={customerData.instagram} /></div>
           </div>
           <div className="space-y-1.5"><Label htmlFor="address">Dirección de Envío</Label><Textarea name="address" id="address" required onChange={handleChange} rows={3} value={customerData.address}/></div>
           <Button type="button" variant="outline" className="w-full" onClick={handleGetLocation}>Usar Ubicación Actual (GPS)</Button>
           {locationMessage && <p className="text-sm text-center text-gray-600">{locationMessage}</p>}
-          
           {mapImageUrl && (
             <div className="mt-4 rounded-md overflow-hidden border">
               <img src={mapImageUrl} alt="Mapa de la ubicación" width="400" height="200" className="w-full" style={{ objectFit: 'cover' }}/>
@@ -115,6 +148,13 @@ export default function CheckoutPage() {
           </div>
           <div className="border-t mt-4 pt-4 flex justify-between font-bold text-lg"><span>Total (USD)</span><span>${totalUsd.toFixed(2)}</span></div>
           {totalVes && (<div className="flex items-center justify-between text-sm text-gray-600 pt-2"><p className="font-medium">Total Aprox. (Bs.)</p><p className="font-medium">{formatToVes(totalVes)}</p></div>)}
+          
+          {/* Mostramos el método de pago seleccionado */}
+          <div className="border-t mt-4 pt-4">
+            <h3 className="text-sm font-medium text-gray-500">Método de Pago</h3>
+            <p className="text-sm font-semibold text-gray-900">{paymentMethodNames[paymentMethod] || 'No seleccionado'}</p>
+          </div>
+
           <Button type="submit" disabled={isLoading} className="mt-6 w-full">{isLoading ? 'Procesando...' : 'Realizar Pedido'}</Button>
         </div>
       </form>

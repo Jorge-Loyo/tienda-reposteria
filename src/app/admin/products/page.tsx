@@ -1,4 +1,3 @@
-// src/app/admin/products/page.tsx
 import { PrismaClient } from '@prisma/client';
 import Link from 'next/link';
 import ProductsTable from '@/components/ProductsTable';
@@ -16,7 +15,18 @@ async function getProducts(searchQuery: string | undefined) {
   const whereClause = searchQuery ? { name: { contains: searchQuery } } : {};
   try {
     const products = await prisma.product.findMany({
-      select: { id: true, name: true, priceUSD: true, stock: true, sku: true, createdAt: true, published: true, },
+      // Actualizamos la consulta para obtener los nuevos campos de la oferta
+      select: { 
+        id: true, 
+        name: true, 
+        priceUSD: true, 
+        stock: true, 
+        sku: true, 
+        createdAt: true, 
+        published: true,
+        isOfferActive: true, // Campo para saber si la oferta está activa
+        offerEndsAt: true,   // Campo para saber cuándo termina la oferta
+      },
       where: whereClause,
       orderBy: { createdAt: 'desc' },
     });
@@ -46,6 +56,7 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
       <div className="mb-6">
         <SearchInput />
       </div>
+      {/* Este componente ahora recibirá los datos de la oferta */}
       <ProductsTable products={products} />
     </div>
   );

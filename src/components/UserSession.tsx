@@ -1,4 +1,3 @@
-// src/components/UserSession.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -6,21 +5,28 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-// Definimos la forma de los datos del usuario que esperamos
+// Actualizamos la forma de los datos del usuario que esperamos
 interface User {
+  name: string | null; // Añadimos el nombre
   email: string;
   role: string;
 }
+
+// Icono de usuario
+const UserIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>
+    </svg>
+);
+
 
 export default function UserSession() {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
-  // Usamos useEffect para verificar el estado de la sesión cuando el componente se carga
   useEffect(() => {
     const checkSession = async () => {
       try {
-        // Hacemos una llamada a una API que nos dirá quién es el usuario actual
         const response = await fetch('/api/auth/me');
         if (response.ok) {
           const userData = await response.json();
@@ -28,9 +34,7 @@ export default function UserSession() {
         } else {
           setUser(null);
         }
-      } catch { // --- CORRECCIÓN APLICADA ---
-        // Si hay cualquier error (de red, etc.), asumimos que no hay sesión.
-        // No necesitamos el objeto de error, así que omitimos el parámetro.
+      } catch {
         setUser(null);
       }
     };
@@ -41,7 +45,6 @@ export default function UserSession() {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
       setUser(null);
-      // Redirigimos al inicio y refrescamos para asegurar que el estado se actualice en toda la app
       router.push('/');
       router.refresh();
     } catch (error) {
@@ -50,10 +53,14 @@ export default function UserSession() {
   };
 
   if (user) {
-    // Si hay un usuario, mostramos el saludo y el botón de cerrar sesión
+    // Si hay un usuario, mostramos el enlace al perfil y el botón de cerrar sesión
     return (
       <div className="flex items-center gap-4">
-        <span className="text-sm text-gray-600 hidden sm:inline">Hola, {user.email}</span>
+        <Link href="/perfil" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+          <UserIcon />
+          {/* Mostramos el nombre, y si no existe, el email como alternativa */}
+          <span className="hidden sm:inline">{user.name || user.email}</span>
+        </Link>
         <Button onClick={handleLogout} variant="outline" size="sm">
           Cerrar Sesión
         </Button>

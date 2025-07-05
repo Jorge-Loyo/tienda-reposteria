@@ -1,40 +1,45 @@
-// src/app/api/orders/route.ts
-
 import { PrismaClient, Prisma, Product } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-// Definimos interfaces claras para los datos que esperamos recibir
 interface CartItem {
   id: number;
   quantity: number;
 }
 
-// 1. Añadimos los nuevos campos a nuestra interfaz de datos del cliente
 interface CustomerData {
   name: string;
   email: string;
   address: string;
   identityCard: string;
   phone: string;
-  instagram?: string; // Lo hacemos opcional con '?'
+  instagram?: string;
+}
+
+// La petición ahora también recibirá el método de pago
+interface RequestBody {
+    customerData: CustomerData;
+    items: CartItem[];
+    paymentMethod: string;
 }
 
 export async function POST(request: Request) {
   try {
-    const { customerData, items }: { customerData: CustomerData; items: CartItem[] } = await request.json();
+    const { customerData, items, paymentMethod }: RequestBody = await request.json();
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "El carrito está vacío." }, { status: 400 });
+    }
+    
+    if (!paymentMethod) {
+        return NextResponse.json({ error: "El método de pago es requerido." }, { status: 400 });
     }
 
     const productIds = items.map((item) => item.id);
     
     const productsInDb = await prisma.product.findMany({
-      where: {
-        id: { in: productIds },
-      },
+      where: { id: { in: productIds } },
     });
 
     const productMap = new Map(productsInDb.map((p: Product) => [p.id, p]));
@@ -58,10 +63,10 @@ export async function POST(request: Request) {
           customerEmail: customerData.email,
           address: customerData.address,
           total: total,
-          // 2. Añadimos los nuevos campos aquí para que se guarden en la base de datos
           identityCard: customerData.identityCard,
           phone: customerData.phone,
           instagram: customerData.instagram,
+          paymentMethod: paymentMethod, // Guardamos el método de pago
         },
       });
 
@@ -80,11 +85,7 @@ export async function POST(request: Request) {
       for (const item of items) {
         await tx.product.update({
           where: { id: item.id },
-          data: {
-            stock: {
-              decrement: item.quantity,
-            },
-          },
+          data: { stock: { decrement: item.quantity } },
         });
       }
       return newOrder;

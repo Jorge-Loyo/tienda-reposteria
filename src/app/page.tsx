@@ -12,7 +12,7 @@ async function getFeaturedProducts() {
   try {
     const products = await prisma.product.findMany({
       where: { published: true }, take: 4, orderBy: { createdAt: 'desc' },
-      select: { id: true, name: true, priceUSD: true, imageUrl: true },
+      select: { id: true, name: true, priceUSD: true, imageUrl: true, stock: true },
     });
     return products;
   } catch (error) {

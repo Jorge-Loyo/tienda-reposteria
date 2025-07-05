@@ -33,7 +33,7 @@ export default async function RootLayout({
                 <div className="flex-shrink-0">
                   {/* Usando el color primario del tema */}
                   <Link href="/" className="text-2xl font-bold text-primary transition-colors">
-                    Casa Dulce
+                    Casa Dulce Oriente
                   </Link>
                 </div>
                 <nav className="hidden md:flex items-center gap-8">

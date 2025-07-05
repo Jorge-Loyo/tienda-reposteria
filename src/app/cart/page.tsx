@@ -8,8 +8,16 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { formatToVes } from '@/lib/currency';
 import { useCurrency } from '@/context/CurrencyContext';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-// --- Icono de Carga (Spinner) ---
+// --- Componentes de Iconos ---
 function LoadingSpinner() {
   return (
     <div className="flex justify-center items-center py-20">
@@ -21,39 +29,51 @@ function LoadingSpinner() {
   );
 }
 
-// --- Icono para el Carrito Vacío ---
 function EmptyCartIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-16 w-16 mx-auto text-gray-300 mb-4">
-            <circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-        </svg>
-    );
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-16 w-16 mx-auto text-gray-300 mb-4">
+        <circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+    </svg>
+  );
 }
 
-// --- Icono de Papelera para Eliminar ---
 function TrashIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+        <path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        <line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
+    </svg>
+  );
+}
+
+// --- Nuevo Icono para el botón de "Volver" ---
+function ArrowLeftIcon() {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-            <path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            <line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
+            <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
         </svg>
     );
 }
-
 
 export default function CartPage() {
-  const { items, removeFromCart, updateQuantity } = useCartStore();
+  const { items, removeFromCart, updateQuantity, setPaymentMethod: setCartPaymentMethod } = useCartStore();
   const router = useRouter();
   const { bcvRate } = useCurrency();
   const [isClient, setIsClient] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('');
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const totalUsd = items.reduce((acc, item) => acc + (Number(item.priceUSD) || 0) * (Number(item.quantity) || 0), 0);
+  const totalUsd = items.reduce((acc, item) => acc + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
   const totalVes = bcvRate ? totalUsd * bcvRate : null;
+
+  const handleCheckout = () => {
+    setCartPaymentMethod(paymentMethod);
+    router.push('/checkout');
+  };
 
   if (!isClient) {
     return (
@@ -78,43 +98,52 @@ export default function CartPage() {
   return (
     <div className="bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-gray-900 text-center mb-12">Tu Carrito de Compras</h1>
+            {/* --- MODIFICACIÓN: Se añade un botón de "Volver" y se ajusta el título --- */}
+            <div className="flex items-center gap-4 mb-12">
+                <Button variant="outline" size="icon" className="h-10 w-10 flex-shrink-0" onClick={() => router.back()}>
+                    <ArrowLeftIcon />
+                    <span className="sr-only">Volver</span>
+                </Button>
+                <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-gray-900">Tu Carrito de Compras</h1>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-12 lg:gap-x-12 lg:items-start">
-                {/* Lista de Productos */}
                 <section aria-labelledby="cart-heading" className="lg:col-span-8">
                     <h2 id="cart-heading" className="sr-only">Productos en tu carrito</h2>
                     <ul role="list" className="space-y-4">
-                        {items.map((product) => (
-                            <li key={product.id} className="flex p-4 bg-white rounded-lg shadow-sm items-start sm:items-center">
-                                <div className="h-24 w-24 sm:h-32 sm:w-32 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                                    <Image src={product.imageUrl || '/placeholder.png'} alt={product.name} width={128} height={128} className="h-full w-full object-cover object-center" />
-                                </div>
-                                <div className="ml-4 flex flex-1 flex-col justify-between self-stretch">
-                                    <div>
-                                        <div className="flex justify-between text-base font-medium text-gray-900">
-                                            <h3>{product.name}</h3>
-                                            <p className="ml-4">${((Number(product.priceUSD) || 0) * (Number(product.quantity) || 0)).toFixed(2)}</p>
-                                        </div>
-                                        <p className="mt-1 text-sm text-gray-500">${(Number(product.priceUSD) || 0).toFixed(2)} c/u</p>
+                        {items.map((product) => {
+                            const subtotal = (Number(product.price) || 0) * (Number(product.quantity) || 0);
+                            return (
+                                <li key={product.id} className="flex p-4 bg-white rounded-lg shadow-sm items-start sm:items-center">
+                                    <div className="h-24 w-24 sm:h-32 sm:w-32 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                                        <Image src={product.imageUrl || '/placeholder.png'} alt={product.name} width={128} height={128} className="h-full w-full object-cover object-center" />
                                     </div>
-                                    <div className="flex items-end justify-between text-sm">
-                                        <div className="flex items-center border border-gray-200 rounded-md">
-                                            <Button variant="ghost" size="icon" className="h-9 w-9 text-gray-600 hover:bg-gray-100" onClick={() => updateQuantity(product.id, product.quantity - 1)} disabled={product.quantity <= 1}>-</Button>
-                                            <span className="w-10 text-center text-gray-700 font-medium">{product.quantity}</span>
-                                            <Button variant="ghost" size="icon" className="h-9 w-9 text-gray-600 hover:bg-gray-100" onClick={() => updateQuantity(product.id, product.quantity + 1)}>+</Button>
+                                    <div className="ml-4 flex flex-1 flex-col justify-between self-stretch">
+                                        <div>
+                                            <div className="flex justify-between text-base font-medium text-gray-900">
+                                                <h3>{product.name}</h3>
+                                                <p className="ml-4">${subtotal.toFixed(2)}</p>
+                                            </div>
+                                            <p className="mt-1 text-sm text-gray-500">${(Number(product.price) || 0).toFixed(2)} c/u</p>
                                         </div>
-                                        <Button variant="ghost" className="text-red-500 hover:bg-red-50 hover:text-red-600 p-2" onClick={() => removeFromCart(product.id)}>
-                                            <TrashIcon />
-                                            <span className="sr-only">Eliminar</span>
-                                        </Button>
+                                        <div className="flex items-end justify-between text-sm">
+                                            <div className="flex items-center border border-gray-200 rounded-md">
+                                                <Button variant="ghost" size="icon" className="h-9 w-9 text-gray-600 hover:bg-gray-100" onClick={() => updateQuantity(product.id, product.quantity - 1)} disabled={product.quantity <= 1}>-</Button>
+                                                <span className="w-10 text-center text-gray-700 font-medium">{product.quantity}</span>
+                                                <Button variant="ghost" size="icon" className="h-9 w-9 text-gray-600 hover:bg-gray-100" onClick={() => updateQuantity(product.id, product.quantity + 1)}>+</Button>
+                                            </div>
+                                            <Button variant="ghost" className="text-red-500 hover:bg-red-50 hover:text-red-600 p-2" onClick={() => removeFromCart(product.id)}>
+                                                <TrashIcon />
+                                                <span className="sr-only">Eliminar</span>
+                                            </Button>
+                                        </div>
                                     </div>
-                                </div>
-                            </li>
-                        ))}
+                                </li>
+                            );
+                        })}
                     </ul>
                 </section>
 
-                {/* Resumen del Pedido */}
                 <section aria-labelledby="summary-heading" className="mt-16 rounded-lg bg-white p-6 shadow-sm lg:col-span-4 lg:mt-0 lg:sticky lg:top-24">
                     <h2 id="summary-heading" className="text-xl font-bold text-gray-900">Resumen del Pedido</h2>
                     <dl className="mt-6 space-y-4">
@@ -133,8 +162,27 @@ export default function CartPage() {
                             </div>
                         )}
                     </dl>
-                    <div className="mt-8">
-                        <Button onClick={() => router.push('/checkout')} className="w-full" size="lg">Proceder al Pago</Button>
+
+                    <div className="mt-8 space-y-2">
+                        <Label htmlFor="payment-method" className="text-base font-medium text-gray-900">Método de Pago</Label>
+                        <Select onValueChange={setPaymentMethod} value={paymentMethod}>
+                            <SelectTrigger id="payment-method">
+                                <SelectValue placeholder="Selecciona una opción" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="EFECTIVO_USD">Efectivo (Dólares)</SelectItem>
+                                <SelectItem value="EFECTIVO_BS">Efectivo (Bolívares)</SelectItem>
+                                <SelectItem value="ZELLE">Transferencia Zelle</SelectItem>
+                                <SelectItem value="BANESCO">Transferencia Banesco</SelectItem>
+                                <SelectItem value="BDV">Transferencia Banco de Venezuela</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="mt-6">
+                        <Button onClick={handleCheckout} className="w-full" size="lg" disabled={!paymentMethod}>
+                            Proceder al Pago
+                        </Button>
                     </div>
                     <div className="mt-4 text-center">
                         <Button variant="link" asChild><Link href="/tienda">o Seguir Comprando</Link></Button>
@@ -145,3 +193,4 @@ export default function CartPage() {
     </div>
   );
 }
+// --- Fin del Código ---
