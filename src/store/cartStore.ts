@@ -1,5 +1,5 @@
-// src/store/cartStore.ts
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware'; // 1. Importamos el middleware 'persist'
 
 export interface CartItem {
   id: number;
@@ -9,7 +9,6 @@ export interface CartItem {
   quantity: number;
 }
 
-// 1. Se actualiza la "forma" de la función addToCart para aceptar dos argumentos
 interface CartState {
   items: CartItem[];
   addToCart: (item: Omit<CartItem, 'quantity'>, quantity: number) => void;
@@ -18,30 +17,36 @@ interface CartState {
   clearCart: () => void;
 }
 
-export const useCartStore = create<CartState>((set) => ({
-  items: [],
-  // 2. Se actualiza la lógica de la función para usar el segundo argumento 'quantityToAdd'
-  addToCart: (product, quantityToAdd) => set((state) => {
-    const existingItem = state.items.find((item) => item.id === product.id);
+// 2. Envolvemos nuestra definición del store con el middleware 'persist'
+export const useCartStore = create<CartState>()(
+  persist(
+   (set) => ({
+      items: [],
+      addToCart: (product, quantityToAdd) => set((state) => {
+       const existingItem = state.items.find((item) => item.id === product.id);
 
-    if (existingItem) {
-      // Si el producto ya existe, sumamos la nueva cantidad a la que ya tenía
-      const updatedItems = state.items.map((item) =>
-        item.id === product.id ? { ...item, quantity: item.quantity + quantityToAdd } : item
-      );
-      return { items: updatedItems };
-    } else {
-      // Si es un producto nuevo, lo agregamos al carrito con la cantidad especificada
-      return { items: [...state.items, { ...product, quantity: quantityToAdd }] };
+        if (existingItem) {
+          const updatedItems = state.items.map((item) =>
+            item.id === product.id ? { ...item, quantity: item.quantity + quantityToAdd } : item
+          );
+         return { items: updatedItems };
+       } else {
+        return { items: [...state.items, { ...product, quantity: quantityToAdd }] };
+       }
+      }),
+     removeFromCart: (itemId) => set((state) => ({
+        items: state.items.filter((item) => item.id !== itemId),
+      })),
+      updateQuantity: (itemId, quantity) => set((state) => ({
+       items: state.items.map((item) =>
+       item.id === itemId ? { ...item, quantity } : item
+     ).filter(item => item.quantity > 0), // Mantenemos esta lógica para eliminar si la cantidad es 0
+     })),
+    clearCart: () => set({ items: [] }),
+}),
+    {
+      // 3. Opciones de configuración para la persistencia
+     name: 'cart-storage', // Nombre de la clave que se usará en localStorage
     }
-  }),
-  removeFromCart: (itemId) => set((state) => ({
-    items: state.items.filter((item) => item.id !== itemId),
-  })),
-  updateQuantity: (itemId, quantity) => set((state) => ({
-    items: state.items.map((item) =>
-      item.id === itemId ? { ...item, quantity } : item
-    ).filter(item => item.quantity > 0),
-  })),
-  clearCart: () => set({ items: [] }),
-}));
+  )
+);

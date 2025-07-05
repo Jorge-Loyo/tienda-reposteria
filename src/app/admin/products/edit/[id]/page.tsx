@@ -23,6 +23,14 @@ async function getProduct(id: number) {
   }
 }
 
+// Esta función obtiene todas las categorías
+async function getCategories() {
+    return prisma.category.findMany({
+        orderBy: { name: 'asc' },
+    });
+}
+
+
 // La página recibe los 'params' de la URL, que incluyen el ID dinámico
 export default async function EditProductPage({ params }: { params: { id: string } }) {
   const productId = Number(params.id);
@@ -31,8 +39,11 @@ export default async function EditProductPage({ params }: { params: { id: string
     notFound();
   }
   
-  // Se obtienen los datos del producto desde la base de datos
-  const productFromDb = await getProduct(productId);
+  // Se obtienen los datos del producto y las categorías al mismo tiempo
+  const [productFromDb, categories] = await Promise.all([
+    getProduct(productId),
+    getCategories(),
+  ]);
 
   // Se adaptan los datos para el formulario:
   // Se convierte cualquier valor 'null' en un string vacío '' para evitar errores de tipo.
@@ -44,14 +55,15 @@ export default async function EditProductPage({ params }: { params: { id: string
     stock: productFromDb.stock,
     sku: productFromDb.sku ?? '',
     imageUrl: productFromDb.imageUrl ?? '',
+    categoryId: productFromDb.categoryId,
   };
 
   return (
     // Se utiliza el mismo layout ancho que en la página de "Crear Nuevo Producto"
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-bold text-center mb-10">Editar Producto</h1>
-      {/* Se renderiza el componente del formulario, pasándole los datos iniciales del producto */}
-      <ProductForm initialData={initialDataForForm} />
+      {/* Se renderiza el componente del formulario, pasándole los datos iniciales y la lista de categorías */}
+      <ProductForm initialData={initialDataForForm} categories={categories} />
     </div>
   );
 }

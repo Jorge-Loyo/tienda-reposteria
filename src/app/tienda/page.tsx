@@ -1,49 +1,69 @@
 // src/app/tienda/page.tsx
 import { PrismaClient } from '@prisma/client';
 import ProductCard from '@/components/ProductCard';
-import { getBcvRate } from '@/lib/currency'; // Importamos la utilidad de la tasa
+import { getBcvRate } from '@/lib/currency';
+import CategoryFilter from '@/components/CategoryFilter';
 
 const prisma = new PrismaClient();
 
-async function getProducts() {
+async function getProducts(categoryName?: string) {
   try {
+    const whereClause = categoryName
+      ? { published: true, category: { name: categoryName } }
+      : { published: true };
+
     const products = await prisma.product.findMany({
-      where: { published: true },
-      select: { id: true, name: true, priceUSD: true, imageUrl: true, },
+      where: whereClause,
       orderBy: { createdAt: 'desc' },
+      select: { id: true, name: true, priceUSD: true, imageUrl: true },
     });
     return products;
   } catch (error) {
-    console.error("Error al obtener los productos para la tienda:", error);
+    console.error("Error al obtener productos:", error);
     return [];
   }
 }
 
-export default async function TiendaPage() {
-  // Obtenemos los productos Y la tasa de cambio aquí, una sola vez.
-  // Promise.all ejecuta ambas tareas en paralelo para mayor eficiencia.
-  const [products, bcvRate] = await Promise.all([
-    getProducts(),
-    getBcvRate()
+async function getCategories() {
+  try {
+    return await prisma.category.findMany({ orderBy: { name: 'asc' } });
+  } catch (error) {
+    console.error("Error al obtener categorías:", error);
+    return [];
+  }
+}
+
+export default async function TiendaPage({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
+  const category = typeof searchParams?.category === 'string' ? searchParams.category : undefined;
+  
+  const [products, categories, bcvRate] = await Promise.all([
+    getProducts(category),
+    getCategories(),
+    getBcvRate(),
   ]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <header className="py-12 text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900">Nuestro Catálogo</h1>
-        <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
-          Descubre todos los insumos que tenemos para tus creaciones.
-        </p>
-      </header>
+      <h1 className="text-4xl font-extrabold text-gray-900 mb-8">Nuestra Tienda</h1>
       
-      {products.length === 0 ? (
-        <p className="text-center text-gray-500 py-20">No hay productos disponibles en este momento.</p>
-      ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 pb-20">
+      <CategoryFilter categories={categories} />
+
+      {products.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.map((product) => (
-            // Le pasamos la tasa obtenida a cada tarjeta de producto
             <ProductCard key={product.id} product={product} bcvRate={bcvRate} />
           ))}
+        </div>
+      ) : (
+        <div className="text-center py-16">
+          <h2 className="text-2xl font-semibold text-gray-700">No se encontraron productos</h2>
+          <p className="text-gray-500 mt-2">
+            Intenta con otra categoría o vuelve a revisar más tarde.
+          </p>
         </div>
       )}
     </div>

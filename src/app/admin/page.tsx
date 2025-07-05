@@ -3,17 +3,16 @@
 import { PrismaClient } from '@prisma/client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { getBcvRate} from '@/lib/currency'; // 1. Importamos nuestra utilidad de tasa de cambio
+import { getBcvRate } from '@/lib/currency';
 
 const prisma = new PrismaClient();
 
 async function getDashboardData() {
-  // 2. Añadimos getBcvRate a nuestro Promise.all para obtener todo en paralelo
   const [productCount, orderCount, totalRevenue, bcvRate] = await Promise.all([
     prisma.product.count(),
     prisma.order.count(),
     prisma.order.aggregate({ _sum: { total: true } }),
-    getBcvRate(), // Se obtiene la tasa de cambio aquí
+    getBcvRate(),
   ]);
 
   const recentOrders = await prisma.order.findMany({
@@ -21,7 +20,6 @@ async function getDashboardData() {
     orderBy: { createdAt: 'desc' },
   });
 
-  // 3. Devolvemos la tasa junto con los otros datos
   return {
     productCount,
     orderCount,
@@ -48,13 +46,11 @@ export default async function AdminDashboardPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Dashboard</h1>
-
-      {/* 4. Actualizamos el grid para que acepte 4 columnas en pantallas grandes */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-12">
         <StatCard title="Ingresos Totales" value={`$${data.totalRevenue.toFixed(2)}`} />
         <StatCard title="Total de Pedidos" value={data.orderCount} />
         <StatCard title="Total de Productos" value={data.productCount} />
-        {/* 5. Nueva tarjeta para la tasa de cambio */}
         <StatCard 
           title="Tasa de Cambio (BCV)" 
           value={data.bcvRate ? `${data.bcvRate.toFixed(4)} Bs.` : 'No Disponible'}
@@ -62,12 +58,21 @@ export default async function AdminDashboardPage() {
         />
       </div>
 
+      {/* --- SECCIÓN DE BOTONES DE GESTIÓN --- */}
+      <div className="flex justify-start gap-4 mb-8">
+          <Button asChild>
+              <Link href="/admin/products">Gestionar Productos</Link>
+          </Button>
+          {/* --- NUEVO BOTÓN PARA CATEGORÍAS --- */}
+          <Button variant="outline" asChild>
+              <Link href="/admin/categories">Gestionar Categorías</Link>
+          </Button>
+      </div>
+
+
       <div className="mt-12">
         <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-gray-900">Últimos Pedidos</h2>
-            <Button variant="outline" asChild>
-                <Link href="/admin/products">Gestionar Productos</Link>
-            </Button>
         </div>
         <div className="overflow-x-auto shadow-md rounded-lg">
           <table className="min-w-full bg-white">

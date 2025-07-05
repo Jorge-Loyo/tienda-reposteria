@@ -1,6 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-// prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,18 +10,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// El bloque `enum Role` se ha eliminado porque no es compatible con SQLite.
-// El campo 'role' en el modelo User ya es un String, lo cual es correcto.
+// Modelo para Categorías
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
+}
 
-// 2. Se añade el nuevo modelo para los usuarios
 model User {
   id                   Int       @id @default(autoincrement())
   email                String    @unique
   password             String
   role                 String    @default("ORDERS_USER")
   createdAt            DateTime  @default(now())
-  passwordResetToken   String?   @unique // Token único para el reseteo
-  passwordResetExpires DateTime? // Fecha en la que el token expira
+  passwordResetToken   String?   @unique
+  passwordResetExpires DateTime?
 }
 
 model Product {
@@ -37,6 +40,10 @@ model Product {
   updatedAt   DateTime @updatedAt
 
   orderItems OrderItem[]
+
+  // Relación con Categoría
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
 }
 
 model Order {
@@ -45,9 +52,9 @@ model Order {
   customerName  String
   customerEmail String
   address       String?
-  identityCard  String? // Cédula, opcional por si acaso
-  phone         String? // Teléfono, opcional
-  instagram     String? // Instagram, opcional
+  identityCard  String?
+  phone         String?
+  instagram     String?
   status        String      @default("PENDIENTE_DE_PAGO")
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
