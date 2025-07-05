@@ -1,22 +1,22 @@
-// next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
-      // 1. Dominio que ya teníamos para Cloudinary
+      // Dominio para las imágenes de productos (Cloudinary)
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
-        port: '',
-        pathname: '/**', // Permite cualquier ruta dentro de ese hostname
       },
-      // 2. Añadimos el nuevo dominio para los mapas estáticos
+      // Dominio para las imágenes de la página de inicio (Unsplash)
       {
         protocol: 'https',
-        hostname: 'staticmap.openstreetmap.de',
-        port: '',
-        pathname: '/**',
+        hostname: 'images.unsplash.com',
       },
+      // Dominio para los mapas estáticos (Google Maps)
+      {
+          protocol: 'https',
+          hostname: 'maps.googleapis.com',
+      }
     ],
   },
 };

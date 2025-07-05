@@ -20,7 +20,6 @@ const paymentMethodNames: { [key: string]: string } = {
 };
 
 export default function CheckoutPage() {
-  // Obtenemos el método de pago del store del carrito
   const { items, clearCart, paymentMethod } = useCartStore();
   const router = useRouter();
   const { bcvRate } = useCurrency();
@@ -30,14 +29,12 @@ export default function CheckoutPage() {
   const [locationMessage, setLocationMessage] = useState('');
   const [mapImageUrl, setMapImageUrl] = useState<string | null>(null);
 
-  // useEffect para cargar los datos del usuario si tiene sesión iniciada
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const response = await fetch('/api/auth/me');
         if (response.ok) {
           const userData = await response.json();
-          // Rellenamos el formulario con los datos del perfil del usuario
           setCustomerData(prev => ({
             ...prev,
             name: userData.name || '',
@@ -53,16 +50,16 @@ export default function CheckoutPage() {
     };
 
     fetchUserData();
-  }, []); // El array vacío asegura que se ejecute solo una vez al montar el componente
+  }, []);
 
-  const totalUsd = items.reduce((acc, item) => acc + (Number(item.priceUSD) || 0) * (Number(item.quantity) || 0), 0);
+  // CORRECCIÓN: Se cambia 'item.priceUSD' por 'item.price' para calcular el total.
+  const totalUsd = items.reduce((acc, item) => acc + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
   const totalVes = bcvRate ? totalUsd * bcvRate : null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setCustomerData({ ...customerData, [e.target.name]: e.target.value });
   };
   
-  // La lógica de geolocalización no cambia
   const handleGetLocation = () => {
     if (navigator.geolocation) {
       setLocationMessage('Obteniendo ubicación...');
@@ -94,7 +91,6 @@ export default function CheckoutPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // Incluimos el método de pago en los datos que se envían para crear la orden
       const response = await fetch('/api/orders', { 
           method: 'POST', 
           headers: { 'Content-Type': 'application/json' }, 
@@ -144,12 +140,12 @@ export default function CheckoutPage() {
         <div className="bg-gray-50 p-6 rounded-lg self-start">
           <h2 className="text-xl font-semibold">Resumen de tu Pedido</h2>
           <div className="mt-4 space-y-2">
-            {items.map(item => ( <div key={item.id} className="flex justify-between text-sm"><span>{item.name} x {item.quantity}</span><span>${(item.priceUSD * item.quantity).toFixed(2)}</span></div> ))}
+            {/* CORRECCIÓN: Se usa 'item.price' para mostrar el subtotal de cada producto */}
+            {items.map(item => ( <div key={item.id} className="flex justify-between text-sm"><span>{item.name} x {item.quantity}</span><span>${(item.price * item.quantity).toFixed(2)}</span></div> ))}
           </div>
           <div className="border-t mt-4 pt-4 flex justify-between font-bold text-lg"><span>Total (USD)</span><span>${totalUsd.toFixed(2)}</span></div>
           {totalVes && (<div className="flex items-center justify-between text-sm text-gray-600 pt-2"><p className="font-medium">Total Aprox. (Bs.)</p><p className="font-medium">{formatToVes(totalVes)}</p></div>)}
           
-          {/* Mostramos el método de pago seleccionado */}
           <div className="border-t mt-4 pt-4">
             <h3 className="text-sm font-medium text-gray-500">Método de Pago</h3>
             <p className="text-sm font-semibold text-gray-900">{paymentMethodNames[paymentMethod] || 'No seleccionado'}</p>
