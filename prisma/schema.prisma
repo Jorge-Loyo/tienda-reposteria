@@ -53,19 +53,20 @@ model Product {
 }
 
 model Order {
-  id            Int         @id @default(autoincrement())
-  total         Float
-  customerName  String
-  customerEmail String
-  address       String?
-  identityCard  String?
-  phone         String?
-  instagram     String?
-  paymentMethod String?
-  status        String      @default("PENDIENTE_DE_PAGO")
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  items         OrderItem[]
+  id                     Int         @id @default(autoincrement())
+  total                  Float
+  customerName           String
+  customerEmail          String
+  address                String?
+  identityCard           String?
+  phone                  String?
+  instagram              String?
+  paymentMethod          String?
+  shippingZoneIdentifier String?
+  status                 String      @default("PENDIENTE_DE_PAGO")
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+  items                  OrderItem[]
 }
 
 model OrderItem {
@@ -76,4 +77,12 @@ model OrderItem {
   orderId   Int
   product   Product @relation(fields: [productId], references: [id])
   productId Int
+}
+
+model ShippingZone {
+  id                    Int    @id @default(autoincrement())
+  identifier            String @unique // e.g., BARCELONA, PUERTO_LA_CRUZ
+  name                  String // e.g., Barcelona, Puerto la Cruz
+  cost                  Float  @default(0)
+  freeShippingThreshold Float?
 }
