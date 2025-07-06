@@ -5,6 +5,7 @@ import ProductCard from '@/components/ProductCard';
 import { getBcvRate } from '@/lib/currency';
 import { Truck, Clock, ShieldCheck, Target, Eye, Gem } from 'lucide-react';
 import Image from 'next/image';
+import HomeBanner from '@/components/HomeBanner';
 
 const prisma = new PrismaClient();
 
@@ -54,7 +55,6 @@ async function getFeaturedProducts() {
 function FeatureCard({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) {
   return (
     <div className="text-center p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-      {/* CORRECCIÓN: Se cambia el color del icono a verde */}
       <div className="flex justify-center items-center mb-4 text-green-600">
         {icon}
       </div>
@@ -70,29 +70,27 @@ export default async function HomePage() {
     getBcvRate()
   ]);
 
+  const bannerImages = [
+    {
+        src: 'https://images.unsplash.com/photo-1558326567-98ae2405596b?q=80&w=2070&auto=format&fit=crop',
+        alt: 'Banner de macarons coloridos',
+        title: 'El Arte de la Repostería Comienza Aquí',
+        subtitle: 'Encuentra todos los insumos de la más alta calidad para que tus creaciones sean inolvidables.',
+        buttonText: 'Explorar Catálogo',
+        buttonLink: '/tienda',
+    },
+    {
+        // CORRECCIÓN: Se eliminan las propiedades de texto y botón para que solo se muestre la imagen.
+        src: 'https://res.cloudinary.com/dnc0btnuv/image/upload/v1751761965/Copia_de_Azul_y_Blanco_Corporativo_Tradicional_Descripcio%CC%81n_General_del_Proyecto_o_Documento_de_una_pa%CC%81gina_Profesional_Banner_para_Docs_c8phpx.jpg', 
+        alt: 'Banner de empresas que confían en nosotros',
+    }
+  ];
+
   return (
     <div>
-      {/* --- Sección de Héroe (Banner) --- */}
-      <section className="relative h-[60vh] min-h-[400px] flex items-center justify-center text-center text-white bg-gray-800">
-        <div 
-          className="absolute inset-0 bg-cover bg-center z-0" 
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1558326567-98ae2405596b?q=80&w=2070&auto=format&fit=crop')" }}>
-          <div className="absolute inset-0 bg-black opacity-50"></div>
-        </div>
-        <div className="relative z-10 p-4">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4 drop-shadow-lg">
-            El Arte de la Repostería Comienza Aquí
-          </h1>
-          <p className="max-w-2xl mx-auto text-lg text-gray-200 mb-8 drop-shadow-md">
-            Encuentra todos los insumos de la más alta calidad para que tus creaciones sean inolvidables.
-          </p>
-          <Button asChild size="lg">
-            <Link href="/tienda">Explorar Catálogo</Link>
-          </Button>
-        </div>
-      </section>
+      <HomeBanner images={bannerImages} />
 
-      {/* --- Sección de Productos Destacados --- */}
+      {/* --- El resto de tu página de inicio --- */}
       <section className="py-16 sm:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
@@ -114,8 +112,7 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* --- Sección: Nuestras Ventajas --- */}
+      
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
@@ -135,7 +132,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* --- SECCIÓN: Quiénes Somos --- */}
       <section className="py-16 sm:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -160,7 +156,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* --- SECCIÓN: Misión, Visión y Valores --- */}
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -176,7 +171,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }
