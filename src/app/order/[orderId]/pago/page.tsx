@@ -27,10 +27,9 @@ function BanescoInstructions() {
       <p className="mb-4">Por favor, realiza la transferencia a la siguiente cuenta y envía el comprobante a nuestro WhatsApp.</p>
       <div className="bg-gray-100 p-4 rounded-md space-y-1">
         <p><strong>Banco:</strong> Banesco</p>
-        <p><strong>Cédula:</strong> V-12.345.678</p>
-        <p><strong>Nº de Cuenta:</strong> 0134-XXXX-XX-XXXXXXXXXX</p>
-        <p><strong>Teléfono:</strong> 0412-1234567</p>
-        <p><strong>Nombre:</strong> Nombre del Titular</p>
+        <p><strong>RIF:</strong> J-502235345</p>
+          <p><strong>Teléfono:</strong> 0424-8536954</p>
+          <p><strong>Nombre:</strong> MERCIALIZADORA CASA DULCE ORIENTE</p>
       </div>
     </div>
   );
@@ -43,10 +42,9 @@ function BDVInstructions() {
         <p className="mb-4">Por favor, realiza la transferencia a la siguiente cuenta y envía el comprobante a nuestro WhatsApp.</p>
         <div className="bg-gray-100 p-4 rounded-md space-y-1">
           <p><strong>Banco:</strong> Banco de Venezuela</p>
-          <p><strong>Cédula:</strong> V-12.345.678</p>
-          <p><strong>Nº de Cuenta:</strong> 0102-XXXX-XX-XXXXXXXXXX</p>
-          <p><strong>Teléfono:</strong> 0412-1234567</p>
-          <p><strong>Nombre:</strong> Nombre del Titular</p>
+          <p><strong>RIF:</strong> J-502235345</p>
+          <p><strong>Teléfono:</strong> 0424-8536954</p>
+          <p><strong>Nombre:</strong> MERCIALIZADORA CASA DULCE ORIENTE</p>
         </div>
       </div>
     );
