@@ -17,6 +17,7 @@ export interface UpdateProfileState {
     instagram?: string[];
     phoneNumber?: string[];
     address?: string[];
+    identityCard?: string[];
   } | null;
 }
 
@@ -36,6 +37,7 @@ const profileSchema = z.object({
   instagram: z.string().optional(),
   phoneNumber: z.string().optional(),
   address: z.string().optional(),
+  identityCard: z.string().optional(),
 });
 
 const passwordSchema = z.object({
@@ -69,7 +71,7 @@ export async function updateProfile(
             };
         }
         
-        const { name, instagram, phoneNumber, address } = validatedFields.data;
+        const { name, instagram, phoneNumber, address, identityCard } = validatedFields.data;
 
         await prisma.user.update({
             where: { id: session.userId },
@@ -77,7 +79,8 @@ export async function updateProfile(
                 name,
                 instagram,
                 phoneNumber,
-                address
+                address,
+                identityCard,
             },
         });
 
@@ -96,6 +99,7 @@ export async function changePassword(
   prevState: ChangePasswordState,
   formData: FormData
 ): Promise<ChangePasswordState> {
+  // ... (código sin cambios)
   try {
     const session = await getSessionData();
     if (!session?.userId) {
@@ -139,23 +143,5 @@ export async function changePassword(
   } catch (error) {
     console.error("Error al cambiar la contraseña:", error);
     return { success: false, message: "Ocurrió un error en el servidor.", errors: null };
-  }
-}
-// --- Acción para Eliminar la Cuenta (Sin cambios) ---
-export async function deleteAccount(): Promise<{ success: boolean; message: string }> {
-  try {
-    const session = await getSessionData();
-    if (!session?.userId) {
-      return { success: false, message: "No estás autenticado." };
-    }
-
-    await prisma.user.delete({ where: { id: session.userId } });
-
-    revalidatePath('/login');
-    return { success: true, message: "Cuenta eliminada con éxito." };
-
-  } catch (error) {
-    console.error("Error al eliminar la cuenta:", error);
-    return { success: false, message: "Ocurrió un error en el servidor." };
   }
 }

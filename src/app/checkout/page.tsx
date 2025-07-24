@@ -1,3 +1,4 @@
+//src/app/checkout/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -20,7 +21,8 @@ const paymentMethodNames: { [key: string]: string } = {
 };
 
 export default function CheckoutPage() {
-  const { items, clearCart, paymentMethod } = useCartStore();
+  // 1. Obtenemos los datos completos del resumen del pedido desde el store
+  const { items, clearCart, paymentMethod, shippingCost, grandTotal, shippingZone } = useCartStore();
   const router = useRouter();
   const { bcvRate } = useCurrency();
 
@@ -42,6 +44,7 @@ export default function CheckoutPage() {
             instagram: userData.instagram || '',
             phone: userData.phoneNumber || '',
             address: userData.address || '',
+            identityCard: userData.identityCard || '',
           }));
         }
       } catch (error) {
@@ -52,9 +55,10 @@ export default function CheckoutPage() {
     fetchUserData();
   }, []);
 
-  // CORRECCIÓN: Se cambia 'item.priceUSD' por 'item.price' para calcular el total.
-  const totalUsd = items.reduce((acc, item) => acc + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
-  const totalVes = bcvRate ? totalUsd * bcvRate : null;
+  // 2. Calculamos el subtotal solo de los productos
+  const subtotal = items.reduce((acc, item) => acc + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
+  // El total en Bolívares ahora se basa en el 'grandTotal'
+  const totalVes = bcvRate ? grandTotal * bcvRate : null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setCustomerData({ ...customerData, [e.target.name]: e.target.value });
@@ -91,10 +95,18 @@ export default function CheckoutPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
+      // 3. Nos aseguramos de enviar el 'grandTotal' correcto a la API
       const response = await fetch('/api/orders', { 
           method: 'POST', 
           headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify({ customerData, items, paymentMethod }), 
+          body: JSON.stringify({ 
+              customerData, 
+              items, 
+              paymentMethod,
+              shippingZone,
+              shippingCost,
+              total: grandTotal // Enviamos el total final
+          }), 
       });
       const order = await response.json();
       if (!response.ok) { throw new Error(order.error || 'Error al crear el pedido'); }
@@ -140,11 +152,29 @@ export default function CheckoutPage() {
         <div className="bg-gray-50 p-6 rounded-lg self-start">
           <h2 className="text-xl font-semibold">Resumen de tu Pedido</h2>
           <div className="mt-4 space-y-2">
-            {/* CORRECCIÓN: Se usa 'item.price' para mostrar el subtotal de cada producto */}
             {items.map(item => ( <div key={item.id} className="flex justify-between text-sm"><span>{item.name} x {item.quantity}</span><span>${(item.price * item.quantity).toFixed(2)}</span></div> ))}
           </div>
-          <div className="border-t mt-4 pt-4 flex justify-between font-bold text-lg"><span>Total (USD)</span><span>${totalUsd.toFixed(2)}</span></div>
-          {totalVes && (<div className="flex items-center justify-between text-sm text-gray-600 pt-2"><p className="font-medium">Total Aprox. (Bs.)</p><p className="font-medium">{formatToVes(totalVes)}</p></div>)}
+          {/* 4. Resumen de precios actualizado */}
+          <dl className="border-t mt-4 pt-4 space-y-2">
+            <div className="flex justify-between text-sm">
+                <dt className="text-gray-600">Subtotal</dt>
+                <dd className="text-gray-900">${subtotal.toFixed(2)}</dd>
+            </div>
+            <div className="flex justify-between text-sm">
+                <dt className="text-gray-600">Envío</dt>
+                <dd className="text-gray-900">${shippingCost.toFixed(2)}</dd>
+            </div>
+            <div className="flex justify-between font-bold text-lg pt-2">
+                <dt>Total (USD)</dt>
+                <dd>${grandTotal.toFixed(2)}</dd>
+            </div>
+            {totalVes && (
+                <div className="flex justify-between text-sm text-gray-600">
+                    <dt>Total (Bs.)</dt>
+                    <dd>{formatToVes(totalVes)}</dd>
+                </div>
+            )}
+          </dl>
           
           <div className="border-t mt-4 pt-4">
             <h3 className="text-sm font-medium text-gray-500">Método de Pago</h3>

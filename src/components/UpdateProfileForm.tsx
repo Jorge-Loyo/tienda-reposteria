@@ -5,7 +5,7 @@ import { updateProfile, UpdateProfileState } from '@/app/perfil/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea'; // Usaremos un Textarea para la dirección
+import { Textarea } from '@/components/ui/textarea';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -16,7 +16,7 @@ function SubmitButton() {
   );
 }
 
-// Se actualiza la interfaz para que coincida con los datos del usuario
+// Se actualiza la interfaz para recibir el nuevo campo de cédula
 interface UpdateProfileFormProps {
     user: {
         name: string | null;
@@ -24,6 +24,7 @@ interface UpdateProfileFormProps {
         instagram: string | null;
         phoneNumber: string | null;
         address: string | null;
+        identityCard: string | null;
     }
 }
 
@@ -45,11 +46,18 @@ export default function UpdateProfileForm({ user }: UpdateProfileFormProps) {
               {state.errors?.name && <p className="text-red-500 text-xs mt-1">{state.errors.name[0]}</p>}
             </div>
 
-            {/* Correo (no editable) */}
+            {/* Cédula de Identidad */}
             <div>
-              <Label htmlFor="email">Correo Electrónico</Label>
-              <Input id="email" name="email" value={user.email} disabled className="bg-gray-100"/>
+              <Label htmlFor="identityCard">Cédula de Identidad</Label>
+              <Input id="identityCard" name="identityCard" defaultValue={user.identityCard ?? ''} placeholder="V-12345678" />
+              {state.errors?.identityCard && <p className="text-red-500 text-xs mt-1">{state.errors.identityCard[0]}</p>}
             </div>
+        </div>
+
+        {/* Correo (no editable) */}
+        <div>
+            <Label htmlFor="email">Correo Electrónico</Label>
+            <Input id="email" name="email" value={user.email} disabled className="bg-gray-100"/>
         </div>
 
         {/* Instagram */}

@@ -14,8 +14,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Role } from '@prisma/client';
+// 1. Importamos el tipo 'Role' que definimos en la página principal de usuarios
+import type { Role } from '@/app/admin/users/page';
 
+// Mapeo de roles a nombres más amigables
+const roleNames: Record<Role, string> = {
+    ADMIN: 'Administrador',
+    ORDERS_USER: 'Usuario de Pedidos',
+    CLIENT: 'Cliente',
+    CLIENT_VIP: 'Cliente VIP',
+};
+
+// 2. Usamos el tipo 'Role' importado para definir la forma de los datos del usuario
 interface UserData {
   email: string;
   role: Role;
@@ -85,8 +95,8 @@ export default function EditUserPage() {
   return (
     <div className="max-w-xl mx-auto px-4 py-12">
        <Button variant="outline" size="sm" asChild className="mb-8">
-          <Link href="/admin/users">‹ Volver a gestión de usuarios</Link>
-        </Button>
+         <Link href="/admin/users">‹ Volver a gestión de usuarios</Link>
+       </Button>
       <h1 className="text-3xl font-bold mb-6">Editar Usuario</h1>
       {user && (
         <form onSubmit={handleSubmit} className="p-6 bg-white rounded-lg shadow-md border space-y-4">
@@ -101,8 +111,12 @@ export default function EditUserPage() {
                 <SelectValue placeholder="Seleccionar rol" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ADMIN">Administrador</SelectItem>
-                <SelectItem value="ORDERS_USER">Usuario de Pedidos</SelectItem>
+                {/* 3. Generamos las opciones del menú dinámicamente */}
+                {Object.keys(roleNames).map((roleKey) => (
+                    <SelectItem key={roleKey} value={roleKey}>
+                        {roleNames[roleKey as Role]}
+                    </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

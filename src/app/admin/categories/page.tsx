@@ -34,22 +34,33 @@ async function getCategories() {
 
 export default function AdminCategoriesPage() {
   return (
-    <>
-      <div className="flex justify-between items-center gap-4">
-        <PageHeader>Categorías</PageHeader>
+    // --- CONTENEDOR PRINCIPAL AÑADIDO ---
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="flex justify-between items-center gap-4 mb-8">
+        {/* Botón de Volver a la izquierda */}
+        <Button variant="outline" asChild>
+            <Link href="/admin">Volver</Link>
+        </Button>
+
+        {/* Título centrado */}
+        <div className="flex-grow text-center">
+            <PageHeader>Categorías</PageHeader>
+        </div>
+
+        {/* Botón de Añadir Categoría a la derecha */}
         <Button asChild>
-          <Link href="/admin/categories/new">Añadir Categoría</Link>
+            <Link href="/admin/categories/new">Añadir Categoría</Link>
         </Button>
       </div>
       <CategoriesTable />
-    </>
+    </div>
   )
 }
 
 async function CategoriesTable() {
   const categories = await getCategories()
 
-  if (categories.length === 0) return <p>No se encontraron categorías.</p>
+  if (categories.length === 0) return <p className="text-center mt-8">No se encontraron categorías.</p>
 
   return (
     <Table>

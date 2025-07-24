@@ -6,7 +6,7 @@ import UpdateProfileForm from '@/components/UpdateProfileForm';
 
 const prisma = new PrismaClient();
 
-// --- Iconos para el Menú ---
+// Iconos para el menú
 const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
 const ShoppingBagIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>;
 const LayoutDashboardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>;
@@ -22,6 +22,7 @@ export default async function ProfilePage() {
     redirect('/login');
   }
 
+  // Se actualiza la consulta para obtener el nuevo campo de cédula
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
     select: { 
@@ -30,7 +31,8 @@ export default async function ProfilePage() {
         role: true,
         instagram: true,
         phoneNumber: true,
-        address: true
+        address: true,
+        identityCard: true,
     },
   });
 
@@ -48,23 +50,12 @@ export default async function ProfilePage() {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h2 className="text-lg font-semibold mb-4">Navegación</h2>
               <nav className="space-y-2">
-                <a href="/" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md">
-                  <HomeIcon /> Inicio
-                </a>
                 <a href="/perfil" className="flex items-center gap-3 px-3 py-2 bg-gray-100 text-gray-900 rounded-md font-medium">
                   <UserIcon /> Mi Perfil
                 </a>
                 <a href="/pedidos" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md">
                   <ShoppingBagIcon /> Mis Pedidos
                 </a>
-                <a href="/envios" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md">
-                  <TruckIcon /> Envíos
-                </a>
-                <a href="/club" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md">
-                  <StarIcon /> Casa Dulce Club
-                </a>
-
-                {/* Menú condicional para administradores */}
                 {user.role === 'ADMIN' && (
                   <>
                     <div className="pt-2 mt-2 border-t">
@@ -74,7 +65,7 @@ export default async function ProfilePage() {
                       <a href="/admin/orders" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md">
                         <ShoppingBagIcon /> Órdenes
                       </a>
-                      {/* Se elimina el evento onClick para evitar el error en componentes de servidor */}
+                      
                       <a href="#" className="flex items-center gap-3 px-3 py-2 text-gray-400 rounded-md cursor-not-allowed">
                         <LayoutDashboardIcon /> Dashboard
                       </a>
@@ -86,6 +77,7 @@ export default async function ProfilePage() {
           </aside>
 
           <main className="md:col-span-2 space-y-8">
+            {/* Se pasan los datos del usuario, incluyendo la cédula, al formulario */}
             <UpdateProfileForm user={user} />
 
             <div className="bg-white p-6 rounded-lg shadow-md">

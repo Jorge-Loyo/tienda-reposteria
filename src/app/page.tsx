@@ -80,9 +80,15 @@ export default async function HomePage() {
         buttonLink: '/tienda',
     },
     {
-        // CORRECCIÓN: Se eliminan las propiedades de texto y botón para que solo se muestre la imagen.
-        src: 'https://res.cloudinary.com/dnc0btnuv/image/upload/v1751761965/Copia_de_Azul_y_Blanco_Corporativo_Tradicional_Descripcio%CC%81n_General_del_Proyecto_o_Documento_de_una_pa%CC%81gina_Profesional_Banner_para_Docs_c8phpx.jpg', 
-        alt: 'Banner de empresas que confían en nosotros',
+        src: 'https://res.cloudinary.com/dnc0btnuv/image/upload/v1753390660/Banner_2_oxssz2.png',
+        alt: 'kuenn',
+        
+    },
+    {
+        // Esta es la segunda imagen. Si tienes una URL diferente, puedes ponerla aquí.
+        src: 'https://res.cloudinary.com/dnc0btnuv/image/upload/v1753390659/Banner_1_anb2mn.png',
+        alt: 'Kron',
+        
     }
   ];
 

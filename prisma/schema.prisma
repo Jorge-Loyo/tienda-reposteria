@@ -27,6 +27,7 @@ model User {
   instagram            String?
   phoneNumber          String?
   address              String?
+  identityCard         String?
   passwordResetToken   String?   @unique
   passwordResetExpires DateTime?
 }

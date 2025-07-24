@@ -1,3 +1,4 @@
+//src/app/api/auth/me/route.ts
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { jwtVerify, JWTPayload } from 'jose';
@@ -25,7 +26,7 @@ export async function GET() {
     const { payload } = await jwtVerify(sessionToken, JWT_SECRET);
     const { userId } = payload as CustomJwtPayload;
 
-    // CORRECCIÓN: Se añaden los campos faltantes a la consulta
+    // CORRECCIÓN: Se añade el campo 'identityCard' a la consulta
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -35,6 +36,7 @@ export async function GET() {
         instagram: true,
         phoneNumber: true,
         address: true,
+        identityCard: true, // Se añade la cédula a la consulta
       }
     });
 

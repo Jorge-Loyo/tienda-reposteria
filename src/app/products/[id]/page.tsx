@@ -2,15 +2,18 @@
 import { PrismaClient } from '@prisma/client';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-// 1. Importamos el nuevo componente de controles en lugar del botón simple
 import ProductPurchaseControls from '@/components/ProductPurchaseControls';
 import { getBcvRate, formatToVes } from '@/lib/currency';
+import { formatCurrency } from '@/lib/formatters'; // Se asume que esta función ya existe en tu proyecto
 
 const prisma = new PrismaClient();
 
 async function getProductDetails(id: number) {
   try {
-    const product = await prisma.product.findUnique({ where: { id, published: true } });
+    // La consulta ahora incluye explícitamente todos los campos del producto
+    const product = await prisma.product.findUnique({ 
+        where: { id, published: true } 
+    });
     if (!product) { notFound(); }
     return product;
   } catch (error) {
@@ -28,19 +31,46 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
     getBcvRate()
   ]);
 
-  const priceVes = bcvRate ? product.priceUSD * bcvRate : null;
+  // --- Lógica para determinar si el producto está en oferta ---
+  const now = new Date();
+  const onSale = 
+    product.isOfferActive && 
+    product.offerPriceUSD != null && 
+    (!product.offerEndsAt || new Date(product.offerEndsAt) > now);
+
+  const displayPrice = onSale ? product.offerPriceUSD : product.priceUSD;
+  const priceVes = bcvRate ? (displayPrice ?? 0) * bcvRate : null;
+  
+  let discountPercent = 0;
+  if (onSale && product.priceUSD > 0 && product.offerPriceUSD) {
+    discountPercent = Math.round(((product.priceUSD - product.offerPriceUSD) / product.priceUSD) * 100);
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
         <div className="relative aspect-square rounded-lg overflow-hidden">
+          {/* Se añade el indicador de descuento si el producto está en oferta */}
+          {onSale && discountPercent > 0 && (
+            <div className="absolute top-4 right-4 bg-red-600 text-white text-sm font-bold px-3 py-1 rounded-full z-10">
+                -{discountPercent}%
+            </div>
+          )}
           <Image src={product.imageUrl || '/placeholder.png'} alt={product.name} fill style={{ objectFit: 'cover' }} priority />
         </div>
         <div className="flex flex-col">
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900">{product.name}</h1>
           
+          {/* --- Sección de Precios Actualizada --- */}
           <div className="mt-4">
-            <p className="text-3xl text-gray-900">${product.priceUSD.toFixed(2)} USD</p>
+            <div className="flex items-baseline gap-4">
+                <p className="text-3xl text-red-600 font-bold">{formatCurrency(displayPrice ?? 0)} USD</p>
+                {onSale && (
+                    <p className="text-xl text-gray-400 line-through">
+                        {formatCurrency(product.priceUSD)}
+                    </p>
+                )}
+            </div>
             {priceVes ? (
               <p className="text-xl text-gray-600 mt-1">
                 o {formatToVes(priceVes)}
@@ -56,7 +86,7 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
             {product.stock > 0 ? (<p className="text-green-600 font-medium">En Stock: {product.stock} unidades</p>) : (<p className="text-red-600 font-medium">Agotado</p>)}
           </div>
 
-          {/* 2. Reemplazamos el botón antiguo por nuestros nuevos controles */}
+          {/* Se pasa el objeto de producto completo, con datos de oferta, a los controles de compra */}
           <ProductPurchaseControls product={product} />
 
         </div>
