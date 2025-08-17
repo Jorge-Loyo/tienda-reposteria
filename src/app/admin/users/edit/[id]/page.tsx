@@ -14,10 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// 1. Importamos el tipo 'Role' que definimos en la página principal de usuarios
 import type { Role } from '@/app/admin/users/page';
 
-// Mapeo de roles a nombres más amigables
 const roleNames: Record<Role, string> = {
     ADMIN: 'Administrador',
     ORDERS_USER: 'Usuario de Pedidos',
@@ -25,7 +23,6 @@ const roleNames: Record<Role, string> = {
     CLIENT_VIP: 'Cliente VIP',
 };
 
-// 2. Usamos el tipo 'Role' importado para definir la forma de los datos del usuario
 interface UserData {
   email: string;
   role: Role;
@@ -37,6 +34,8 @@ export default function EditUserPage() {
   const id = params.id as string;
 
   const [user, setUser] = useState<UserData | null>(null);
+  // 1. Nuevo estado para guardar la contraseña
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -71,15 +70,21 @@ export default function EditUserPage() {
     setError('');
 
     try {
+      // 2. Preparamos el cuerpo de la petición con el rol y, opcionalmente, la contraseña
+      const body: { role: Role; password?: string } = { role: user.role };
+      if (password.length > 0) {
+        body.password = password;
+      }
+
       const response = await fetch(`/api/users/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role: user.role }),
+        body: JSON.stringify(body),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Error al actualizar');
       
-      alert('¡Rol de usuario actualizado con éxito!');
+      alert('¡Usuario actualizado con éxito!');
       router.push('/admin/users');
       router.refresh();
     } catch (err) {
@@ -111,7 +116,6 @@ export default function EditUserPage() {
                 <SelectValue placeholder="Seleccionar rol" />
               </SelectTrigger>
               <SelectContent>
-                {/* 3. Generamos las opciones del menú dinámicamente */}
                 {Object.keys(roleNames).map((roleKey) => (
                     <SelectItem key={roleKey} value={roleKey}>
                         {roleNames[roleKey as Role]}
@@ -120,6 +124,18 @@ export default function EditUserPage() {
               </SelectContent>
             </Select>
           </div>
+          {/* 3. Nuevo campo para la contraseña */}
+          <div className="space-y-1.5">
+            <Label htmlFor="password">Nueva Contraseña</Label>
+            <Input 
+                id="password" 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Dejar vacío para no cambiar"
+            />
+          </div>
+          {error && <p className="text-sm text-red-500">{error}</p>}
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Guardando...' : 'Guardar Cambios'}
           </Button>

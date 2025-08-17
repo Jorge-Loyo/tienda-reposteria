@@ -2,7 +2,7 @@
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { getSessionData } from '@/lib/session'; // 1. Usamos nuestra función de sesión centralizada
-
+import bcrypt from 'bcrypt'; 
 const prisma = new PrismaClient();
 
 // Definimos el tipo 'Role' y los roles disponibles, igual que en la página de usuarios.
@@ -42,6 +42,7 @@ export async function GET(
 // --- FUNCIÓN PUT ---
 interface UpdateUserPayload {
   role: Role;
+  password?: string; // 2. La contraseña ahora es un campo opcional
 }
 export async function PUT(
   request: Request,
@@ -49,7 +50,6 @@ export async function PUT(
 ) {
   try {
     const session = await getSessionData();
-    // 3. También protegemos la ruta de actualización
     if (!session || session.role !== 'ADMIN') {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
@@ -57,14 +57,25 @@ export async function PUT(
     const userIdToUpdate = Number(params.id);
     if (isNaN(userIdToUpdate)) return NextResponse.json({ error: "ID de usuario inválido." }, { status: 400 });
 
-    const { role } = await request.json() as UpdateUserPayload;
+    const { role, password } = await request.json() as UpdateUserPayload;
     if (!role || !availableRoles.includes(role)) {
         return NextResponse.json({ error: "Rol inválido." }, { status: 400 });
     }
 
+    // 3. Preparamos los datos a actualizar
+    const dataToUpdate: { role: Role; password?: string } = { role };
+
+    // 4. Si se proporcionó una nueva contraseña, la encriptamos y la añadimos a los datos a actualizar
+    if (password && password.length > 0) {
+        if (password.length < 6) {
+            return NextResponse.json({ error: "La contraseña debe tener al menos 6 caracteres." }, { status: 400 });
+        }
+        dataToUpdate.password = await bcrypt.hash(password, 10);
+    }
+
     const updatedUser = await prisma.user.update({
         where: { id: userIdToUpdate },
-        data: { role },
+        data: dataToUpdate,
     });
     const { password: _, ...userWithoutPassword } = updatedUser;
     return NextResponse.json(userWithoutPassword);

@@ -1,3 +1,5 @@
+//src/app/api/orders/route.ts
+
 import { PrismaClient, Prisma, Product } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
@@ -6,6 +8,7 @@ const prisma = new PrismaClient();
 interface CartItem {
   id: number;
   quantity: number;
+  price: number; // El precio ya puede ser el de oferta
 }
 
 interface CustomerData {
@@ -17,16 +20,20 @@ interface CustomerData {
   instagram?: string;
 }
 
-// La petición ahora también recibirá el método de pago
+// 1. La petición ahora recibe el resumen completo del pedido
 interface RequestBody {
     customerData: CustomerData;
     items: CartItem[];
     paymentMethod: string;
+    shippingZone: string;
+    shippingCost: number;
+    total: number; // Este es el 'grandTotal' que incluye el envío
 }
 
 export async function POST(request: Request) {
   try {
-    const { customerData, items, paymentMethod }: RequestBody = await request.json();
+    // 2. Obtenemos todos los datos del cuerpo de la petición
+    const { customerData, items, paymentMethod, shippingZone, shippingCost, total }: RequestBody = await request.json();
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "El carrito está vacío." }, { status: 400 });
@@ -34,6 +41,10 @@ export async function POST(request: Request) {
     
     if (!paymentMethod) {
         return NextResponse.json({ error: "El método de pago es requerido." }, { status: 400 });
+    }
+    
+    if (!shippingZone) {
+        return NextResponse.json({ error: "La zona de envío es requerida." }, { status: 400 });
     }
 
     const productIds = items.map((item) => item.id);
@@ -44,7 +55,7 @@ export async function POST(request: Request) {
 
     const productMap = new Map(productsInDb.map((p: Product) => [p.id, p]));
 
-    let total = 0;
+    // Verificación de stock (la lógica de cálculo de total se elimina de aquí)
     for (const item of items) {
       const product = productMap.get(item.id);
       if (!product) {
@@ -53,7 +64,6 @@ export async function POST(request: Request) {
       if (product.stock < item.quantity) {
         throw new Error(`Stock insuficiente para el producto: ${product.name}`);
       }
-      total += product.priceUSD * item.quantity;
     }
 
     const order = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
@@ -62,22 +72,24 @@ export async function POST(request: Request) {
           customerName: customerData.name,
           customerEmail: customerData.email,
           address: customerData.address,
-          total: total,
+          // 3. Usamos el 'total' final recibido desde el checkout
+          total: total, 
           identityCard: customerData.identityCard,
           phone: customerData.phone,
           instagram: customerData.instagram,
-          paymentMethod: paymentMethod, // Guardamos el método de pago
+          paymentMethod: paymentMethod,
+          shippingZoneIdentifier: shippingZone, // Guardamos la zona de envío
         },
       });
 
       await tx.orderItem.createMany({
         data: items.map((item: CartItem) => {
-          const product = productMap.get(item.id)!;
           return {
             orderId: newOrder.id,
             productId: item.id,
             quantity: item.quantity,
-            price: product.priceUSD,
+            // Guardamos el precio unitario con el que se hizo la compra (puede ser de oferta)
+            price: item.price, 
           };
         }),
       });

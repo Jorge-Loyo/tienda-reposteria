@@ -64,6 +64,7 @@ model Order {
   instagram              String?
   paymentMethod          String?
   shippingZoneIdentifier String?
+  shippingCost           Float       @default(0)
   status                 String      @default("PENDIENTE_DE_PAGO")
   createdAt              DateTime    @default(now())
   updatedAt              DateTime    @updatedAt

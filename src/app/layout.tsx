@@ -8,6 +8,8 @@ import { CurrencyProvider } from '@/context/CurrencyContext';
 import { getBcvRate } from '@/lib/currency';
 import React from 'react';
 import UserSession from '@/components/UserSession';
+import { ThemeProvider } from './providers'; // Importar el ThemeProvider
+import { ThemeToggle } from '@/components/ThemeToggle'; // Importar el botón
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -33,85 +35,94 @@ export default async function RootLayout({
   const lng = -64.682316;
 
   return (
-    <html lang="es">
+    // Se elimina la clase 'dark' de aquí. next-themes la gestionará.
+    <html lang="es" suppressHydrationWarning>
       <body className={inter.className}>
-        <CurrencyProvider rate={bcvRate}>
-          <header className="bg-white shadow-sm sticky top-0 z-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between items-center h-16">
-                <div className="flex-shrink-0">
-                  {/* --- MODIFICACIÓN: Se aumenta el ancho del contenedor para agrandar el logo --- */}
-                  <Link 
-                    href="/" 
-                    className="relative block h-20 w-64" // Se le da un tamaño al contenedor del enlace y se hace relativo
-                    aria-label="Página de inicio de Casa Dulce"
-                  >
-                    <Image
-                      src="https://res.cloudinary.com/dnc0btnuv/image/upload/v1753391048/Logo_kewmlf.png"
-                      alt="Logo de Casa Dulce Oriente"
-                      fill // La imagen llenará el contenedor
-                      style={{ objectFit: 'contain' }} // 'contain' asegura que toda la imagen sea visible sin cortarse
-                      priority 
-                    />
-                  </Link>
-                </div>
-                <nav className="hidden md:flex items-center gap-8">
-                  <Link href="/tienda" className="text-sm font-medium text-gray-600 hover:text-primary">Tienda</Link>
-                  <Link href="/ofertas" className="text-sm font-medium text-gray-600 hover:text-primary">Ofertas</Link>
-                </nav>
-                <div className="flex items-center gap-4">
-                  <CartIcon />
-                  <UserSession />
+        {/* Envolvemos todo con el ThemeProvider */}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <CurrencyProvider rate={bcvRate}>
+            <header className="bg-card border-b sticky top-0 z-50">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between items-center h-16">
+                  <div className="flex-shrink-0">
+                    <Link 
+                      href="/" 
+                      className="relative block h-20 w-64"
+                      aria-label="Página de inicio de Casa Dulce"
+                    >
+                      <Image
+                        src="https://res.cloudinary.com/dnc0btnuv/image/upload/v1753391048/Logo_kewmlf.png"
+                        alt="Logo de Casa Dulce Oriente"
+                        fill
+                        style={{ objectFit: 'contain' }}
+                        priority 
+                      />
+                    </Link>
+                  </div>
+                  <nav className="hidden md:flex items-center gap-8">
+                    <Link href="/tienda" className="text-sm font-medium text-muted-foreground hover:text-primary">Tienda</Link>
+                    <Link href="/ofertas" className="text-sm font-medium text-muted-foreground hover:text-primary">Ofertas</Link>
+                  </nav>
+                  <div className="flex items-center gap-4">
+                    <CartIcon />
+                    <UserSession />
+                    {/* Añadimos el botón para cambiar de tema */}
+                    <ThemeToggle />
+                  </div>
                 </div>
               </div>
-            </div>
-          </header>
+            </header>
 
-          <main className="bg-gray-50">
-            {children}
-          </main>
-          
-          <footer className="bg-white border-t">
-            <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-                    <div className="md:col-span-2 space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-800">Contáctanos</h3>
-                        <a 
-                            href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-start gap-2 text-sm text-gray-600 hover:text-primary transition-colors"
-                        >
-                            <MapPinIcon />
-                            <span><strong>Dirección:</strong> 48P9+23P, Calle Bolívar, Barcelona 6001, Anzoátegui, Venezuela</span>
-                        </a>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <PhoneIcon />
-                            <span>0424-8536954</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <MailIcon />
-                            <a href="mailto:contacto@casadulce.com" className="hover:underline">contacto@casadulce.com</a>
-                        </div>
-                    </div>
-                    <div className="w-full h-40 rounded-lg overflow-hidden border">
-                        <Image
-                            src={`https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=16&size=400x200&maptype=roadmap&markers=color:red%7C${lat},${lng}&key=${GOOGLE_MAPS_API_KEY}`}
-                            alt="Mapa de la ubicación de Casa Dulce Oriente"
-                            width={400}
-                            height={200}
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
-                </div>
-                <div className="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-500">
-                    <p>&copy; {new Date().getFullYear()} Casa Dulce Oriente. Todos los derechos reservados.</p>
-                </div>
-            </div>
-          </footer>
-        </CurrencyProvider>
+            <main className="bg-muted">
+              {children}
+            </main>
+            
+            <footer className="bg-card border-t">
+              <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                      <div className="md:col-span-2 space-y-4">
+                          <h3 className="text-lg font-semibold text-foreground">Contáctanos</h3>
+                          <a 
+                              href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-start gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                          >
+                              <MapPinIcon />
+                              <span><strong>Dirección:</strong> 48P9+23P, Calle Bolívar, Barcelona 6001, Anzoátegui, Venezuela</span>
+                          </a>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <PhoneIcon />
+                              <span>0424-8536954</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <MailIcon />
+                              <a href="mailto:contacto@casadulce.com" className="hover:underline">contacto@casadulce.com</a>
+                          </div>
+                      </div>
+                      <div className="w-full h-40 rounded-lg overflow-hidden border">
+                          <Image
+                              src={`https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=16&size=400x200&maptype=roadmap&markers=color:red%7C${lat},${lng}&key=${GOOGLE_MAPS_API_KEY}`}
+                              alt="Mapa de la ubicación de Casa Dulce Oriente"
+                              width={400}
+                              height={200}
+                              className="w-full h-full object-cover"
+                          />
+                      </div>
+                  </div>
+                  <div className="mt-8 pt-6 border-t text-center text-sm text-muted-foreground">
+                      <p>&copy; {new Date().getFullYear()} Casa Dulce Oriente. Todos los derechos reservados.</p>
+                  </div>
+              </div>
+            </footer>
+          </CurrencyProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
-// --- Fin del código ---

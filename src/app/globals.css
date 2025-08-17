@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    /* --- Colores Base --- */
+    /* --- Colores Base (Tema Claro) --- */
     --background: 0 0% 100%; /* Blanco */
     --foreground: 222.2 47.4% 11.2%; /* Gris oscuro para texto */
 
@@ -38,7 +38,36 @@
   }
 
   .dark {
-    /* Si en el futuro decides usar modo oscuro, puedes definir aquí los colores */
+    /* --- Colores Base (Modo Oscuro) --- */
+    --background: 222.2 84% 4.9%; /* Negro/Gris muy oscuro */
+    --foreground: 210 40% 98%; /* Blanco/Gris claro para texto */
+
+    /* --- Tarjetas y Popovers (Modo Oscuro) --- */
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    /* --- Color Primario (Se mantiene el rosado) --- */
+    --primary: 346.8 77.2% 49.8%;
+    --primary-foreground: 355.7 100% 97.3%;
+
+    /* --- Color Secundario (Gris oscuro) --- */
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    
+    /* --- Color de Acento (Se mantiene el verde) --- */
+    --accent: 90 70% 45%;
+    --accent-foreground: 210 40% 98%;
+
+    /* --- Otros (Modo Oscuro) --- */
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 346.8 77.2% 49.8%;
   }
 }
 

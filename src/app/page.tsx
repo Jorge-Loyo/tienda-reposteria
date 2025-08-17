@@ -150,7 +150,7 @@ export default async function HomePage() {
                     />
                 </div>
                 <div>
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4">Sobre Casa Dulce Oriente</h2>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4">Sobre CASA DULCE ORIENTE</h2>
                     <p className="text-gray-600 mb-4">
                         Nacimos de la pasión por la repostería y el deseo de facilitar a todos, desde aficionados hasta profesionales, el acceso a insumos de la más alta calidad. En Casa Dulce Oriente, creemos que cada postre es una obra de arte y que los ingredientes correctos son el pincel del artista.
                     </p>

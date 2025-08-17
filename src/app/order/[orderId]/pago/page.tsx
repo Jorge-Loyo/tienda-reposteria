@@ -4,14 +4,12 @@ import { PrismaClient } from '@prisma/client';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-// 1. Importamos las utilidades para la tasa de cambio
-import { getBcvRate } from '@/lib/currency';
-import { formatToVes } from '@/lib/currency';
+import { getBcvRate, formatToVes } from '@/lib/currency';
+import OrderReceipt from '@/components/OrderReceipt';
 
 const prisma = new PrismaClient();
 
-// --- Componentes para cada método de pago ---
-
+// --- Componentes para cada método de pago (sin cambios) ---
 function ZelleInstructions() {
   return (
     <div>
@@ -55,13 +53,11 @@ function BDVInstructions() {
     );
 }
 
-// 2. El componente de pago en efectivo ahora recibe ambos totales
-function CashInstructions({ totalUsd, totalVes }: { totalUsd: number, totalVes: string | null }) {
+function CashInstructions() {
     return (
       <div>
         <h2 className="text-xl font-semibold mb-2">Instrucciones para Pago en Efectivo</h2>
-        <p className="mb-4">Tu pedido ha sido confirmado. Por favor, ten el monto listo para cuando retires tu pedido o para el momento de la entrega.</p>
-        {/* Se muestra el total en ambas monedas */}
+        <p className="mb-4">Tu pedido ha sido confirmado. Por favor, ten el monto exacto listo para cuando retires tu pedido o para el momento de la entrega.</p>
         <p>Si necesitas cambio, por favor contáctanos por WhatsApp para coordinar.</p>
       </div>
     );
@@ -69,25 +65,51 @@ function CashInstructions({ totalUsd, totalVes }: { totalUsd: number, totalVes: 
 
 
 // --- Página Principal ---
-
 export default async function PaymentInstructionsPage({ params }: { params: { orderId: string } }) {
   const orderId = Number(params.orderId);
   if (isNaN(orderId)) {
     notFound();
   }
 
-  // 3. Obtenemos la orden y la tasa de cambio al mismo tiempo
-  const [order, bcvRate] = await Promise.all([
-    prisma.order.findUnique({ where: { id: orderId } }),
-    getBcvRate()
-  ]);
+  // Se actualiza la consulta para incluir los detalles de los artículos del pedido
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: {
+      items: {
+        include: {
+          product: {
+            select: { name: true },
+          },
+        },
+      },
+    },
+  });
+
+  const bcvRate = await getBcvRate();
 
   if (!order) {
     notFound();
   }
   
-  // 4. Calculamos el total en Bolívares
-  const totalVes = bcvRate ? order.total * bcvRate : null;
+  // ***** INICIO DE LA CORRECCIÓN *****
+
+  // 1. Calcular el subtotal real sumando el precio de cada artículo por su cantidad.
+  const subtotal = order.items.reduce((acc, item) => {
+    return acc + (item.price * item.quantity);
+  }, 0);
+
+  // 2. Deducir el costo de envío. Como el `order.total` es el gran total (subtotal + envío),
+  //    podemos calcular el envío restando el subtotal que acabamos de calcular.
+  //    Esto soluciona el problema si `shippingCost` no se guarda correctamente en la base de datos.
+  const shippingCost = order.total - subtotal;
+
+  // 3. El total final es simplemente el `order.total` que ya viene de la base de datos.
+  const total = order.total;
+
+  // 4. Calcular el monto en Bolívares usando el total correcto.
+  const totalVes = bcvRate ? total * bcvRate : null;
+
+  // ***** FIN DE LA CORRECCIÓN *****
 
   let instructionsComponent;
   switch (order.paymentMethod) {
@@ -102,8 +124,7 @@ export default async function PaymentInstructionsPage({ params }: { params: { or
         break;
     case 'EFECTIVO_USD':
     case 'EFECTIVO_BS':
-        // 5. Pasamos ambos totales al componente de pago en efectivo
-        instructionsComponent = <CashInstructions totalUsd={order.total} totalVes={totalVes ? formatToVes(totalVes) : null} />;
+        instructionsComponent = <CashInstructions />;
         break;
     default:
       instructionsComponent = <p>Método de pago no reconocido. Por favor, contáctanos.</p>;
@@ -118,17 +139,41 @@ export default async function PaymentInstructionsPage({ params }: { params: { or
         <h1 className="text-2xl font-bold mt-4">¡Gracias por tu pedido!</h1>
         <p className="text-gray-600 mt-2">Tu orden con el ID <span className="font-semibold">#{order.id}</span> ha sido recibida.</p>
         
-        {/* 6. Nueva sección para mostrar el total en ambas monedas */}
+        {/* Resumen de la Compra con desglose de envío */}
+        <div className="text-left border-t my-6 pt-6">
+            <h3 className="text-lg font-semibold mb-4">Resumen de tu Compra</h3>
+            <ul className="space-y-2 text-sm">
+                {order.items.map(item => (
+                    <li key={item.id} className="flex justify-between">
+                        <span className="text-gray-600">{item.product.name} x {item.quantity}</span>
+                        <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                    </li>
+                ))}
+            </ul>
+            <div className="border-t my-2"></div>
+            <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Subtotal</span>
+                {/* Usar la variable subtotal calculada */}
+                <span className="font-medium">${subtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Envío</span>
+                {/* Usar la variable shippingCost deducida */}
+                <span className="font-medium">${shippingCost.toFixed(2)}</span>
+            </div>
+        </div>
+
         <div className="text-left border-t my-6 pt-6">
             <h3 className="text-lg font-semibold mb-2">Monto Total a Pagar</h3>
             <div className="bg-gray-50 p-4 rounded-md space-y-2">
                 <div className="flex justify-between font-bold">
                     <span>Total (USD)</span>
-                    <span>${order.total.toFixed(2)}</span>
+                    {/* Usar la variable total (que es igual a order.total) */}
+                    <span>${total.toFixed(2)}</span>
                 </div>
                 {totalVes && (
                     <div className="flex justify-between text-gray-600">
-                        <span>Total (Bs.)</span>
+                        <span>Total Aprox. (Bs.)</span>
                         <span>{formatToVes(totalVes)}</span>
                     </div>
                 )}
@@ -139,11 +184,14 @@ export default async function PaymentInstructionsPage({ params }: { params: { or
             {instructionsComponent}
         </div>
 
-        <p className="text-sm text-gray-500 mt-6">Recibirás una confirmación por correo electrónico en breve. Si tienes alguna pregunta, no dudes en contactarnos.</p>
+        <p className="text-sm text-gray-500 mt-6">Recibirás una confirmación por correo electrónico en breve.</p>
         
-        <Button asChild className="mt-6">
-            <Link href="/">Volver a la tienda</Link>
-        </Button>
+        <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild>
+                <Link href="/">Volver a la tienda</Link>
+            </Button>
+            <OrderReceipt order={order} />
+        </div>
       </div>
     </div>
   );
