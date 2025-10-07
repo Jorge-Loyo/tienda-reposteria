@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { jwtVerify, JWTPayload } from 'jose';
+import { APP_CONFIG } from './constants';
 
 // Extendemos el tipo JWTPayload para incluir los datos que guardamos en nuestro token
 interface CustomJwtPayload extends JWTPayload {
@@ -8,8 +9,7 @@ interface CustomJwtPayload extends JWTPayload {
   role: string;
 }
 
-// Es crucial que esta clave secreta sea la misma que usas en tu endpoint de login
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'tu-secreto-super-secreto');
+const JWT_SECRET = new TextEncoder().encode(APP_CONFIG.JWT_SECRET);
 
 /**
  * Obtiene y verifica los datos de la sesión del usuario desde la cookie.
@@ -27,11 +27,18 @@ export async function getSessionData(): Promise<CustomJwtPayload | null> {
   try {
     // Verificamos el token usando la clave secreta
     const { payload } = await jwtVerify(sessionToken, JWT_SECRET);
-    // Devolvemos el payload con los datos del usuario (userId, email, role)
-    return payload as CustomJwtPayload;
+    
+    // Validar que el payload tenga los campos requeridos
+    const customPayload = payload as CustomJwtPayload;
+    if (!customPayload.userId || !customPayload.email || !customPayload.role) {
+      console.error('Token payload missing required fields');
+      return null;
+    }
+    
+    return customPayload;
   } catch (error) {
-    // Si el token es inválido o ha expirado, la verificación fallará
-    console.error("Fallo al verificar el token de sesión:", error);
+    // Log seguro sin exponer detalles del token
+    console.error('Session token verification failed:', error instanceof Error ? error.message : 'Unknown error');
     return null;
   }
 }

@@ -32,7 +32,7 @@ async function getRateFromApi(): Promise<number | null> {
     });
 
     if (!response.ok) {
-      console.error(`API falló con estado: ${response.status}`);
+      console.error('API falló con estado:', response.status);
       return null;
     }
 
@@ -40,14 +40,14 @@ async function getRateFromApi(): Promise<number | null> {
     const rate = data?.price;
 
     if (typeof rate === 'number') {
-      console.log(`Tasa obtenida de la API exitosamente: ${rate}`);
+      console.log('Tasa obtenida de la API exitosamente:', rate);
       return rate;
     }
     
     console.error('El formato de la tasa en la respuesta de la API no es el esperado.');
     return null;
   } catch (error) {
-    console.error('Error al contactar la API:', error);
+    console.error('Error al contactar la API:', error instanceof Error ? error.message : 'Error desconocido');
     return null;
   }
 }
@@ -82,10 +82,10 @@ async function getRateFromBcvWebsite(): Promise<number | null> {
       return null;
     }
 
-    console.log(`Tasa obtenida del sitio web del BCV exitosamente: ${rate}`);
+    console.log('Tasa obtenida del sitio web del BCV exitosamente:', rate);
     return rate;
   } catch (error) {
-    console.error('Error durante el web scraping al sitio del BCV con Axios:', error);
+    console.error('Error durante el web scraping al sitio del BCV con Axios:', error instanceof Error ? error.message : 'Error desconocido');
     return null;
   }
 }
@@ -130,7 +130,7 @@ export const getBcvRate = cache(
     }
 
     if (rate === null) {
-        console.error("FALLO TOTAL: No se pudo obtener la tasa del BCV por ninguna de las vías.");
+        console.error('FALLO TOTAL: No se pudo obtener la tasa del BCV por ninguna de las vías.');
     }
 
     return rate;

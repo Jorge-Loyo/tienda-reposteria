@@ -2,9 +2,21 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
+import { APP_CONFIG, USER_ROLES } from '@/lib/constants';
 
-// La clave debe ser la misma que usas para firmar el token en la API de login y tu archivo .env
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET as string);
+const JWT_SECRET = new TextEncoder().encode(APP_CONFIG.JWT_SECRET);
+
+// Función para validar URLs y prevenir SSRF
+function isValidRedirectUrl(url: string, baseUrl: string): boolean {
+  try {
+    const redirectUrl = new URL(url);
+    const base = new URL(baseUrl);
+    // Solo permitir redirecciones al mismo dominio
+    return redirectUrl.origin === base.origin;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Función para verificar la validez de un token JWT.
@@ -28,6 +40,10 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/admin')) {
     // Si NO tiene token, es redirigido inmediatamente al login.
     if (!sessionToken) {
+      const loginUrl = '/login';
+      if (isValidRedirectUrl(loginUrl, request.url)) {
+        return NextResponse.redirect(new URL(loginUrl, request.url));
+      }
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
@@ -43,9 +59,12 @@ export async function middleware(request: NextRequest) {
 
     // Si el token es válido, aplicamos la lógica de roles.
     const userRole = payload.role as string;
-    if (userRole === 'ORDERS_USER' && !pathname.startsWith('/admin/orders')) {
+    if (userRole === USER_ROLES.ORDERS_USER && !pathname.startsWith('/admin/orders')) {
       // Si es un usuario de "pedidos" e intenta ir a otro sitio, lo forzamos a ir a /admin/orders.
-      return NextResponse.redirect(new URL('/admin/orders', request.url));
+      const ordersUrl = '/admin/orders';
+      if (isValidRedirectUrl(ordersUrl, request.url)) {
+        return NextResponse.redirect(new URL(ordersUrl, request.url));
+      }
     }
 
     // Si es ADMIN, o un usuario de pedidos en la ruta correcta, lo dejamos pasar.
@@ -56,7 +75,10 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/login')) {
     // Si tiene un token válido, ya no debería estar aquí. Lo redirigimos al admin.
     if (sessionToken && (await verifyToken(sessionToken))) {
-      return NextResponse.redirect(new URL('/admin', request.url));
+      const adminUrl = '/admin';
+      if (isValidRedirectUrl(adminUrl, request.url)) {
+        return NextResponse.redirect(new URL(adminUrl, request.url));
+      }
     }
   }
 

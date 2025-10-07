@@ -8,8 +8,9 @@ import { CurrencyProvider } from '@/context/CurrencyContext';
 import { getBcvRate } from '@/lib/currency';
 import React from 'react';
 import UserSession from '@/components/UserSession';
-import { ThemeProvider } from './providers'; // Importar el ThemeProvider
-import { ThemeToggle } from '@/components/ThemeToggle'; // Importar el botón
+import { ThemeProvider } from './providers';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { APP_CONFIG } from '@/lib/constants';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -30,9 +31,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const bcvRate = await getBcvRate();
-  const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "AIzaSyA7NF5r-pJS1LO3ZvrYVYCDBlluGNC1Wq8";
-  const lat = 10.135122;
-  const lng = -64.682316;
+  const { lat, lng, address } = APP_CONFIG.COMPANY_LOCATION;
+  const { phone, email } = APP_CONFIG.CONTACT;
 
   return (
     // Se elimina la clase 'dark' de aquí. next-themes la gestionará.
@@ -94,20 +94,20 @@ export default async function RootLayout({
                               className="flex items-start gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
                           >
                               <MapPinIcon />
-                              <span><strong>Dirección:</strong> 48P9+23P, Calle Bolívar, Barcelona 6001, Anzoátegui, Venezuela</span>
+                              <span><strong>Dirección:</strong> {address}</span>
                           </a>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <PhoneIcon />
-                              <span>0424-8536954</span>
+                              <span>{phone}</span>
                           </div>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <MailIcon />
-                              <a href="mailto:contacto@casadulce.com" className="hover:underline">contacto@casadulce.com</a>
+                              <a href={`mailto:${email}`} className="hover:underline">{email}</a>
                           </div>
                       </div>
                       <div className="w-full h-40 rounded-lg overflow-hidden border">
                           <Image
-                              src={`https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=16&size=400x200&maptype=roadmap&markers=color:red%7C${lat},${lng}&key=${GOOGLE_MAPS_API_KEY}`}
+                              src={`https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=16&size=400x200&maptype=roadmap&markers=color:red%7C${lat},${lng}&key=${APP_CONFIG.GOOGLE_MAPS_API_KEY}`}
                               alt="Mapa de la ubicación de Casa Dulce Oriente"
                               width={400}
                               height={200}

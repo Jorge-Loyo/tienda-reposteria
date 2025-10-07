@@ -7,15 +7,27 @@ import { serialize } from 'cookie';
 
 const prisma = new PrismaClient();
 
-// Asegúrate de tener esta variable en tu archivo .env
-const JWT_SECRET = process.env.JWT_SECRET || 'tu-secreto-super-secreto-por-defecto';
+// Validar que JWT_SECRET esté configurado
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const body = await request.json();
+    const { email, password } = body;
 
-    if (!email || !password) {
+    // Validación más estricta
+    if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
       return NextResponse.json({ error: 'El correo y la contraseña son requeridos' }, { status: 400 });
+    }
+
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: 'Formato de email inválido' }, { status: 400 });
     }
 
     // 1. Buscar al usuario por su email
@@ -56,7 +68,10 @@ export async function POST(request: Request) {
     return response;
 
   } catch (error) {
-    console.error('Error en el login:', error);
+    // Log seguro sin exponer detalles
+    console.error('Error en el login:', error instanceof Error ? error.message : 'Error desconocido');
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
