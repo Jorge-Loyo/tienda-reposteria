@@ -1,12 +1,20 @@
 // src/app/api/products/[id]/route.ts
-import { PrismaClient, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import { logError } from '@/lib/logger';
+import { sanitizeText } from '@/lib/sanitizer';
+import { getSessionData } from '@/lib/session';
 
 // Función para manejar la actualización de un producto (PUT)
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
+    // Verificar autenticación y permisos
+    const session = await getSessionData();
+    if (!session || !['ADMINISTRADOR', 'MASTER'].includes(session.role)) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
     const productId = Number(params.id);
     if (isNaN(productId)) {
       return NextResponse.json({ error: "ID de producto inválido." }, { status: 400 });
@@ -15,17 +23,33 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const data = await request.json();
     const updateData: any = {};
     
-    // Construcción dinámica del objeto de actualización
-    if (data.name !== undefined) updateData.name = data.name;
-    if (data.description !== undefined) updateData.description = data.description;
-    if (data.priceUSD !== undefined) updateData.priceUSD = data.priceUSD;
-    if (data.stock !== undefined) updateData.stock = data.stock;
-    if (data.sku !== undefined) updateData.sku = data.sku;
-    if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl;
-    if (data.published !== undefined) updateData.published = data.published;
-    // --- NUEVO ---
-    // Se añade el categoryId al objeto de actualización si está presente
-    if (data.categoryId !== undefined) updateData.categoryId = data.categoryId;
+    // Construcción dinámica del objeto de actualización con sanitización
+    if (data.name !== undefined) updateData.name = sanitizeText(data.name);
+    if (data.description !== undefined) updateData.description = data.description ? sanitizeText(data.description) : null;
+    if (data.priceUSD !== undefined) {
+      const price = Number(data.priceUSD);
+      if (isNaN(price) || price < 0) {
+        return NextResponse.json({ error: "Precio inválido." }, { status: 400 });
+      }
+      updateData.priceUSD = price;
+    }
+    if (data.stock !== undefined) {
+      const stock = Number(data.stock);
+      if (isNaN(stock) || stock < 0) {
+        return NextResponse.json({ error: "Stock inválido." }, { status: 400 });
+      }
+      updateData.stock = stock;
+    }
+    if (data.sku !== undefined) updateData.sku = data.sku ? sanitizeText(data.sku) : null;
+    if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl ? sanitizeText(data.imageUrl) : null;
+    if (data.published !== undefined) updateData.published = Boolean(data.published);
+    if (data.categoryId !== undefined) {
+      const categoryId = Number(data.categoryId);
+      if (isNaN(categoryId) || categoryId <= 0) {
+        return NextResponse.json({ error: "ID de categoría inválido." }, { status: 400 });
+      }
+      updateData.categoryId = categoryId;
+    }
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ error: "No se proporcionaron datos para actualizar." }, { status: 400 });
@@ -38,7 +62,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
     return NextResponse.json(updatedProduct);
   } catch (error) {
-    console.error("Error al actualizar el producto:", error);
+    logError('Error al actualizar el producto', error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return NextResponse.json({ error: "Producto no encontrado para actualizar." }, { status: 404 });
     }
@@ -49,6 +73,12 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 // Función para manejar la eliminación de un producto (DELETE)
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   try {
+    // Verificar autenticación y permisos
+    const session = await getSessionData();
+    if (!session || !['ADMINISTRADOR', 'MASTER'].includes(session.role)) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
     const productId = Number(params.id);
     if (isNaN(productId)) {
       return NextResponse.json({ error: "ID de producto inválido." }, { status: 400 });
@@ -68,7 +98,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.error("Error al eliminar el producto:", error);
+    logError('Error al eliminar el producto', error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return NextResponse.json({ error: "Producto no encontrado para eliminar." }, { status: 404 });
     }

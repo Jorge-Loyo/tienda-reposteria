@@ -1,11 +1,12 @@
 // src/app/api/auth/login/route.ts
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
 import { serialize } from 'cookie';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import { logError, sanitizeForLog } from '@/lib/logger';
+import { isValidEmail, sanitizeText } from '@/lib/sanitizer';
+import { rateLimit, getClientIP } from '@/lib/rate-limit';
 
 // Validar que JWT_SECRET esté configurado
 if (!process.env.JWT_SECRET) {
@@ -16,6 +17,22 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(request: Request) {
   try {
+    // Rate limiting por IP
+    const clientIP = getClientIP(request);
+    const rateLimitResult = rateLimit(`login:${clientIP}`, 5, 300000); // 5 intentos por 5 minutos
+    
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: 'Demasiados intentos de inicio de sesión. Intenta de nuevo más tarde.' },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000).toString()
+          }
+        }
+      );
+    }
+
     const body = await request.json();
     const { email, password } = body;
 
@@ -24,15 +41,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'El correo y la contraseña son requeridos' }, { status: 400 });
     }
 
-    // Validar formato de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    // Sanitizar y validar email
+    const sanitizedEmail = sanitizeText(email);
+    if (!isValidEmail(sanitizedEmail)) {
       return NextResponse.json({ error: 'Formato de email inválido' }, { status: 400 });
+    }
+
+    // Validar longitud de contraseña
+    if (password.length < 6 || password.length > 128) {
+      return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
     }
 
     // 1. Buscar al usuario por su email
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: sanitizedEmail },
     });
 
     // 2. Si no se encuentra el usuario o la contraseña no coincide, devolvemos el mismo error genérico por seguridad.
@@ -68,10 +90,7 @@ export async function POST(request: Request) {
     return response;
 
   } catch (error) {
-    // Log seguro sin exponer detalles
-    console.error('Error en el login:', error instanceof Error ? error.message : 'Error desconocido');
+    logError('Error en el login', error);
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }

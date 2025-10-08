@@ -2,9 +2,9 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { jwtVerify, JWTPayload } from 'jose';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import { logError } from '@/lib/logger';
+import { sanitizeText } from '@/lib/sanitizer';
 
 if (!process.env.JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable is required');
@@ -15,13 +15,13 @@ const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 // Función para sanitizar datos de salida
 function sanitizeUserData(user: any) {
   return {
-    name: user.name?.toString().replace(/[<>"'&]/g, '') || '',
-    email: user.email?.toString().replace(/[<>"'&]/g, '') || '',
-    role: user.role?.toString().replace(/[<>"'&]/g, '') || '',
-    instagram: user.instagram?.toString().replace(/[<>"'&]/g, '') || '',
-    phoneNumber: user.phoneNumber?.toString().replace(/[<>"'&]/g, '') || '',
-    address: user.address?.toString().replace(/[<>"'&]/g, '') || '',
-    identityCard: user.identityCard?.toString().replace(/[<>"'&]/g, '') || ''
+    name: user.name ? sanitizeText(user.name) : '',
+    email: user.email ? sanitizeText(user.email) : '',
+    role: user.role ? sanitizeText(user.role) : '',
+    instagram: user.instagram ? sanitizeText(user.instagram) : '',
+    phoneNumber: user.phoneNumber ? sanitizeText(user.phoneNumber) : '',
+    address: user.address ? sanitizeText(user.address) : '',
+    identityCard: user.identityCard ? sanitizeText(user.identityCard) : ''
   };
 }
 
@@ -68,9 +68,7 @@ export async function GET() {
     const sanitizedUser = sanitizeUserData(user);
     return NextResponse.json(sanitizedUser);
   } catch (error) {
-    console.error('Error en /api/auth/me:', error instanceof Error ? error.message : 'Error desconocido');
+    logError('Error en /api/auth/me', error);
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }

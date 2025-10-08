@@ -67,13 +67,12 @@ async function getDashboardData() {
   };
 }
 
-// Componente para las tarjetas de estadísticas principales
 function StatCard({ title, value, subtext }: { title: string; value: string | number; subtext?: string }) {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-sm font-medium text-gray-500 truncate">{title}</h3>
-      <p className="mt-1 text-3xl font-semibold text-gray-900">{value}</p>
-      {subtext && <p className="text-xs text-gray-400 mt-1">{subtext}</p>}
+    <div className="glass p-6 rounded-2xl shadow-xl">
+      <h3 className="text-sm font-medium text-gray-600 truncate">{title}</h3>
+      <p className="mt-2 text-3xl font-bold gradient-text">{value}</p>
+      {subtext && <p className="text-xs text-gray-500 mt-1">{subtext}</p>}
     </div>
   );
 }
@@ -81,8 +80,7 @@ function StatCard({ title, value, subtext }: { title: string; value: string | nu
 // Componente para las tarjetas de estado de pedidos
 function OrderStatusCard({ status, count }: { status: string; count: number }) {
     return (
-        <div className={`p-4 rounded-lg shadow-sm border ${statusColors[status] || 'bg-gray-100 text-gray-800'}`}>
-            {/* CORRECCIÓN: Se reemplaza el guion bajo por un espacio */}
+        <div className={`p-4 rounded-xl shadow-lg border ${statusColors[status] || 'bg-gray-100 text-gray-800'}`}>
             <p className="text-sm font-semibold">{status.replace(/_/g, ' ')}</p>
             <p className="text-2xl font-bold">{count}</p>
         </div>
@@ -95,10 +93,21 @@ export default async function AdminDashboardPage() {
   const allOrderStatuses = Object.keys(statusColors);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <PageHeader>Dashboard</PageHeader>
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
+        <div className="text-center mb-12">
+          <div className="flex justify-between items-center mb-6">
+            <Button variant="outline" asChild>
+              <Link href="/perfil">
+                🏠 Perfil
+              </Link>
+            </Button>
+          </div>
+          <h1 className="text-4xl font-bold gradient-text mb-4">Panel de Administración</h1>
+          <p className="text-gray-600">Gestiona tu tienda desde aquí</p>
+        </div>
       
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-12">
         <StatCard title="Ingresos del Día" value={`$${data.todayRevenue.toFixed(2)}`} />
         <StatCard title="Pedidos del Día" value={data.todayOrderCount} />
         <StatCard title="Total de Productos" value={data.totalProductCount} subtext="En catálogo" />
@@ -110,7 +119,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="mb-12">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">Resumen de Pedidos de Hoy</h2>
+        <h2 className="text-2xl font-bold gradient-text mb-6">Resumen de Pedidos de Hoy</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {allOrderStatuses.map(status => (
                 <OrderStatusCard key={status} status={status} count={data.orderStatusSummary[status] || 0} />
@@ -118,55 +127,66 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap justify-start gap-4 mb-8">
-          <Button asChild>
-              <Link href="/admin/products">Gestionar Productos</Link>
+      <div className="glass p-8 rounded-2xl shadow-xl mb-12">
+        <h2 className="text-2xl font-bold gradient-text mb-6">Gestión Rápida</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+          <Button variant="gradient" asChild className="h-12">
+              <Link href="/admin/products">Productos</Link>
           </Button>
-          <Button variant="outline" asChild>
-              <Link href="/admin/categories">Gestionar Categorías</Link>
+          <Button variant="modern" asChild className="h-12">
+              <Link href="/admin/categories">Categorías</Link>
           </Button>
-          <Button variant="outline" asChild>
-              <Link href="/admin/users">Gestionar Usuarios</Link>
+          <Button variant="modern" asChild className="h-12">
+              <Link href="/admin/users">Usuarios</Link>
           </Button>
-          <Button variant="outline" asChild>
-              <Link href="/admin/zones">Gestionar Zonas</Link>
+          <Button variant="modern" asChild className="h-12">
+              <Link href="/admin/zones">Zonas</Link>
           </Button>
-          <Button variant="outline" asChild>
-              <Link href="/admin/orders">Gestión de Pedidos</Link>
+          <Button variant="modern" asChild className="h-12">
+              <Link href="/admin/orders">Pedidos</Link>
           </Button>
+          <Button variant="outline-modern" asChild className="h-12">
+              <Link href="/admin/banner">Banner</Link>
+          </Button>
+          <Button variant="outline-modern" asChild className="h-12">
+              <Link href="/admin/instagram">Instagram</Link>
+          </Button>
+        </div>
       </div>
 
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Últimos Pedidos Recibidos</h2>
-        <div className="overflow-x-auto shadow-md rounded-lg">
-          <table className="min-w-full bg-white">
-            <thead className="bg-gray-50">
+      <div className="glass rounded-2xl shadow-xl overflow-hidden">
+        <div className="p-6 border-b border-white/20">
+          <h2 className="text-2xl font-bold gradient-text">Últimos Pedidos Recibidos</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead className="bg-gradient-to-r from-pink-500/10 to-orange-500/10">
               <tr>
-                <th className="text-left py-3 px-6 uppercase font-semibold text-sm">ID Pedido</th>
-                <th className="text-left py-3 px-6 uppercase font-semibold text-sm">Cliente</th>
-                <th className="text-left py-3 px-6 uppercase font-semibold text-sm">Total</th>
-                <th className="text-left py-3 px-6 uppercase font-semibold text-sm">Estado</th>
-                <th className="text-left py-3 px-6 uppercase font-semibold text-sm">Fecha</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-800">ID Pedido</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-800">Cliente</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-800">Total</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-800">Estado</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-800">Fecha</th>
               </tr>
             </thead>
-            <tbody className="text-gray-700">
+            <tbody>
               {data.recentOrders.map((order) => (
-                <tr key={order.id} className="border-b">
-                  <td className="py-4 px-6">#{order.id}</td>
-                  <td className="py-4 px-6">{order.customerName}</td>
-                  <td className="py-4 px-6">${order.total.toFixed(2)}</td>
+                <tr key={order.id} className="border-b border-white/10 hover:bg-white/20 transition-colors">
+                  <td className="py-4 px-6 font-bold text-gray-800">#{order.id}</td>
+                  <td className="py-4 px-6 text-gray-700">{order.customerName}</td>
+                  <td className="py-4 px-6 font-semibold text-gray-800">${order.total.toFixed(2)}</td>
                   <td className="py-4 px-6">
-                    {/* CORRECCIÓN: Se reemplaza el guion bajo por un espacio */}
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[order.status] || 'bg-gray-100 text-gray-800'}`}>
+                    <span className={`px-3 py-1 text-xs font-semibold rounded-full ${statusColors[order.status] || 'bg-gray-100 text-gray-800'}`}>
                       {order.status.replace(/_/g, ' ')}
                     </span>
                   </td>
-                  <td className="py-4 px-6">{new Date(order.createdAt).toLocaleDateString()}</td>
+                  <td className="py-4 px-6 text-gray-700">{new Date(order.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      </div>
       </div>
     </div>
   );

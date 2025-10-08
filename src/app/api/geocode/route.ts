@@ -1,5 +1,8 @@
 // src/app/api/geocode/route.ts
 import { NextResponse } from 'next/server';
+import { logError } from '@/lib/logger';
+import { sanitizeText } from '@/lib/sanitizer';
+import { rateLimit, getClientIP } from '@/lib/rate-limit';
 
 // Función para validar coordenadas
 function isValidCoordinate(lat: string, lon: string): boolean {
@@ -11,13 +14,21 @@ function isValidCoordinate(lat: string, lon: string): boolean {
          longitude >= -180 && longitude <= 180;
 }
 
-// Función para sanitizar texto
-function sanitizeText(text: string): string {
-  return text.replace(/[<>"'&]/g, '').substring(0, 500);
-}
+
 
 export async function GET(request: Request) {
   try {
+    // Rate limiting por IP
+    const clientIP = getClientIP(request);
+    const rateLimitResult = rateLimit(`geocode:${clientIP}`, 20, 60000); // 20 requests por minuto
+    
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const lat = searchParams.get('lat');
     const lon = searchParams.get('lon');
@@ -55,8 +66,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ addressString });
 
   } catch (error) {
-    // Log seguro sin exponer detalles del error
-    console.error('Geocoding API proxy error:', error instanceof Error ? error.message : 'Unknown error');
+    logError('Geocoding API proxy error', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

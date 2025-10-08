@@ -35,7 +35,7 @@ export default function ProductCard({ product, bcvRate }: ProductCardProps) {
   }
 
   return (
-    <div className="group flex flex-col overflow-hidden border border-gray-200 rounded-lg shadow-sm bg-white h-full">
+    <div className="group flex flex-col overflow-hidden rounded-2xl glass card-hover h-full">
       <Link href={`/products/${product.id}`} className="block relative">
         <div className="relative h-[250px] sm:h-[350px]">
           <Image
@@ -44,12 +44,12 @@ export default function ProductCard({ product, bcvRate }: ProductCardProps) {
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             style={{ objectFit: 'cover' }}
-            className="transition-transform duration-500 group-hover:scale-105"
+            className="transition-transform duration-700 group-hover:scale-110"
           />
         </div>
         {/* 2. Añadimos un indicador de descuento si el producto está en oferta */}
         {onSale && discountPercent > 0 && (
-            <div className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+            <div className="absolute top-3 right-3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg animate-pulse">
                 -{discountPercent}%
             </div>
         )}
@@ -57,12 +57,12 @@ export default function ProductCard({ product, bcvRate }: ProductCardProps) {
 
       <div className="relative p-4 flex flex-col flex-grow">
         <Link href={`/products/${product.id}`} className="block">
-            <h3 className="text-md font-semibold text-gray-800 group-hover:underline group-hover:underline-offset-4 truncate">
+            <h3 className="text-md font-semibold text-gray-800 group-hover:text-pink-600 transition-colors duration-300 truncate">
                 {product.name || "Nombre del Producto"}
             </h3>
             <div className="mt-2 flex items-baseline gap-2">
                 {/* 3. Mostramos el precio de oferta y el precio original tachado */}
-                <p className="tracking-wider text-red-600 font-bold">
+                <p className="tracking-wider gradient-text font-bold text-lg">
                     {formatCurrency(displayPrice || 0)} USD
                 </p>
                 {onSale && (
@@ -80,7 +80,7 @@ export default function ProductCard({ product, bcvRate }: ProductCardProps) {
         
         <div className="flex-grow"></div>
 
-        <div className="mt-4">
+        <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <QuickAddToCart product={product} />
         </div>
       </div>

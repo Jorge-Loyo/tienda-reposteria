@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ShippingZone } from '@prisma/client';
+import ProductCard from '@/components/ProductCard';
 
 // --- Componentes de Iconos (Corregidos) ---
 function LoadingSpinner() {
@@ -100,6 +101,80 @@ function ShippingInfo({ subtotal, zone }: { subtotal: number, zone: ShippingZone
     return null;
 }
 
+// Componente para mostrar ofertas (lazy loading)
+function OffersSection() {
+  const [offers, setOffers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showOffers, setShowOffers] = useState(false);
+  const { bcvRate } = useCurrency();
+
+  const loadOffers = async () => {
+    if (loading || offers.length > 0) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetch('/api/products/offers');
+      if (response.ok) {
+        const data = await response.json();
+        setOffers(data);
+      }
+    } catch (error) {
+      console.error('Error fetching offers:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!showOffers) {
+    return (
+      <section className="mt-16">
+        <div className="text-center">
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setShowOffers(true);
+              loadOffers();
+            }}
+          >
+            Ver Ofertas Especiales
+          </Button>
+        </div>
+      </section>
+    );
+  }
+
+  if (loading) {
+    return (
+      <section className="mt-16">
+        <div className="text-center">
+          <p className="text-gray-600">Cargando ofertas...</p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="mt-16">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold gradient-text mb-2">Ofertas Especiales</h2>
+        <p className="text-gray-600">No te pierdas estas increíbles ofertas</p>
+      </div>
+      
+      {offers.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {offers.map((product) => (
+            <ProductCard key={product.id} product={product} bcvRate={bcvRate} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center glass p-8 rounded-2xl">
+          <p className="text-gray-600">No hay ofertas disponibles en este momento</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default function CartPage() {
   const { items, removeFromCart, updateQuantity, setOrderSummary } = useCartStore();
   const router = useRouter();
@@ -108,21 +183,25 @@ export default function CartPage() {
   const [paymentMethod, setPaymentMethod] = useState('');
   const [shippingZone, setShippingZone] = useState('');
   const [allShippingZones, setAllShippingZones] = useState<ShippingZone[]>([]);
+  const [zonesLoaded, setZonesLoaded] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    const fetchZones = async () => {
-        try {
-            const response = await fetch('/api/shipping-zones');
-            if (!response.ok) throw new Error('Failed to fetch zones');
-            const zones = await response.json();
-            setAllShippingZones(zones);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-    fetchZones();
   }, []);
+
+  const loadShippingZones = async () => {
+    if (zonesLoaded) return;
+    
+    try {
+      const response = await fetch('/api/shipping-zones');
+      if (!response.ok) throw new Error('Failed to fetch zones');
+      const zones = await response.json();
+      setAllShippingZones(zones);
+      setZonesLoaded(true);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const subtotal = useMemo(() =>
     items.reduce((acc, item) => acc + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0),
@@ -161,23 +240,25 @@ export default function CartPage() {
   }
   if (items.length === 0) {
     return (
-      <div className="text-center py-20 min-h-[calc(100vh-200px)] flex flex-col justify-center items-center bg-gray-50">
-        <EmptyCartIcon />
-        <h1 className="text-3xl font-bold mb-2 text-gray-800">Tu carrito está vacío</h1>
-        <p className="text-gray-500 mb-8">Parece que aún no has agregado productos.</p>
-        <Button asChild size="lg"><Link href="/tienda">Explorar la tienda</Link></Button>
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50 flex items-center justify-center">
+        <div className="glass p-12 rounded-3xl text-center max-w-md">
+          <EmptyCartIcon />
+          <h1 className="text-3xl font-bold gradient-text mb-4">Tu carrito está vacío</h1>
+          <p className="text-gray-600 mb-8">Parece que aún no has agregado productos.</p>
+          <Button asChild variant="gradient" size="lg"><Link href="/tienda">Explorar la tienda</Link></Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
             <div className="flex items-center gap-4 mb-12">
-                <Button variant="outline" size="icon" className="h-10 w-10 flex-shrink-0" onClick={() => router.back()}>
+                <Button variant="modern" size="icon" className="h-12 w-12 flex-shrink-0" onClick={() => router.back()}>
                     <ArrowLeftIcon />
                 </Button>
-                <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-gray-900">Tu Carrito de Compras</h1>
+                <h1 className="text-4xl lg:text-5xl font-bold gradient-text">Tu Carrito de Compras</h1>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 lg:gap-x-12 lg:items-start">
@@ -186,7 +267,7 @@ export default function CartPage() {
                         {items.map((product) => {
                             const subtotal = (Number(product.price) || 0) * (Number(product.quantity) || 0);
                             return (
-                                <li key={product.id} className="flex p-4 bg-white rounded-lg shadow-sm items-start sm:items-center">
+                                <li key={product.id} className="flex p-6 glass rounded-2xl shadow-xl items-start sm:items-center">
                                     <div className="h-24 w-24 sm:h-32 sm:w-32 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                                         <Image src={product.imageUrl || '/placeholder.png'} alt={product.name} width={128} height={128} className="h-full w-full object-cover object-center" />
                                     </div>
@@ -216,8 +297,8 @@ export default function CartPage() {
                     </ul>
                 </section>
 
-                <section aria-labelledby="summary-heading" className="mt-16 rounded-lg bg-white p-6 shadow-sm lg:col-span-4 lg:mt-0 lg:sticky lg:top-24">
-                    <h2 id="summary-heading" className="text-xl font-bold text-gray-900">Resumen del Pedido</h2>
+                <section aria-labelledby="summary-heading" className="mt-16 glass rounded-2xl p-8 shadow-xl lg:col-span-4 lg:mt-0 lg:sticky lg:top-24">
+                    <h2 id="summary-heading" className="text-2xl font-bold gradient-text mb-6">Resumen del Pedido</h2>
                     <dl className="mt-6 space-y-2">
                         <div className="flex items-center justify-between text-sm">
                             <dt className="text-gray-600">Subtotal</dt>
@@ -245,7 +326,15 @@ export default function CartPage() {
 
                     <div className="mt-6 space-y-2">
                         <Label htmlFor="shipping-zone" className="text-base font-medium text-gray-900">Zona de Envío</Label>
-                        <Select onValueChange={setShippingZone} value={shippingZone}>
+                        <Select 
+                          onValueChange={setShippingZone} 
+                          value={shippingZone}
+                          onOpenChange={(open) => {
+                            if (open && !zonesLoaded) {
+                              loadShippingZones();
+                            }
+                          }}
+                        >
                             <SelectTrigger id="shipping-zone">
                                 <SelectValue placeholder="Selecciona una zona" />
                             </SelectTrigger>
@@ -274,7 +363,7 @@ export default function CartPage() {
                     </div>
 
                     <div className="mt-6">
-                        <Button onClick={handleCheckout} className="w-full" size="lg" disabled={!paymentMethod || !shippingZone}>
+                        <Button onClick={handleCheckout} variant="gradient" className="w-full" size="lg" disabled={!paymentMethod || !shippingZone}>
                             Proceder al Pago
                         </Button>
                     </div>
@@ -283,6 +372,9 @@ export default function CartPage() {
                     </div>
                 </section>
             </div>
+
+            {/* Sección de Ofertas */}
+            <OffersSection />
         </div>
     </div>
   );

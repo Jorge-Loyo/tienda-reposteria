@@ -17,19 +17,46 @@ model Category {
   products Product[]
 }
 
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+}
+
 model User {
   id                   Int       @id @default(autoincrement())
   name                 String?
   email                String    @unique
   password             String
   role                 String    @default("ORDERS_USER")
+  isActive             Boolean   @default(true)
   createdAt            DateTime  @default(now())
   instagram            String?
   phoneNumber          String?
   address              String?
   identityCard         String?
+  avatarUrl            String?
   passwordResetToken   String?   @unique
   passwordResetExpires DateTime?
+  permissions          UserPermission[]
+}
+
+model Permission {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  description String?
+  users       UserPermission[]
+}
+
+model UserPermission {
+  id           Int        @id @default(autoincrement())
+  userId       Int
+  permissionId Int
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, permissionId])
 }
 
 model Product {
@@ -87,4 +114,26 @@ model ShippingZone {
   name                  String // e.g., Barcelona, Puerto la Cruz
   cost                  Float  @default(0)
   freeShippingThreshold Float?
+}
+
+model InstagramPost {
+  id        Int      @id @default(autoincrement())
+  url       String
+  imageUrl  String
+  caption   String
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Banner {
+  id        Int      @id @default(autoincrement())
+  title     String?
+  alt       String
+  src       String
+  active    Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

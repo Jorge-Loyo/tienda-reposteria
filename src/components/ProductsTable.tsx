@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { logError } from '@/lib/logger';
 
 // 1. Actualizamos la interfaz para que acepte los nuevos datos de la oferta
 interface Product {
@@ -42,11 +43,25 @@ function OfferStatusBadge({ isActive, endDate }: { isActive: boolean, endDate: D
 export default function ProductsTable({ products }: { products: Product[] }) {
   const router = useRouter(); 
 
-  // NOTA: Se ha reemplazado confirm() y alert() por console.log() para un entorno más seguro.
-  // Se recomienda usar un componente de modal para confirmaciones y notificaciones.
   const handleDelete = async (productId: number) => {
-    console.log(`Solicitud para eliminar producto con ID: ${productId}`);
-    // La lógica de eliminación real requeriría un modal de confirmación.
+    if (!confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al eliminar el producto');
+      }
+      
+      router.refresh();
+    } catch (error) {
+      logError('Error al eliminar producto', error);
+      alert('Error al eliminar el producto');
+    }
   };
 
   const handleTogglePublished = async (product: Product) => {
@@ -59,7 +74,8 @@ export default function ProductsTable({ products }: { products: Product[] }) {
       if (!response.ok) throw new Error('Error al actualizar el producto');
       router.refresh();
     } catch (error) {
-      console.error(error);
+      logError('Error al actualizar estado del producto', error);
+      alert('Error al actualizar el producto');
     }
   };
 

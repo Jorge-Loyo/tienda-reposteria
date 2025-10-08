@@ -40,59 +40,72 @@ export default async function MyOrdersPage() {
   const orders = await getUserOrders(session.email);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="flex justify-between items-center mb-8">
-        <PageHeader>Mis Pedidos</PageHeader>
-        <Button variant="outline" asChild>
-            <Link href="/perfil">Volver a Mi Perfil</Link>
-        </Button>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
+        <div className="flex justify-between items-center mb-12">
+          <div>
+            <h1 className="text-4xl font-bold gradient-text mb-2">Mis Pedidos</h1>
+            <p className="text-gray-600">Revisa el estado de tus compras</p>
+          </div>
+          <Button variant="modern" asChild>
+              <Link href="/perfil">Volver a Mi Perfil</Link>
+          </Button>
+        </div>
 
-      {orders.length > 0 ? (
-        <div className="overflow-x-auto shadow-md rounded-lg">
-          <table className="min-w-full bg-white">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left py-3 px-6 uppercase font-semibold text-sm">ID Pedido</th>
-                <th className="text-left py-3 px-6 uppercase font-semibold text-sm">Fecha</th>
-                <th className="text-left py-3 px-6 uppercase font-semibold text-sm">Total</th>
-                <th className="text-left py-3 px-6 uppercase font-semibold text-sm">Estado</th>
-                <th className="text-center py-3 px-6 uppercase font-semibold text-sm">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="text-gray-700">
-              {orders.map((order) => (
-                <tr key={order.id} className="border-b hover:bg-gray-50">
-                  <td className="py-4 px-6 font-medium">#{order.id}</td>
-                  <td className="py-4 px-6">{new Date(order.createdAt).toLocaleDateString()}</td>
-                  <td className="py-4 px-6">${order.total.toFixed(2)}</td>
-                  <td className="py-4 px-6">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[order.status] || 'bg-gray-100 text-gray-800'}`}>
-                      {order.status.replace(/_/g, ' ')}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 text-center">
-                    {/* Este botón podría llevar a una página con el detalle completo del pedido */}
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={`/order/${order.id}/pago`}>Ver Detalle</Link>
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="text-center py-16 bg-white rounded-lg shadow-sm">
-            <h2 className="text-2xl font-semibold text-gray-700">No tienes pedidos todavía</h2>
-            <p className="text-gray-500 mt-2">
-                ¡Explora nuestra tienda y encuentra los mejores insumos para tus creaciones!
-            </p>
-            <Button asChild className="mt-6">
-                <Link href="/tienda">Ir a la Tienda</Link>
-            </Button>
-        </div>
-      )}
+        {orders.length > 0 ? (
+          <div className="glass rounded-2xl overflow-hidden shadow-xl">
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gradient-to-r from-pink-500/10 to-orange-500/10">
+                  <tr>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-800">ID Pedido</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-800">Fecha</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-800">Total</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-800">Estado</th>
+                    <th className="text-center py-4 px-6 font-semibold text-gray-800">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.map((order) => (
+                    <tr key={order.id} className="border-b border-white/20 hover:bg-white/30 transition-colors">
+                      <td className="py-6 px-6 font-bold text-gray-800">#{order.id}</td>
+                      <td className="py-6 px-6 text-gray-700">{new Date(order.createdAt).toLocaleDateString()}</td>
+                      <td className="py-6 px-6 font-semibold text-gray-800">${order.total.toFixed(2)}</td>
+                      <td className="py-6 px-6">
+                        <span className={`px-3 py-1 text-xs font-semibold rounded-full ${statusColors[order.status] || 'bg-gray-100 text-gray-800'}`}>
+                          {order.status.replace(/_/g, ' ')}
+                        </span>
+                      </td>
+                      <td className="py-6 px-6 text-center">
+                        <Button variant="outline-modern" size="sm" asChild>
+                          <Link href={`/order/${order.id}/pago`}>Ver Detalle</Link>
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <div className="glass p-12 rounded-3xl max-w-md mx-auto">
+              <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold gradient-text mb-3">No tienes pedidos todavía</h2>
+              <p className="text-gray-600 mb-6">
+                  ¡Explora nuestra tienda y encuentra los mejores insumos para tus creaciones!
+              </p>
+              <Button variant="gradient" asChild>
+                  <Link href="/tienda">Ir a la Tienda</Link>
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

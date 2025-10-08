@@ -1,17 +1,33 @@
 // src/app/api/auth/reset-password/route.ts
-import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import { logError, logInfo } from '@/lib/logger';
+import { rateLimit, getClientIP } from '@/lib/rate-limit';
 
 export async function POST(request: Request) {
   try {
+    // Rate limiting por IP
+    const clientIP = getClientIP(request);
+    const rateLimitResult = rateLimit(`reset-password:${clientIP}`, 3, 300000); // 3 intentos por 5 minutos
+    
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: 'Demasiados intentos de reseteo. Intenta de nuevo más tarde.' },
+        { status: 429 }
+      );
+    }
+
     const { token, password } = await request.json();
 
     if (!token || !password) {
       return NextResponse.json({ error: 'Faltan datos requeridos.' }, { status: 400 });
+    }
+
+    // Validar longitud de contraseña
+    if (password.length < 6 || password.length > 128) {
+      return NextResponse.json({ error: 'La contraseña debe tener entre 6 y 128 caracteres.' }, { status: 400 });
     }
 
     // 1. Encriptamos el token recibido para poder compararlo con el de la BD
@@ -35,7 +51,7 @@ export async function POST(request: Request) {
     }
 
     // 3. Si el token es válido, encriptamos la nueva contraseña
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12); // Aumentamos el costo a 12
 
     // 4. Actualizamos la contraseña y limpiamos los campos de reseteo
     await prisma.user.update({
@@ -47,10 +63,11 @@ export async function POST(request: Request) {
       },
     });
 
+    logInfo('Password reset successful for user', user.id);
     return NextResponse.json({ message: '¡Contraseña actualizada con éxito!' });
 
   } catch (error) {
-    console.error(error);
+    logError('Error en reset password', error);
     return NextResponse.json({ error: 'Error interno del servidor.' }, { status: 500 });
   }
 }

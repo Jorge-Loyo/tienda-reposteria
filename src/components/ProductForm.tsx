@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Upload, X } from 'lucide-react';
 import ProductCard from './ProductCard'; 
 import { Category } from '@prisma/client';
+import { sanitizeText } from '@/lib/sanitizer';
 
 interface ProductData {
   id?: number;
@@ -41,6 +43,9 @@ export default function ProductForm({
   
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -64,17 +69,16 @@ export default function ProductForm({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
-    // CORRECCIÓN: Se maneja el precio (priceUSD) de forma separada para permitir decimales.
     setProduct(prevState => {
       let newValue: string | number = value;
 
       if (name === 'priceUSD') {
-        // Usamos parseFloat para el precio, permitiendo decimales.
-        // Si el campo está vacío, se convierte en 0.
         newValue = value === '' ? '' : parseFloat(value);
       } else if (['stock', 'categoryId'].includes(name)) {
-        // Para los otros campos numéricos, usamos parseInt.
         newValue = parseInt(value, 10) || 0;
+      } else if (typeof value === 'string') {
+        // Sanitizar campos de texto
+        newValue = sanitizeText(value);
       }
       
       return {
@@ -87,25 +91,46 @@ export default function ProductForm({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const localImageUrl = URL.createObjectURL(file);
-      setImagePreview(localImageUrl);
-    } else {
-      setImagePreview(initialData?.imageUrl || null);
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
     }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(initialData?.imageUrl || null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const imageFile = (document.getElementById('image') as HTMLInputElement).files?.[0];
-
     if (!initialData && !imageFile) {
-        alert("Por favor, selecciona una imagen para el nuevo producto.");
+        setAlert({ type: 'error', message: 'Por favor, selecciona una imagen para el nuevo producto.' });
+        setTimeout(() => setAlert(null), 5000);
         return;
     }
 
     if (!product.categoryId) {
-        alert("Por favor, selecciona una categoría.");
+        setAlert({ type: 'error', message: 'Por favor, selecciona una categoría.' });
+        setTimeout(() => setAlert(null), 5000);
         return;
     }
 
@@ -113,21 +138,25 @@ export default function ProductForm({
 
     if (imageFile) {
         setIsUploading(true);
-        const formData = new FormData();
-        formData.append('file', imageFile);
-        formData.append('upload_preset', 'Productos'); 
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', imageFile);
 
         try {
-            const response = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+            const uploadResponse = await fetch('/api/upload/products', {
                 method: 'POST',
-                body: formData,
+                body: uploadFormData,
             });
-            if (!response.ok) throw new Error('Error al subir la imagen a Cloudinary');
-            const data = await response.json();
-            finalImageUrl = data.secure_url;
+            
+            if (!uploadResponse.ok) {
+                throw new Error('Error al subir la imagen');
+            }
+            
+            const { url } = await uploadResponse.json();
+            finalImageUrl = url;
         } catch (error) {
             console.error("Error de subida:", error);
-            alert("No se pudo subir la imagen.");
+            setAlert({ type: 'error', message: 'No se pudo subir la imagen.' });
+            setTimeout(() => setAlert(null), 5000);
             setIsUploading(false);
             return;
         } finally {
@@ -158,17 +187,26 @@ export default function ProductForm({
         throw new Error(errorData.error || 'No se pudo guardar el producto.');
       }
 
-      alert('Producto guardado con éxito!');
-      router.push('/admin/products');
-      router.refresh();
+      setAlert({ type: 'success', message: 'Producto guardado con éxito!' });
+      setTimeout(() => {
+        router.push('/admin/products');
+        router.refresh();
+      }, 1500);
     } catch (error) {
-      alert((error as Error).message);
+      setAlert({ type: 'error', message: (error as Error).message });
+      setTimeout(() => setAlert(null), 5000);
     }
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <div>
+      {alert && (
+        <div className={`mb-4 p-4 rounded-lg ${alert.type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>
+          {alert.message}
+        </div>
+      )}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid w-full items-center gap-1.5"><Label htmlFor="name">Nombre del Producto</Label><Input type="text" id="name" name="name" value={product.name} onChange={handleChange} required /></div>
         <div className="grid w-full items-center gap-1.5"><Label htmlFor="description">Descripción</Label><Textarea id="description" name="description" value={product.description || ''} onChange={handleChange} placeholder="Describe tu producto aquí." /></div>
         <div className="grid w-full items-center gap-1.5">
@@ -178,9 +216,47 @@ export default function ProductForm({
             {categories.map(category => (<option key={category.id} value={category.id}>{category.name}</option>))}
           </select>
         </div>
-        <div className="grid w-full items-center gap-1.5">
-          <Label htmlFor="image">Imagen del Producto</Label>
-          <Input id="image" type="file" onChange={handleImageChange} disabled={isUploading} />
+        <div>
+          <Label htmlFor="image" className="text-sm font-medium text-gray-700 mb-2 block">
+            Imagen del Producto *
+          </Label>
+          {!imagePreview ? (
+            <div
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+                isDragOver ? 'border-pink-400 bg-pink-50' : 'border-gray-300 hover:border-pink-400'
+              }`}
+              onDrop={handleDrop}
+              onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+              onDragLeave={(e) => { e.preventDefault(); setIsDragOver(false); }}
+              onClick={() => document.getElementById('image-input')?.click()}
+            >
+              <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <p className="text-gray-600 mb-2">Arrastra una imagen aquí o haz clic para seleccionar</p>
+              <p className="text-sm text-gray-500">PNG, JPG, WebP hasta 5MB</p>
+              <input
+                id="image-input"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+            </div>
+          ) : (
+            <div className="relative">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="w-full h-64 object-cover rounded-lg"
+              />
+              <button
+                type="button"
+                onClick={removeImage}
+                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </div>
         <div className="grid grid-cols-2 gap-4">
             <div className="grid items-center gap-1.5"><Label htmlFor="sku">SKU</Label><Input type="text" id="sku" name="sku" value={product.sku ?? ''} onChange={handleChange} /></div>
@@ -189,7 +265,7 @@ export default function ProductForm({
         </div>
         <div className="grid items-center gap-1.5"><Label htmlFor="stock">Stock</Label><Input type="number" id="stock" name="stock" value={product.stock} onChange={handleChange} required /></div>
         <Button type="submit" className="w-full" disabled={isUploading}>{isUploading ? 'Subiendo imagen...' : 'Guardar Producto'}</Button>
-      </form>
+        </form>
       <div className="flex flex-col items-center">
         <h3 className="text-lg font-semibold mb-4 text-gray-700">Vista Previa en la Tienda</h3>
         <div className="w-full max-w-xs">
@@ -203,6 +279,7 @@ export default function ProductForm({
             }}
             bcvRate={null}
           />
+        </div>
         </div>
       </div>
     </div>

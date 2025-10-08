@@ -6,6 +6,7 @@ import { getBcvRate } from '@/lib/currency';
 import { Truck, Clock, ShieldCheck, Target, Eye, Gem } from 'lucide-react';
 import Image from 'next/image';
 import HomeBanner from '@/components/HomeBanner';
+import InstagramSection from '@/components/InstagramSection';
 
 const prisma = new PrismaClient();
 
@@ -52,45 +53,42 @@ async function getFeaturedProducts() {
   }
 }
 
+async function getActiveBanners() {
+  try {
+    const banners = await prisma.banner.findMany({
+      where: { active: true },
+      orderBy: { order: 'asc' },
+    });
+    
+    return banners.map(banner => ({
+      src: banner.src,
+      alt: banner.alt,
+      title: banner.title,
+    }));
+  } catch (error) {
+    console.error("Error al obtener banners:", error);
+    return [];
+  }
+}
+
 function FeatureCard({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) {
   return (
-    <div className="text-center p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-      <div className="flex justify-center items-center mb-4 text-green-600">
+    <div className="text-center p-8 glass rounded-2xl card-hover">
+      <div className="flex justify-center items-center mb-6 text-pink-500">
         {icon}
       </div>
-      <h3 className="text-xl font-semibold mb-2 text-gray-800">{title}</h3>
-      <p className="text-sm text-gray-600">{children}</p>
+      <h3 className="text-xl font-semibold mb-4 gradient-text">{title}</h3>
+      <p className="text-sm text-gray-600 leading-relaxed">{children}</p>
     </div>
   );
 }
 
 export default async function HomePage() {
-  const [featuredProducts, bcvRate] = await Promise.all([
+  const [featuredProducts, bcvRate, bannerImages] = await Promise.all([
     getFeaturedProducts(),
-    getBcvRate()
+    getBcvRate(),
+    getActiveBanners()
   ]);
-
-  const bannerImages = [
-    {
-        src: 'https://images.unsplash.com/photo-1558326567-98ae2405596b?q=80&w=2070&auto=format&fit=crop',
-        alt: 'Banner de macarons coloridos',
-        title: 'El Arte de la Repostería Comienza Aquí',
-        subtitle: 'Encuentra todos los insumos de la más alta calidad para que tus creaciones sean inolvidables.',
-        buttonText: 'Explorar Catálogo',
-        buttonLink: '/tienda',
-    },
-    {
-        src: 'https://res.cloudinary.com/dnc0btnuv/image/upload/v1753390660/Banner_2_oxssz2.png',
-        alt: 'kuenn',
-        
-    },
-    {
-        // Esta es la segunda imagen. Si tienes una URL diferente, puedes ponerla aquí.
-        src: 'https://res.cloudinary.com/dnc0btnuv/image/upload/v1753390659/Banner_1_anb2mn.png',
-        alt: 'Kron',
-        
-    }
-  ];
 
   return (
     <div>
@@ -99,7 +97,7 @@ export default async function HomePage() {
       {/* --- El resto de tu página de inicio --- */}
       <section className="py-16 sm:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+          <h2 className="text-4xl font-bold text-center gradient-text mb-16">
             Nuestros Productos Destacados
           </h2>
           {featuredProducts.length > 0 ? (
@@ -112,7 +110,7 @@ export default async function HomePage() {
             <p className="text-center text-gray-500">Próximamente productos destacados.</p>
           )}
           <div className="text-center mt-12">
-            <Button asChild variant="outline">
+            <Button asChild variant="gradient" size="lg" className="px-8 py-4 text-lg">
               <Link href="/tienda">Ver todos los productos</Link>
             </Button>
           </div>
@@ -121,7 +119,7 @@ export default async function HomePage() {
       
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+          <h2 className="text-4xl font-bold text-center gradient-text mb-16">
             ¿Por qué elegirnos?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -150,7 +148,7 @@ export default async function HomePage() {
                     />
                 </div>
                 <div>
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4">Sobre CASA DULCE ORIENTE</h2>
+                    <h2 className="text-4xl font-bold gradient-text mb-6">Sobre CASA DULCE ORIENTE</h2>
                     <p className="text-gray-600 mb-4">
                         Nacimos de la pasión por la repostería y el deseo de facilitar a todos, desde aficionados hasta profesionales, el acceso a insumos de la más alta calidad. En Casa Dulce Oriente, creemos que cada postre es una obra de arte y que los ingredientes correctos son el pincel del artista.
                     </p>
@@ -161,6 +159,8 @@ export default async function HomePage() {
             </div>
         </div>
       </section>
+
+      <InstagramSection />
 
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

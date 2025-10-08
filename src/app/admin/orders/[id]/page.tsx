@@ -72,7 +72,13 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
               {/* Esta sección renderiza el componente para cambiar el estado */}
               <div>
                 <p className="text-sm text-gray-500">Actualizar Estado</p>
-                <UpdateOrderStatus orderId={order.id} currentStatus={order.status} />
+                <UpdateOrderStatus 
+                  orderId={order.id} 
+                  currentStatus={order.status}
+                  customerName={order.customerName}
+                  customerPhone={order.phone || undefined}
+                  orderTotal={order.total}
+                />
               </div>
               {/* --- FIN DE LA CORRECCIÓN --- */}
 

@@ -1,5 +1,6 @@
 // src/app/api/map/route.ts
 import { NextResponse } from 'next/server';
+import { logError, logInfo } from '@/lib/logger';
 
 // Función para validar coordenadas
 function isValidCoordinate(lat: string, lon: string): boolean {
@@ -27,7 +28,7 @@ export async function GET(request: Request) {
     }
 
     // Obtenemos la clave de API desde las variables de entorno
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
     if (!apiKey) {
       console.error('Google Maps API key is not configured');
@@ -52,8 +53,7 @@ export async function GET(request: Request) {
     });
 
     if (!imageResponse.ok) {
-      // Log seguro sin exponer detalles de la API
-      console.error('Google Maps API error: HTTP', imageResponse.status);
+      logError('Google Maps API error', `HTTP ${imageResponse.status}`);
       return new Response('Failed to fetch map image', { status: 502 });
     }
 
@@ -70,8 +70,7 @@ export async function GET(request: Request) {
     });
 
   } catch (error) {
-    // Log seguro sin exponer detalles del error
-    console.error('Map proxy error:', error instanceof Error ? error.message : 'Unknown error');
+    logError('Map proxy error', error);
     return new Response('Internal Server Error', { status: 500 });
   }
 }

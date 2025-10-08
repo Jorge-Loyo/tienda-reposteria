@@ -5,9 +5,9 @@ import { getSessionData } from '@/lib/session'; // 1. Usamos nuestra función de
 import bcrypt from 'bcrypt'; 
 const prisma = new PrismaClient();
 
-// Definimos el tipo 'Role' y los roles disponibles, igual que en la página de usuarios.
-type Role = 'ADMIN' | 'ORDERS_USER' | 'CLIENT' | 'CLIENT_VIP';
-const availableRoles: Role[] = ['ADMIN', 'ORDERS_USER', 'CLIENT', 'CLIENT_VIP'];
+// Definimos el tipo 'Role' y los roles disponibles (incluyendo roles antiguos temporalmente)
+type Role = 'MASTER' | 'ADMINISTRADOR' | 'CLIENTE' | 'CLIENTE_VIP' | 'MARKETING' | 'OPERARIO' | 'ADMIN' | 'ORDERS_USER' | 'CLIENT' | 'CLIENT_VIP';
+const availableRoles: Role[] = ['MASTER', 'ADMINISTRADOR', 'CLIENTE', 'CLIENTE_VIP', 'MARKETING', 'OPERARIO', 'ADMIN', 'ORDERS_USER', 'CLIENT', 'CLIENT_VIP'];
 
 // --- FUNCIÓN GET ---
 export async function GET(
@@ -16,9 +16,17 @@ export async function GET(
 ) {
   try {
     const session = await getSessionData();
-    // 2. Verificamos si el usuario tiene sesión iniciada y si es un ADMIN
-    if (!session || session.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    // 2. Verificamos si el usuario tiene sesión iniciada
+    if (!session) {
+      return NextResponse.json({ error: 'No autorizado - Sin sesión' }, { status: 401 });
+    }
+    
+    // Verificar si tiene permisos
+    const allowedRoles = ['ADMINISTRADOR', 'MASTER', 'ADMIN', 'ORDERS_USER'];
+    if (!allowedRoles.includes(session.role)) {
+      return NextResponse.json({ 
+        error: `No autorizado - Rol '${session.role}' no permitido. Roles permitidos: ${allowedRoles.join(', ')}` 
+      }, { status: 401 });
     }
 
     const userId = Number(params.id);
@@ -27,7 +35,16 @@ export async function GET(
     }
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { email: true, role: true },
+      select: { 
+        name: true,
+        email: true, 
+        role: true,
+        phoneNumber: true,
+        address: true,
+        identityCard: true,
+        instagram: true,
+        avatarUrl: true
+      },
     });
     if (!user) {
       return NextResponse.json({ error: "Usuario no encontrado." }, { status: 404 });
@@ -41,8 +58,14 @@ export async function GET(
 
 // --- FUNCIÓN PUT ---
 interface UpdateUserPayload {
+  name?: string | null;
   role: Role;
-  password?: string; // 2. La contraseña ahora es un campo opcional
+  password?: string;
+  phoneNumber?: string | null;
+  address?: string | null;
+  identityCard?: string | null;
+  instagram?: string | null;
+  avatarUrl?: string | null;
 }
 export async function PUT(
   request: Request,
@@ -50,20 +73,45 @@ export async function PUT(
 ) {
   try {
     const session = await getSessionData();
-    if (!session || session.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    if (!session) {
+      return NextResponse.json({ error: 'No autorizado - Sin sesión' }, { status: 401 });
+    }
+    
+    // Verificar si tiene permisos
+    const allowedRoles = ['ADMINISTRADOR', 'MASTER', 'ADMIN', 'ORDERS_USER'];
+    if (!allowedRoles.includes(session.role)) {
+      return NextResponse.json({ 
+        error: `No autorizado - Rol '${session.role}' no permitido. Roles permitidos: ${allowedRoles.join(', ')}` 
+      }, { status: 401 });
     }
 
     const userIdToUpdate = Number(params.id);
     if (isNaN(userIdToUpdate)) return NextResponse.json({ error: "ID de usuario inválido." }, { status: 400 });
 
-    const { role, password } = await request.json() as UpdateUserPayload;
+    const { name, role, password, phoneNumber, address, identityCard, instagram, avatarUrl } = await request.json() as UpdateUserPayload;
     if (!role || !availableRoles.includes(role)) {
         return NextResponse.json({ error: "Rol inválido." }, { status: 400 });
     }
 
     // 3. Preparamos los datos a actualizar
-    const dataToUpdate: { role: Role; password?: string } = { role };
+    const dataToUpdate: { 
+      name?: string | null;
+      role: Role; 
+      password?: string;
+      phoneNumber?: string | null;
+      address?: string | null;
+      identityCard?: string | null;
+      instagram?: string | null;
+      avatarUrl?: string | null;
+    } = { 
+      name,
+      role,
+      phoneNumber,
+      address,
+      identityCard,
+      instagram,
+      avatarUrl
+    };
 
     // 4. Si se proporcionó una nueva contraseña, la encriptamos y la añadimos a los datos a actualizar
     if (password && password.length > 0) {
@@ -93,8 +141,16 @@ export async function DELETE(
   try {
     const session = await getSessionData();
     // 4. Y también la ruta para eliminar
-    if (!session || session.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    if (!session) {
+      return NextResponse.json({ error: 'No autorizado - Sin sesión' }, { status: 401 });
+    }
+    
+    // Verificar si tiene permisos
+    const allowedRoles = ['ADMINISTRADOR', 'MASTER', 'ADMIN', 'ORDERS_USER'];
+    if (!allowedRoles.includes(session.role)) {
+      return NextResponse.json({ 
+        error: `No autorizado - Rol '${session.role}' no permitido. Roles permitidos: ${allowedRoles.join(', ')}` 
+      }, { status: 401 });
     }
 
     const userIdToDelete = Number(params.id);

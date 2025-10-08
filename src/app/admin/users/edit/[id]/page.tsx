@@ -17,15 +17,23 @@ import {
 import type { Role } from '@/app/admin/users/page';
 
 const roleNames: Record<Role, string> = {
-    ADMIN: 'Administrador',
-    ORDERS_USER: 'Usuario de Pedidos',
-    CLIENT: 'Cliente',
-    CLIENT_VIP: 'Cliente VIP',
+    MASTER: 'Master',
+    ADMINISTRADOR: 'Administrador',
+    CLIENTE: 'Cliente',
+    CLIENTE_VIP: 'Cliente VIP',
+    MARKETING: 'Marketing',
+    OPERARIO: 'Operario',
 };
 
 interface UserData {
+  name: string | null;
   email: string;
   role: Role;
+  phoneNumber: string | null;
+  address: string | null;
+  identityCard: string | null;
+  instagram: string | null;
+  avatarUrl: string | null;
 }
 
 export default function EditUserPage() {
@@ -63,6 +71,12 @@ export default function EditUserPage() {
     }
   };
 
+  const handleInputChange = (field: keyof UserData, value: string) => {
+    if (user) {
+      setUser({ ...user, [field]: value || null });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -70,8 +84,25 @@ export default function EditUserPage() {
     setError('');
 
     try {
-      // 2. Preparamos el cuerpo de la petición con el rol y, opcionalmente, la contraseña
-      const body: { role: Role; password?: string } = { role: user.role };
+      // 2. Preparamos el cuerpo de la petición con todos los campos
+      const body: { 
+        name?: string | null;
+        role: Role; 
+        password?: string;
+        phoneNumber?: string | null;
+        address?: string | null;
+        identityCard?: string | null;
+        instagram?: string | null;
+        avatarUrl?: string | null;
+      } = { 
+        name: user.name,
+        role: user.role,
+        phoneNumber: user.phoneNumber,
+        address: user.address,
+        identityCard: user.identityCard,
+        instagram: user.instagram,
+        avatarUrl: user.avatarUrl
+      };
       if (password.length > 0) {
         body.password = password;
       }
@@ -105,26 +136,96 @@ export default function EditUserPage() {
       <h1 className="text-3xl font-bold mb-6">Editar Usuario</h1>
       {user && (
         <form onSubmit={handleSubmit} className="p-6 bg-white rounded-lg shadow-md border space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Correo Electrónico (no se puede editar)</Label>
-            <Input id="email" type="email" value={user.email} readOnly disabled />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="name">Nombre Completo</Label>
+              <Input 
+                id="name" 
+                type="text" 
+                value={user.name || ''}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                placeholder="Nombre completo del usuario"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="email">Correo Electrónico (no se puede editar)</Label>
+              <Input id="email" type="email" value={user.email} readOnly disabled />
+            </div>
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="role">Rol</Label>
-            <Select value={user.role} onValueChange={handleRoleChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar rol" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.keys(roleNames).map((roleKey) => (
-                    <SelectItem key={roleKey} value={roleKey}>
-                        {roleNames[roleKey as Role]}
-                    </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="phoneNumber">Teléfono</Label>
+              <Input 
+                id="phoneNumber" 
+                type="tel" 
+                value={user.phoneNumber || ''}
+                onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                placeholder="Número de teléfono"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="identityCard">Cédula de Identidad</Label>
+              <Input 
+                id="identityCard" 
+                type="text" 
+                value={user.identityCard || ''}
+                onChange={(e) => handleInputChange('identityCard', e.target.value)}
+                placeholder="Cédula de identidad"
+              />
+            </div>
           </div>
-          {/* 3. Nuevo campo para la contraseña */}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="instagram">Instagram</Label>
+              <Input 
+                id="instagram" 
+                type="text" 
+                value={user.instagram || ''}
+                onChange={(e) => handleInputChange('instagram', e.target.value)}
+                placeholder="@usuario_instagram"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="role">Rol</Label>
+              <Select value={user.role} onValueChange={handleRoleChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar rol" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.keys(roleNames).map((roleKey) => (
+                      <SelectItem key={roleKey} value={roleKey}>
+                          {roleNames[roleKey as Role]}
+                      </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="space-y-1.5">
+            <Label htmlFor="address">Dirección</Label>
+            <Input 
+              id="address" 
+              type="text" 
+              value={user.address || ''}
+              onChange={(e) => handleInputChange('address', e.target.value)}
+              placeholder="Dirección completa"
+            />
+          </div>
+          
+          <div className="space-y-1.5">
+            <Label htmlFor="avatarUrl">URL del Avatar</Label>
+            <Input 
+              id="avatarUrl" 
+              type="url" 
+              value={user.avatarUrl || ''}
+              onChange={(e) => handleInputChange('avatarUrl', e.target.value)}
+              placeholder="https://ejemplo.com/avatar.jpg"
+            />
+          </div>
+          
           <div className="space-y-1.5">
             <Label htmlFor="password">Nueva Contraseña</Label>
             <Input 

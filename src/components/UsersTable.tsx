@@ -9,16 +9,20 @@ import DeleteConfirmationModal from './DeleteConfirmationModal'; // 2. Importamo
 
 interface User {
   id: number;
+  name: string | null;
   email: string;
   role: Role;
+  isActive: boolean;
   createdAt: Date;
 }
 
 const roleNames: Record<Role, string> = {
-  ADMIN: 'Administrador',
-  ORDERS_USER: 'Usuario de Pedidos',
-  CLIENT: 'Cliente',
-  CLIENT_VIP: 'Cliente VIP',
+  MASTER: 'Master',
+  ADMINISTRADOR: 'Administrador',
+  CLIENTE: 'Cliente',
+  CLIENTE_VIP: 'Cliente VIP',
+  MARKETING: 'Marketing',
+  OPERARIO: 'Operario',
 };
 
 export default function UsersTable({ users }: { users: User[] }) {
@@ -32,19 +36,19 @@ export default function UsersTable({ users }: { users: User[] }) {
     setUserToDelete(user);
   };
 
-  // 5. Esta función se ejecuta al confirmar la eliminación
-  const handleConfirmDelete = async () => {
+  // 5. Esta función se ejecuta al confirmar el cambio de estado
+  const handleToggleStatus = async () => {
     if (!userToDelete) return;
 
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/users/${userToDelete.id}`, {
-        method: 'DELETE',
+      const response = await fetch(`/api/users/${userToDelete.id}/toggle-status`, {
+        method: 'PATCH',
       });
       
       if (!response.ok) {
         const data = await response.json().catch(() => null);
-        throw new Error(data?.error || 'No se pudo eliminar el usuario.');
+        throw new Error(data?.error || 'No se pudo cambiar el estado del usuario.');
       }
       
       // Cerramos el modal y refrescamos la lista de usuarios
@@ -61,29 +65,51 @@ export default function UsersTable({ users }: { users: User[] }) {
 
   return (
     <>
-      <div className="overflow-x-auto shadow-md rounded-lg">
-        <table className="min-w-full bg-white">
-          <thead className="bg-gray-50">
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead className="bg-gradient-to-r from-pink-500/10 to-orange-500/10">
             <tr>
-              <th className="text-left py-3 px-6 uppercase font-semibold text-sm">Email</th>
-              <th className="text-left py-3 px-6 uppercase font-semibold text-sm">Rol</th>
-              <th className="text-left py-3 px-6 uppercase font-semibold text-sm">Fecha de Creación</th>
-              <th className="text-center py-3 px-6 uppercase font-semibold text-sm">Acciones</th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-800">Usuario</th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-800">Rol</th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-800">Estado</th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-800">Fecha</th>
+              <th className="text-center py-4 px-6 font-semibold text-gray-800">Acciones</th>
             </tr>
           </thead>
-          <tbody className="text-gray-700">
+          <tbody>
             {users.map((user) => (
-              <tr key={user.id} className="border-b hover:bg-gray-50">
-                <td className="py-4 px-6 font-medium">{user.email}</td>
-                <td className="py-4 px-6">{roleNames[user.role] || user.role}</td>
-                <td className="py-4 px-6">{new Date(user.createdAt).toLocaleDateString()}</td>
-                <td className="py-4 px-6 text-center space-x-2">
-                  <Button variant="outline" size="sm" asChild>
+              <tr key={user.id} className={`border-b border-white/20 hover:bg-white/30 transition-colors ${!user.isActive ? 'opacity-60' : ''}`}>
+                <td className="py-6 px-6">
+                  <div>
+                    <div className="font-semibold text-gray-800">{user.name || 'Sin nombre'}</div>
+                    <div className="text-sm text-gray-600">{user.email}</div>
+                  </div>
+                </td>
+                <td className="py-6 px-6">
+                  <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+                    {roleNames[user.role] || user.role}
+                  </span>
+                </td>
+                <td className="py-6 px-6">
+                  <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                    user.isActive 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {user.isActive ? 'Activo' : 'Inactivo'}
+                  </span>
+                </td>
+                <td className="py-6 px-6 text-gray-700">{new Date(user.createdAt).toLocaleDateString()}</td>
+                <td className="py-6 px-6 text-center space-x-2">
+                  <Button variant="outline-modern" size="sm" asChild>
                     <Link href={`/admin/users/edit/${user.id}`}>Editar</Link>
                   </Button>
-                  {/* 6. El botón ahora abre el modal en lugar de llamar a la API directamente */}
-                  <Button variant="destructive" size="sm" onClick={() => openDeleteModal(user)}>
-                    Eliminar
+                  <Button 
+                    variant={user.isActive ? "destructive" : "outline"} 
+                    size="sm" 
+                    onClick={() => openDeleteModal(user)}
+                  >
+                    {user.isActive ? 'Deshabilitar' : 'Habilitar'}
                   </Button>
                 </td>
               </tr>
@@ -92,14 +118,33 @@ export default function UsersTable({ users }: { users: User[] }) {
         </table>
       </div>
 
-      {/* 7. El modal se muestra solo si hay un usuario seleccionado para eliminar */}
+      {/* 7. El modal se muestra solo si hay un usuario seleccionado */}
       {userToDelete && (
-        <DeleteConfirmationModal
-          userName={userToDelete.email}
-          isDeleting={isDeleting}
-          onConfirm={handleConfirmDelete}
-          onCancel={() => setUserToDelete(null)}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md text-center">
+            <h2 className="text-xl font-bold mb-2">
+              {userToDelete.isActive ? '¿Deshabilitar usuario?' : '¿Habilitar usuario?'}
+            </h2>
+            <p className="text-gray-600 mb-6">
+              {userToDelete.isActive 
+                ? `El usuario ${userToDelete.name || userToDelete.email} será deshabilitado pero mantendrá su historial.`
+                : `El usuario ${userToDelete.name || userToDelete.email} será habilitado nuevamente.`
+              }
+            </p>
+            <div className="flex justify-center gap-4">
+              <Button variant="outline" onClick={() => setUserToDelete(null)} disabled={isDeleting}>
+                Cancelar
+              </Button>
+              <Button 
+                variant={userToDelete.isActive ? "destructive" : "gradient"} 
+                onClick={handleToggleStatus} 
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Procesando...' : (userToDelete.isActive ? 'Deshabilitar' : 'Habilitar')}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

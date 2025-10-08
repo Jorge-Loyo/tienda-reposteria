@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { sendWhatsAppNotification } from '@/lib/whatsapp';
 import {
   Select,
   SelectContent,
@@ -18,9 +19,18 @@ const ORDER_STATUSES = ["PENDIENTE_DE_PAGO", "PAGADO","ARMADO", "ENVIADO", "CANC
 interface UpdateOrderStatusProps {
   orderId: number;
   currentStatus: string;
+  customerName?: string;
+  customerPhone?: string;
+  orderTotal?: number;
 }
 
-export default function UpdateOrderStatus({ orderId, currentStatus }: UpdateOrderStatusProps) {
+export default function UpdateOrderStatus({ 
+  orderId, 
+  currentStatus, 
+  customerName, 
+  customerPhone, 
+  orderTotal 
+}: UpdateOrderStatusProps) {
   const router = useRouter();
   const [selectedStatus, setSelectedStatus] = useState(currentStatus);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +46,20 @@ export default function UpdateOrderStatus({ orderId, currentStatus }: UpdateOrde
 
       if (!response.ok) {
         throw new Error('No se pudo actualizar el estado del pedido.');
+      }
+      
+      // Generar enlace de WhatsApp si hay datos del cliente
+      if (customerName && customerPhone && selectedStatus !== 'PENDIENTE_DE_PAGO') {
+        const whatsappURL = sendWhatsAppNotification(
+          customerName,
+          customerPhone,
+          orderId,
+          selectedStatus,
+          orderTotal
+        );
+        
+        // Abrir WhatsApp en nueva ventana
+        window.open(whatsappURL, '_blank');
       }
       
       alert('¡Estado del pedido actualizado con éxito!');

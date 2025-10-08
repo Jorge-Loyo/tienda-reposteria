@@ -32,6 +32,16 @@ export default function HomeBanner({ images }: HomeBannerProps) {
     return () => clearInterval(interval);
   }, [images.length]);
 
+  const goToPrevious = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+    );
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+  };
+
   return (
     <section className="relative h-[60vh] min-h-[400px] w-full overflow-hidden bg-gray-800">
       {images.map((image, index) => {
@@ -66,15 +76,34 @@ export default function HomeBanner({ images }: HomeBannerProps) {
             <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4 drop-shadow-lg">
               {images[currentIndex]?.title}
             </h1>
-            <p className="max-w-2xl mx-auto text-lg text-gray-200 mb-8 drop-shadow-md">
-              {images[currentIndex]?.subtitle}
-            </p>
-            <Button asChild size="lg">
-              <Link href={images[currentIndex]?.buttonLink || '/'}>{images[currentIndex]?.buttonText}</Link>
-            </Button>
         </div>
       )}
 
+      {/* Flechas de navegación */}
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={goToPrevious}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-200"
+            aria-label="Imagen anterior"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={goToNext}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-200"
+            aria-label="Imagen siguiente"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
+
+      {/* Indicadores de puntos */}
       {images.length > 1 && (
         <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex gap-2">
             {images.map((_, index) => (

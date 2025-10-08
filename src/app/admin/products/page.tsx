@@ -41,23 +41,37 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
   const products = await getProducts(searchParams?.search);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="sm:flex sm:justify-between sm:items-center mb-6 gap-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
-          Gestión de Productos
-        </h1>
-        <Link 
-          href="/admin/products/new" 
-          className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
-        >
-          Crear Nuevo Producto
-        </Link>
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
+        <div className="mb-8">
+          <Link 
+            href="/admin" 
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors text-gray-700"
+          >
+            ← Volver al Panel
+          </Link>
+        </div>
+        
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold gradient-text mb-4">Gestión de Productos</h1>
+          <p className="text-gray-600">Administra el catálogo de productos de tu tienda</p>
+        </div>
+        
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex-1 max-w-md">
+            <SearchInput />
+          </div>
+          <Link 
+            href="/admin/products/new" 
+            className="ml-4 px-6 py-3 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-xl font-semibold hover:from-pink-600 hover:to-orange-600 transition-all duration-200 shadow-lg"
+          >
+            + Crear Producto
+          </Link>
+        </div>
+        <div className="glass rounded-2xl shadow-xl overflow-hidden">
+          <ProductsTable products={products} />
+        </div>
       </div>
-      <div className="mb-6">
-        <SearchInput />
-      </div>
-      {/* Este componente ahora recibirá los datos de la oferta */}
-      <ProductsTable products={products} />
     </div>
   );
 }

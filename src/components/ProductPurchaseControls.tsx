@@ -39,37 +39,53 @@
       }
     };
     
-    // Si no hay stock, mostramos un mensaje diferente
     if (product.stock === 0) {
       return (
-        <div className="mt-10">
+        <div className="glass p-6 rounded-2xl text-center">
           <Button className="w-full" size="lg" disabled>
-            Producto Agotado
+            😔 Producto Agotado
           </Button>
         </div>
       );
     }
 
     return (
-      <div className="mt-10 space-y-4">
-        <div className="flex items-center gap-4">
-          <label htmlFor="quantity" className="text-sm font-medium">Cantidad:</label>
-          <div className="flex items-center rounded-md border border-gray-300">
-            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={decrement} disabled={quantity <= 1}>
-              <span className="text-xl">-</span>
+      <div className="glass p-6 rounded-2xl space-y-6">
+        <div className="flex items-center justify-between">
+          <label htmlFor="quantity" className="text-lg font-semibold gradient-text">
+            Cantidad:
+          </label>
+          <div className="flex items-center glass rounded-xl border border-white/20">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-12 w-12 hover:bg-pink-100 transition-colors" 
+              onClick={decrement} 
+              disabled={quantity <= 1}
+            >
+              <span className="text-xl font-bold text-pink-600">-</span>
             </Button>
-            <span id="quantity" className="w-12 text-center font-medium">{quantity}</span>
-            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={increment} disabled={quantity >= product.stock}>
-              <span className="text-xl">+</span>
+            <span id="quantity" className="w-16 text-center font-bold text-xl text-gray-800">
+              {quantity}
+            </span>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-12 w-12 hover:bg-pink-100 transition-colors" 
+              onClick={increment} 
+              disabled={quantity >= product.stock}
+            >
+              <span className="text-xl font-bold text-pink-600">+</span>
             </Button>
           </div>
         </div>
         <Button
           onClick={handleAddToCart}
-          className="w-full"
+          variant="gradient"
+          className="w-full text-lg py-4 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
           size="lg"
         >
-          Agregar al Carrito
+          🛍️ Agregar al Carrito
         </Button>
       </div>
     );

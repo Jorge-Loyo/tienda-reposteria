@@ -18,6 +18,7 @@ export interface UpdateProfileState {
     phoneNumber?: string[];
     address?: string[];
     identityCard?: string[];
+    avatarUrl?: string[];
   } | null;
 }
 
@@ -38,6 +39,7 @@ const profileSchema = z.object({
   phoneNumber: z.string().optional(),
   address: z.string().optional(),
   identityCard: z.string().optional(),
+  avatarUrl: z.string().optional(),
 });
 
 const passwordSchema = z.object({
@@ -71,7 +73,7 @@ export async function updateProfile(
             };
         }
         
-        const { name, instagram, phoneNumber, address, identityCard } = validatedFields.data;
+        const { name, instagram, phoneNumber, address, identityCard, avatarUrl } = validatedFields.data;
 
         await prisma.user.update({
             where: { id: session.userId },
@@ -81,6 +83,7 @@ export async function updateProfile(
                 phoneNumber,
                 address,
                 identityCard,
+                avatarUrl: avatarUrl || null,
             },
         });
 

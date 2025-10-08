@@ -1,6 +1,11 @@
+// Validar variables de entorno críticas
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
 export const APP_CONFIG = {
-  JWT_SECRET: process.env.JWT_SECRET || 'tu-secreto-super-secreto',
-  GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+  JWT_SECRET: process.env.JWT_SECRET,
+  GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
   COMPANY_LOCATION: {
     lat: 10.135122,
     lng: -64.682316,
@@ -22,6 +27,19 @@ export const ORDER_STATUS = {
 } as const;
 
 export const USER_ROLES = {
-  ADMIN: 'ADMIN',
-  ORDERS_USER: 'ORDERS_USER'
+  MASTER: 'MASTER',
+  ADMINISTRADOR: 'ADMINISTRADOR',
+  CLIENTE: 'CLIENTE',
+  CLIENTE_VIP: 'CLIENTE_VIP',
+  MARKETING: 'MARKETING',
+  OPERARIO: 'OPERARIO'
+} as const;
+
+export const SECURITY_CONFIG = {
+  PASSWORD_MIN_LENGTH: 6,
+  PASSWORD_MAX_LENGTH: 128,
+  BCRYPT_ROUNDS: 12,
+  RATE_LIMIT_WINDOW: 300000, // 5 minutos
+  MAX_LOGIN_ATTEMPTS: 5,
+  MAX_REQUESTS_PER_MINUTE: 60
 } as const;
