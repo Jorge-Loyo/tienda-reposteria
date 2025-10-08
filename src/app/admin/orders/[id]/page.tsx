@@ -6,7 +6,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 // 1. Nos aseguramos de importar el componente para actualizar el estado
-import UpdateOrderStatus from '@/components/UpdateOrderStatus'; 
+import UpdateOrderStatus from '@/components/UpdateOrderStatus';
+import { ToastContainer } from '@/components/ui/toast'; 
 
 const prisma = new PrismaClient();
 
@@ -68,8 +69,22 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
               <InfoBlock label="Fecha" value={new Date(order.createdAt).toLocaleString('es-VE')} />
               <InfoBlock label="Total del Pedido" value={`$${order.total.toFixed(2)}`} />
               
-              {/* --- INICIO DE LA CORRECCIÓN --- */}
-              {/* Esta sección renderiza el componente para cambiar el estado */}
+              {/* Estado actual del pedido */}
+              <div>
+                <p className="text-sm text-gray-500">Estado Actual</p>
+                <div className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
+                  order.status === 'PENDIENTE_DE_PAGO' ? 'bg-yellow-100 text-yellow-800' :
+                  order.status === 'PAGADO' ? 'bg-green-100 text-green-800' :
+                  order.status === 'ARMADO' ? 'bg-blue-100 text-blue-800' :
+                  order.status === 'ENVIADO' ? 'bg-purple-100 text-purple-800' :
+                  order.status === 'CANCELADO' ? 'bg-red-100 text-red-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  {order.status.replace(/_/g, ' ')}
+                </div>
+              </div>
+              
+              {/* Actualizar Estado */}
               <div>
                 <p className="text-sm text-gray-500">Actualizar Estado</p>
                 <UpdateOrderStatus 
@@ -78,9 +93,9 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
                   customerName={order.customerName}
                   customerPhone={order.phone || undefined}
                   orderTotal={order.total}
+                  paymentMethod={order.paymentMethod || undefined}
                 />
               </div>
-              {/* --- FIN DE LA CORRECCIÓN --- */}
 
             </div>
           </div>
@@ -92,6 +107,29 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
               <InfoBlock label="Teléfono" value={order.phone} />
               <InfoBlock label="Cédula" value={order.identityCard} />
               <InfoBlock label="Instagram" value={order.instagram} />
+              <div>
+                <p className="text-sm text-gray-500">Método de Pago</p>
+                <p className="font-medium text-gray-800">
+                  {order.paymentMethod === 'EFECTIVO_USD' ? 'Efectivo (Dólares)' :
+                   order.paymentMethod === 'EFECTIVO_BS' ? 'Efectivo (Bolívares)' :
+                   order.paymentMethod === 'ZELLE' ? 'Transferencia Zelle' :
+                   order.paymentMethod === 'BANESCO' ? 'Transferencia Banesco' :
+                   order.paymentMethod === 'BDV' ? 'Banco de Venezuela' :
+                   order.paymentMethod || 'No especificado'}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Número de Comprobante</p>
+                <p className={`font-medium ${order.receiptNumber ? 'text-green-600' : 'text-gray-400'}`}>
+                  {order.receiptNumber || 'No informado'}
+                </p>
+              </div>
+              {order.confirmedBy && (
+                <div>
+                  <p className="text-sm text-gray-500">Confirmado el pago por</p>
+                  <p className="font-medium text-blue-600">{order.confirmedBy}</p>
+                </div>
+              )}
               <InfoBlock label="Dirección de Envío" value={order.address} />
             </div>
           </div>
@@ -125,6 +163,7 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
           </ul>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

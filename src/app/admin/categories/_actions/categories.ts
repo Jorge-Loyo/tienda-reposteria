@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache"
 
 const addSchema = z.object({
   name: z.string().min(1),
+  imageUrl: z.string().optional(),
 })
 
 export async function addCategory(prevState: unknown, formData: FormData) {
@@ -20,6 +21,7 @@ export async function addCategory(prevState: unknown, formData: FormData) {
   await db.category.create({
     data: {
       name: data.name,
+      imageUrl: data.imageUrl || null,
     },
   })
 
@@ -46,6 +48,7 @@ export async function updateCategory(
     where: { id },
     data: {
       name: data.name,
+      imageUrl: data.imageUrl || null,
     },
   })
 

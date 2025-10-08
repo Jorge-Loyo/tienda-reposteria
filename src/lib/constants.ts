@@ -1,10 +1,5 @@
-// Validar variables de entorno críticas
-if (!process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required');
-}
-
 export const APP_CONFIG = {
-  JWT_SECRET: process.env.JWT_SECRET,
+  JWT_SECRET: process.env.JWT_SECRET || '',
   GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
   COMPANY_LOCATION: {
     lat: 10.135122,

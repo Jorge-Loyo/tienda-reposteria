@@ -1,25 +1,52 @@
 'use client';
 
+import { useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { addCategory } from '@/app/admin/categories/actions'; // Importamos la acción del servidor
+import { CategoryImageSelector } from '@/components/CategoryImageSelector';
+import { addCategory, updateCategory } from '@/app/admin/categories/_actions/categories';
 
 // Componente para el botón de envío que muestra un estado de carga
-function SubmitButton() {
+function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
-      {pending ? "Guardando..." : "Guardar Categoría"}
+      {pending 
+        ? "Guardando..." 
+        : isEditing 
+          ? "Actualizar Categoría" 
+          : "Crear Categoría"
+      }
     </Button>
   );
 }
 
-export function CategoryForm() {
+interface CategoryFormProps {
+  category?: {
+    id: number;
+    name: string;
+    imageUrl?: string | null;
+  };
+}
+
+export function CategoryForm({ category }: CategoryFormProps) {
+  const [selectedImage, setSelectedImage] = useState(category?.imageUrl || '');
+  const isEditing = !!category;
+  
+  const handleSubmit = async (formData: FormData) => {
+    formData.append('imageUrl', selectedImage);
+    
+    if (isEditing) {
+      return updateCategory.bind(null, category.id)(null, formData);
+    } else {
+      return addCategory(null, formData);
+    }
+  };
+
   return (
-    // El 'action' del formulario ahora llama directamente a nuestra server action
-    <form action={addCategory} className="space-y-6 max-w-lg mx-auto">
+    <form action={handleSubmit} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="name">Nombre de la Categoría</Label>
         <Input
@@ -27,10 +54,17 @@ export function CategoryForm() {
           id="name"
           name="name"
           required
+          defaultValue={category?.name || ''}
           placeholder="Ej: Arequipes, Chocolates, etc."
         />
       </div>
-      <SubmitButton />
+      
+      <CategoryImageSelector
+        selectedImage={selectedImage}
+        onImageSelect={setSelectedImage}
+      />
+      
+      <SubmitButton isEditing={isEditing} />
     </form>
   );
 }

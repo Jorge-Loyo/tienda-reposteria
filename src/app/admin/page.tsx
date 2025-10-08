@@ -166,7 +166,7 @@ export default async function AdminDashboardPage() {
                 <th className="text-left py-4 px-6 font-semibold text-gray-800">Cliente</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-800">Total</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-800">Estado</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-800">Fecha</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-800">Fecha y Hora</th>
               </tr>
             </thead>
             <tbody>
@@ -180,7 +180,12 @@ export default async function AdminDashboardPage() {
                       {order.status.replace(/_/g, ' ')}
                     </span>
                   </td>
-                  <td className="py-4 px-6 text-gray-700">{new Date(order.createdAt).toLocaleDateString()}</td>
+                  <td className="py-4 px-6 text-gray-700">
+                    <div className="text-sm">
+                      <div>{new Date(order.createdAt).toLocaleDateString()}</div>
+                      <div className="text-gray-500 text-xs">{new Date(order.createdAt).toLocaleTimeString()}</div>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>

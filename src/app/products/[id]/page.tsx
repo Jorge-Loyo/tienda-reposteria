@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import ProductPurchaseControls from '@/components/ProductPurchaseControls';
 import { getBcvRate, formatToVes } from '@/lib/currency';
 import { formatCurrency } from '@/lib/formatters'; // Se asume que esta función ya existe en tu proyecto
+import { ToastContainer } from '@/components/ui/toast';
 
 const prisma = new PrismaClient();
 
@@ -130,6 +131,7 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

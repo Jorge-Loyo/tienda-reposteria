@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { logError } from '@/lib/logger';
+import { showToast } from '@/components/ui/toast';
 
 // 1. Actualizamos la interfaz para que acepte los nuevos datos de la oferta
 interface Product {
@@ -58,9 +59,10 @@ export default function ProductsTable({ products }: { products: Product[] }) {
       }
       
       router.refresh();
+      showToast('Producto eliminado exitosamente', 'success');
     } catch (error) {
       logError('Error al eliminar producto', error);
-      alert('Error al eliminar el producto');
+      showToast('Error al eliminar el producto', 'error');
     }
   };
 
@@ -73,9 +75,10 @@ export default function ProductsTable({ products }: { products: Product[] }) {
       });
       if (!response.ok) throw new Error('Error al actualizar el producto');
       router.refresh();
+      showToast(`Producto ${!product.published ? 'mostrado' : 'ocultado'} exitosamente`, 'success');
     } catch (error) {
       logError('Error al actualizar estado del producto', error);
-      alert('Error al actualizar el producto');
+      showToast('Error al actualizar el producto', 'error');
     }
   };
 

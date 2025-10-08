@@ -1,8 +1,15 @@
 import { PrismaClient } from '@prisma/client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { ZoneEditForm } from '@/components/ZoneEditForm';
-import { Info } from 'lucide-react'; // Importamos un icono para el mensaje
+import { ZoneStatsClient } from '@/components/ZoneStatsClient';
+import { ZoneOverview } from '@/components/ZoneOverview';
+import { CreateZoneForm } from '@/components/CreateZoneForm';
+import { ZoneManagementClient } from '@/components/ZoneManagementClient';
+import { getZoneAnalytics } from '@/app/admin/zones/actions';
+import { ArrowLeft, MapPin, Info, Globe } from 'lucide-react';
 
 const prisma = new PrismaClient();
 
@@ -50,38 +57,63 @@ async function getAndEnsureShippingZones() {
 
 export default async function AdminZonesPage() {
   const zones = await getAndEnsureShippingZones();
+  const analytics = await getZoneAnalytics();
+  
+  const nationalZone = zones.find(z => z.identifier === 'NACIONAL');
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="sm:flex sm:justify-between sm:items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Gestión de Zonas de Envío</h1>
-        <Button variant="outline" asChild>
-          <Link href="/admin">Volver al Dashboard</Link>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <MapPin className="h-8 w-8 text-blue-600" />
+            Gestión de Zonas de Envío
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            Configura los costos y políticas de envío por zona geográfica
+          </p>
+        </div>
+        <Button variant="outline" asChild className="w-fit">
+          <Link href="/perfil" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Volver al Perfil
+          </Link>
         </Button>
       </div>
 
-      <div className="space-y-6">
-        {zones.length > 0 ? (
-            zones.map(zone => {
-                // --- MODIFICACIÓN: Se añade una condición para la zona de Envíos Nacionales ---
-                if (zone.identifier === 'NACIONAL') {
-                    return (
-                        <div key={zone.id} className="p-4 bg-blue-50 rounded-lg shadow-sm border border-blue-200">
-                            <h3 className="font-semibold text-lg text-blue-800">{zone.name}</h3>
-                            <div className="flex items-center gap-2 mt-2 text-sm text-blue-700">
-                                <Info className="h-4 w-4" />
-                                <p>Para esta zona, nos contactaremos con el cliente para cotizar el envío.</p>
-                            </div>
-                        </div>
-                    );
-                }
-                // Para el resto de las zonas, se muestra el formulario de edición normal.
-                return <ZoneEditForm key={zone.id} zone={zone} />;
-            })
-        ) : (
-            <p className="text-center text-gray-500 py-8">Error al cargar las zonas de envío.</p>
-        )}
-      </div>
+      {/* National Zone */}
+      {nationalZone && (
+        <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-950/20 mb-8">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                  <Globe className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-blue-900 dark:text-blue-100">{nationalZone.name}</CardTitle>
+                  <CardDescription className="text-blue-700 dark:text-blue-300">
+                    Cobertura nacional con cotización personalizada
+                  </CardDescription>
+                </div>
+              </div>
+              <Badge variant="outline" className="border-blue-300 text-blue-700">
+                Especial
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
+              <Info className="h-4 w-4" />
+              <p>Para esta zona, nos contactaremos con el cliente para cotizar el envío según destino y peso.</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Zone Management with all new features */}
+      <ZoneManagementClient zones={zones} analytics={analytics} />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import Link from 'next/link';
 import ProductsTable from '@/components/ProductsTable';
 import SearchInput from '@/components/SearchInput';
+import { ToastContainer } from '@/components/ui/toast';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,10 +46,10 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
         <div className="mb-8">
           <Link 
-            href="/admin" 
+            href="/perfil" 
             className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors text-gray-700"
           >
-            ← Volver al Panel
+            ← Volver
           </Link>
         </div>
         
@@ -72,6 +73,7 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
           <ProductsTable products={products} />
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

@@ -19,7 +19,7 @@ export default function MarketingPage() {
           description="Gestiona el contenido visual y promocional de tu tienda"
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="glass p-8 rounded-2xl shadow-xl">
             <div className="flex items-center gap-4 mb-6">
               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
@@ -38,7 +38,7 @@ export default function MarketingPage() {
               Administra las imágenes que aparecen en el banner principal de la página de inicio. 
               Puedes agregar, editar y organizar las imágenes del carrusel.
             </p>
-            <Button variant="gradient" asChild className="w-full">
+            <Button asChild className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white">
               <Link href="/admin/banner">
                 Gestionar Banner
               </Link>
@@ -61,7 +61,7 @@ export default function MarketingPage() {
               Administra las publicaciones de Instagram que se muestran en la página principal. 
               Agrega, edita y organiza las publicaciones destacadas.
             </p>
-            <Button variant="gradient" asChild className="w-full">
+            <Button asChild className="w-full bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white">
               <Link href="/admin/instagram">
                 Gestionar Instagram
               </Link>
@@ -84,9 +84,32 @@ export default function MarketingPage() {
               Actualiza las imágenes y descripciones de los productos. 
               Solo contenido visual y descriptivo, sin afectar precios o inventario.
             </p>
-            <Button variant="gradient" asChild className="w-full">
+            <Button asChild className="w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white">
               <Link href="/admin/marketing/products">
                 Gestionar Productos
+              </Link>
+            </Button>
+          </div>
+
+          <div className="glass p-8 rounded-2xl shadow-xl">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold gradient-text">Galería de Inspiración</h3>
+                <p className="text-gray-600">Gestiona las imágenes de inspiración</p>
+              </div>
+            </div>
+            <p className="text-gray-700 mb-6">
+              Administra las imágenes que aparecen en la galería de inspiración de la página principal. 
+              Agrega, edita y organiza las fotos de postres y creaciones.
+            </p>
+            <Button asChild className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white">
+              <Link href="/admin/gallery">
+                Gestionar Galería
               </Link>
             </Button>
           </div>

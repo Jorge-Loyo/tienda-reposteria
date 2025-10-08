@@ -86,7 +86,7 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
           Gestión de Pedidos
         </h1>
          <Button variant="outline" asChild>
-          <Link href="/admin">Volver al Dashboard</Link>
+          <Link href="/perfil">Volver</Link>
         </Button>
       </div>
 
@@ -105,7 +105,7 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
               <th className="text-left py-3 px-6 uppercase font-semibold text-sm">ID Pedido</th>
               <th className="text-left py-3 px-6 uppercase font-semibold text-sm">Cliente</th>
               <th className="text-left py-3 px-6 uppercase font-semibold text-sm">Alias/IG</th>
-              <th className="text-left py-3 px-6 uppercase font-semibold text-sm">Fecha</th>
+              <th className="text-left py-3 px-6 uppercase font-semibold text-sm">Fecha y Hora</th>
               <th className="text-left py-3 px-6 uppercase font-semibold text-sm">Estado</th>
               <th className="text-right py-3 px-6 uppercase font-semibold text-sm">Total</th>
               <th className="text-center py-3 px-6 uppercase font-semibold text-sm">Acciones</th>
@@ -117,7 +117,12 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
                 <td className="py-4 px-6 font-medium">#{order.id}</td>
                 <td className="py-4 px-6">{order.customerName}</td>
                 <td className="py-4 px-6">{order.instagram || 'N/A'}</td>
-                <td className="py-4 px-6">{new Date(order.createdAt).toLocaleDateString()}</td>
+                <td className="py-4 px-6">
+                  <div className="text-sm">
+                    <div>{new Date(order.createdAt).toLocaleDateString()}</div>
+                    <div className="text-gray-500 text-xs">{new Date(order.createdAt).toLocaleTimeString()}</div>
+                  </div>
+                </td>
                 <td className="py-4 px-6"><StatusBadge status={order.status} /></td>
                 <td className="py-4 px-6 text-right font-medium">${order.total.toFixed(2)}</td>
                 <td className="py-4 px-6 text-center">

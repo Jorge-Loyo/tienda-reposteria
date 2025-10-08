@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import ProductCard from '@/components/ProductCard';
 import { getBcvRate } from '@/lib/currency';
 import CategoryFilter from '@/components/CategoryFilter';
+import { ToastContainer } from '@/components/ui/toast';
 
 const prisma = new PrismaClient();
 
@@ -91,6 +92,7 @@ export default async function TiendaPage({
                 </div>
             )}
         </div>
+        <ToastContainer />
     </div>
   );
 }

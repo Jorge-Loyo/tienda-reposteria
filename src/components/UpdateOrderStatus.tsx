@@ -1,10 +1,12 @@
-// src/components/UpdateOrderStatus.tsx
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { sendWhatsAppNotification } from '@/lib/whatsapp';
+import { showToast } from '@/components/ui/toast';
 import {
   Select,
   SelectContent,
@@ -13,15 +15,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Definimos los posibles estados de un pedido
-const ORDER_STATUSES = ["PENDIENTE_DE_PAGO", "PAGADO","ARMADO", "ENVIADO", "CANCELADO"];
-
 interface UpdateOrderStatusProps {
   orderId: number;
   currentStatus: string;
   customerName?: string;
   customerPhone?: string;
   orderTotal?: number;
+  paymentMethod?: string;
 }
 
 export default function UpdateOrderStatus({ 
@@ -29,23 +29,74 @@ export default function UpdateOrderStatus({
   currentStatus, 
   customerName, 
   customerPhone, 
-  orderTotal 
+  orderTotal,
+  paymentMethod
 }: UpdateOrderStatusProps) {
   const router = useRouter();
   const [selectedStatus, setSelectedStatus] = useState(currentStatus);
   const [isLoading, setIsLoading] = useState(false);
+  const [receiptNumber, setReceiptNumber] = useState('');
+  const [showReceiptInput, setShowReceiptInput] = useState(false);
+
+  // Lógica de estados permitidos
+  const getAvailableStatuses = (current: string) => {
+    const statuses = [];
+    
+    switch (current) {
+      case 'PENDIENTE_DE_PAGO':
+        statuses.push({ value: 'PAGADO', label: 'PAGADO' });
+        break;
+      case 'PAGADO':
+        statuses.push({ value: 'ARMADO', label: 'ARMADO' });
+        break;
+      case 'ARMADO':
+        statuses.push({ value: 'ENVIADO', label: 'ENVIADO' });
+        break;
+    }
+    
+    // Cancelado siempre disponible
+    statuses.push({ value: 'CANCELADO', label: 'CANCELADO' });
+    
+    return statuses;
+  };
+
+  const handleStatusChange = (newStatus: string) => {
+    setSelectedStatus(newStatus);
+    // Mostrar campo de comprobante solo para métodos de pago específicos
+    const requiresReceipt = ['ZELLE', 'BANESCO', 'BDV'].includes(paymentMethod || '');
+    setShowReceiptInput(currentStatus === 'PENDIENTE_DE_PAGO' && newStatus === 'PAGADO' && requiresReceipt);
+  };
 
   const handleUpdateStatus = async () => {
+    // Validar comprobante si es necesario
+    if (showReceiptInput && !receiptNumber.trim()) {
+      showToast('El número de comprobante es obligatorio para marcar como pagado', 'error');
+      return;
+    }
+
     setIsLoading(true);
     try {
+      const updateData: any = { status: selectedStatus };
+      
+      // Incluir número de comprobante si se proporciona
+      if (showReceiptInput && receiptNumber.trim()) {
+        updateData.receiptNumber = receiptNumber.trim();
+      }
+      
+      // Incluir quién confirmó el pago si se cambia a PAGADO
+      if (selectedStatus === 'PAGADO') {
+        updateData.includeConfirmedBy = true;
+      }
+
       const response = await fetch(`/api/orders/${orderId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: selectedStatus }),
+        body: JSON.stringify(updateData),
       });
 
       if (!response.ok) {
-        throw new Error('No se pudo actualizar el estado del pedido.');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'No se pudo actualizar el estado del pedido.');
       }
       
       // Generar enlace de WhatsApp si hay datos del cliente
@@ -58,37 +109,60 @@ export default function UpdateOrderStatus({
           orderTotal
         );
         
-        // Abrir WhatsApp en nueva ventana
         window.open(whatsappURL, '_blank');
       }
       
-      alert('¡Estado del pedido actualizado con éxito!');
+      showToast('Estado del pedido actualizado con éxito', 'success');
       router.refresh();
 
     } catch (error) {
       console.error(error);
-      alert('Hubo un problema al actualizar el estado.');
+      const errorMessage = error instanceof Error ? error.message : 'Hubo un problema al actualizar el estado.';
+      showToast(errorMessage, 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
+  const availableStatuses = getAvailableStatuses(currentStatus);
+
   return (
-    <div className="flex items-center gap-2 mt-2">
-      <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Cambiar estado" />
-        </SelectTrigger>
-        <SelectContent>
-          {ORDER_STATUSES.map(status => (
-            <SelectItem key={status} value={status}>
-              {status.replace(/_/g, ' ')}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Button onClick={handleUpdateStatus} disabled={isLoading || selectedStatus === currentStatus}>
-        {isLoading ? 'Guardando...' : 'Guardar'}
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <Select value={selectedStatus} onValueChange={handleStatusChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Cambiar estado" />
+          </SelectTrigger>
+          <SelectContent>
+            {availableStatuses.map(status => (
+              <SelectItem key={status.value} value={status.value}>
+                {status.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {showReceiptInput && (
+        <div className="space-y-2">
+          <Label htmlFor="receiptNumber">Número de Comprobante *</Label>
+          <Input
+            id="receiptNumber"
+            type="text"
+            value={receiptNumber}
+            onChange={(e) => setReceiptNumber(e.target.value)}
+            placeholder="Ingrese número de comprobante"
+            className="w-full"
+          />
+        </div>
+      )}
+
+      <Button 
+        onClick={handleUpdateStatus} 
+        disabled={isLoading || selectedStatus === currentStatus}
+        className="w-full"
+      >
+        {isLoading ? 'Guardando...' : 'Actualizar Estado'}
       </Button>
     </div>
   );

@@ -82,7 +82,7 @@ export default async function AdminUsersPage({
             <p className="text-gray-600">Administra los usuarios del sistema</p>
           </div>
           <Button variant="modern" asChild>
-            <Link href="/admin">Volver al Dashboard</Link>
+            <Link href="/perfil">Volver</Link>
           </Button>
         </div>
 

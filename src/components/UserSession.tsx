@@ -10,6 +10,7 @@ interface User {
   name: string | null; // Añadimos el nombre
   email: string;
   role: string;
+  avatarUrl?: string | null; // Añadimos el avatar
 }
 
 // Icono de usuario
@@ -57,7 +58,15 @@ export default function UserSession() {
     return (
       <div className="flex items-center gap-4">
         <Link href="/perfil" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-primary transition-colors">
-          <UserIcon />
+          {user.avatarUrl ? (
+            <img 
+              src={user.avatarUrl} 
+              alt="Avatar" 
+              className="w-8 h-8 rounded-full object-cover border-2 border-pink-200 hover:border-pink-400 transition-colors"
+            />
+          ) : (
+            <UserIcon />
+          )}
           {/* Mostramos el nombre, y si no existe, el email como alternativa */}
           <span className="hidden sm:inline">{user.name || user.email}</span>
         </Link>

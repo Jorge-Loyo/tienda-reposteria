@@ -4,6 +4,7 @@
   import { useState } from 'react';
   import { useCartStore } from '@/store/cartStore';
   import { Button } from '@/components/ui/button';
+  import { showToast } from '@/components/ui/toast';
 
   // Definimos la forma del producto que espera este componente
   interface Product {
@@ -22,7 +23,7 @@
     const handleAddToCart = () => {
       // Llamamos a la nueva función addToCart con la cantidad
       addToCart(product, quantity);
-      alert(`${quantity} x ${product.name} ha sido agregado al carrito!`);
+      showToast(`${quantity} x ${product.name} agregado al carrito`, 'success');
     };
 
     const increment = () => {

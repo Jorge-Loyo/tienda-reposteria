@@ -7,6 +7,10 @@ import { Truck, Clock, ShieldCheck, Target, Eye, Gem } from 'lucide-react';
 import Image from 'next/image';
 import HomeBanner from '@/components/HomeBanner';
 import InstagramSection from '@/components/InstagramSection';
+import { TestimonialsSection } from '@/components/TestimonialsSection';
+import { InspirationGallery } from '@/components/InspirationGallery';
+import { FloatingActions } from '@/components/FloatingActions';
+import { TrendingSection } from '@/components/TrendingSection';
 
 const prisma = new PrismaClient();
 
@@ -53,6 +57,69 @@ async function getFeaturedProducts() {
   }
 }
 
+async function getTrendingProducts() {
+  try {
+    // Obtener el historial de todos los OrderItems agrupados por producto
+    const orderItemsHistory = await prisma.orderItem.groupBy({
+      by: ['productId'],
+      _sum: {
+        quantity: true
+      },
+      _count: {
+        productId: true
+      },
+      orderBy: {
+        _sum: {
+          quantity: 'desc'
+        }
+      }
+    });
+
+    if (orderItemsHistory.length === 0) {
+      return []; // No hay historial de pedidos
+    }
+
+    // Obtener los IDs de productos con más pedidos
+    const productIds = orderItemsHistory.slice(0, 10).map(item => item.productId);
+
+    // Obtener los productos completos que tienen stock
+    const trendingProducts = await prisma.product.findMany({
+      where: {
+        id: { in: productIds },
+        published: true,
+        stock: { gt: 0 } // Solo productos con stock
+      },
+      select: {
+        id: true,
+        name: true,
+        priceUSD: true,
+        imageUrl: true,
+        stock: true,
+        salesCount: true,
+        isOfferActive: true,
+        offerPriceUSD: true,
+        offerEndsAt: true
+      }
+    });
+
+    // Ordenar según el historial de pedidos
+    const sortedProducts = trendingProducts.sort((a, b) => {
+      const aHistory = orderItemsHistory.find(item => item.productId === a.id);
+      const bHistory = orderItemsHistory.find(item => item.productId === b.id);
+      
+      const aQuantity = aHistory?._sum.quantity || 0;
+      const bQuantity = bHistory?._sum.quantity || 0;
+      
+      return bQuantity - aQuantity; // Más cantidad pedida primero
+    });
+
+    return sortedProducts.slice(0, 6);
+  } catch (error) {
+    console.error("Error al obtener productos trending:", error);
+    return [];
+  }
+}
+
 async function getActiveBanners() {
   try {
     const banners = await prisma.banner.findMany({
@@ -84,8 +151,9 @@ function FeatureCard({ icon, title, children }: { icon: React.ReactNode, title: 
 }
 
 export default async function HomePage() {
-  const [featuredProducts, bcvRate, bannerImages] = await Promise.all([
+  const [featuredProducts, trendingProducts, bcvRate, bannerImages] = await Promise.all([
     getFeaturedProducts(),
+    getTrendingProducts(),
     getBcvRate(),
     getActiveBanners()
   ]);
@@ -93,6 +161,8 @@ export default async function HomePage() {
   return (
     <div>
       <HomeBanner images={bannerImages} />
+      
+      <TrendingSection products={trendingProducts} bcvRate={bcvRate} />
 
       {/* --- El resto de tu página de inicio --- */}
       <section className="py-16 sm:py-24 bg-gray-50">
@@ -160,6 +230,10 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <TestimonialsSection />
+      
+      <InspirationGallery />
+      
       <InstagramSection />
 
       <section className="py-16 sm:py-24 bg-white">
@@ -177,6 +251,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      
+      <FloatingActions />
     </div>
   );
 }
