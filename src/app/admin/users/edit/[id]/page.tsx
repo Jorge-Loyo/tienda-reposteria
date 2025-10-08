@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { showToast } from '@/components/ui/toast';
 import {
   Select,
   SelectContent,
@@ -115,7 +116,7 @@ export default function EditUserPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Error al actualizar');
       
-      alert('¡Usuario actualizado con éxito!');
+      showToast('¡Usuario actualizado con éxito!', 'success');
       router.push('/admin/users');
       router.refresh();
     } catch (err) {

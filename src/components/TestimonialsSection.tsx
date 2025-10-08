@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { TestimonialForm } from './TestimonialForm';
 
-const testimonials = [
+const defaultTestimonials = [
   {
     id: 1,
     name: "María González",
@@ -56,6 +57,18 @@ function StarRating({ rating }: { rating: number }) {
 
 export function TestimonialsSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [testimonials, setTestimonials] = useState(defaultTestimonials);
+
+  useEffect(() => {
+    fetch('/api/testimonials')
+      .then(res => res.json())
+      .then(data => {
+        if (data.length > 0) {
+          setTestimonials([...defaultTestimonials, ...data]);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const nextTestimonial = () => {
     setCurrentIndex((prev) => (prev + 1) % testimonials.length);
@@ -81,11 +94,11 @@ export function TestimonialsSection() {
           <div className="glass rounded-2xl p-8 md:p-12 shadow-xl">
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="flex-shrink-0">
-                <img
-                  src={testimonials[currentIndex].image}
-                  alt={testimonials[currentIndex].name}
-                  className="w-20 h-20 rounded-full object-cover shadow-lg"
-                />
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-orange-500 flex items-center justify-center shadow-lg">
+                  <span className="text-2xl font-bold text-white">
+                    {testimonials[currentIndex].name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
               </div>
               
               <div className="flex-1 text-center md:text-left">
@@ -138,6 +151,8 @@ export function TestimonialsSection() {
             </Button>
           </div>
         </div>
+        
+        <TestimonialForm />
       </div>
     </section>
   );

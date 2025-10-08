@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { showToast } from '@/components/ui/toast';
 import { createFullUser } from '@/app/admin/users/new/actions';
 import type { Role } from '@/app/admin/users/page';
 
@@ -23,14 +25,23 @@ const roleDisplayNames: Record<Role, string> = {
 
 export function FullUserForm({ availableRoles }: FullUserFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
     try {
-      await createFullUser(formData);
+      const result = await createFullUser(formData);
+      if (result?.error) {
+        showToast(result.error, 'error');
+        setIsSubmitting(false);
+      } else {
+        showToast('¡Usuario creado exitosamente!', 'success');
+        setTimeout(() => {
+          router.push('/admin/users');
+        }, 1500);
+      }
     } catch (error) {
-      console.error('Error creando usuario:', error);
-    } finally {
+      showToast('Error inesperado al crear usuario', 'error');
       setIsSubmitting(false);
     }
   };
