@@ -33,9 +33,11 @@ export function TestimonialForm() {
         setShowForm(false);
         alert('¡Gracias! Tu testimonio ha sido enviado para revisión.');
       } else {
-        alert('Error al enviar el testimonio. Inténtalo de nuevo.');
+        const errorData = await response.json();
+        alert(errorData.error || 'Error al enviar el testimonio. Inténtalo de nuevo.');
       }
     } catch (error) {
+      console.error('Error:', error);
       alert('Error al enviar el testimonio. Inténtalo de nuevo.');
     } finally {
       setIsSubmitting(false);

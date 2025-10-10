@@ -19,7 +19,7 @@ export default function MarketingPage() {
           description="Gestiona el contenido visual y promocional de tu tienda"
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <div className="glass p-8 rounded-2xl shadow-xl">
             <div className="flex items-center gap-4 mb-6">
               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
@@ -93,23 +93,23 @@ export default function MarketingPage() {
 
           <div className="glass p-8 rounded-2xl shadow-xl">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                 </svg>
               </div>
               <div>
-                <h3 className="text-xl font-bold gradient-text">Galería de Inspiración</h3>
-                <p className="text-gray-600">Gestiona las imágenes de inspiración</p>
+                <h3 className="text-xl font-bold gradient-text">Testimonios</h3>
+                <p className="text-gray-600">Administra comentarios de clientes</p>
               </div>
             </div>
             <p className="text-gray-700 mb-6">
-              Administra las imágenes que aparecen en la galería de inspiración de la página principal. 
-              Agrega, edita y organiza las fotos de postres y creaciones.
+              Revisa y decide qué testimonios de clientes se mostrarán en la página principal. 
+              Controla la visibilidad de los comentarios recibidos.
             </p>
-            <Button asChild className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white">
-              <Link href="/admin/gallery">
-                Gestionar Galería
+            <Button asChild className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white">
+              <Link href="/admin/marketing/testimonios">
+                Gestionar Testimonios
               </Link>
             </Button>
           </div>

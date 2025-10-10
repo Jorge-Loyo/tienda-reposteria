@@ -21,7 +21,7 @@ export async function GET() {
     
     return NextResponse.json(testimonials);
   } catch (error) {
-    return NextResponse.json({ error: 'Error al obtener testimonios' }, { status: 500 });
+    return NextResponse.json([], { status: 200 });
   }
 }
 
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Testimonio enviado para revisión', testimonial });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.errors }, { status: 400 });
+      return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
     }
     return NextResponse.json({ error: 'Error al crear testimonio' }, { status: 500 });
   }
