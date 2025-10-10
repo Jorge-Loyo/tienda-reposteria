@@ -114,6 +114,25 @@ async function getActiveBanners() {
   }
 }
 
+async function getStats() {
+  try {
+    const [productsCount, customersCount, avgRating] = await Promise.all([
+      prisma.product.count({ where: { published: true } }),
+      prisma.order.groupBy({ by: ['customerEmail'], _count: { customerEmail: true } }),
+      prisma.testimonial.aggregate({ where: { approved: true }, _avg: { rating: true } })
+    ]);
+    
+    return {
+      products: productsCount,
+      customers: customersCount.length,
+      rating: avgRating._avg.rating ? Math.round(avgRating._avg.rating * 10) / 10 : 5
+    };
+  } catch (error) {
+    console.error("Error al obtener estadísticas:", error);
+    return { products: 0, customers: 0, rating: 5 };
+  }
+}
+
 function FeatureCard({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) {
   return (
     <div className="group relative overflow-hidden bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-pink-200">
@@ -131,19 +150,20 @@ function FeatureCard({ icon, title, children }: { icon: React.ReactNode, title: 
 
 function StatCard({ number, label }: { number: string, label: string }) {
   return (
-    <div className="text-center p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
-      <div className="text-4xl font-bold text-white mb-2">{number}</div>
-      <div className="text-white/80 text-sm uppercase tracking-wide">{label}</div>
+    <div className="text-center p-6 bg-gradient-to-br from-pink-500/20 to-orange-500/20 backdrop-blur-sm rounded-2xl border border-pink-200/50 hover:from-pink-500/30 hover:to-orange-500/30 transition-all duration-300">
+      <div className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-orange-600 bg-clip-text text-transparent mb-2">{number}</div>
+      <div className="text-gray-700 text-sm uppercase tracking-wide font-medium">{label}</div>
     </div>
   );
 }
 
 export default async function HomePage() {
-  const [featuredProducts, trendingProducts, bcvRate, bannerImages] = await Promise.all([
+  const [featuredProducts, trendingProducts, bcvRate, bannerImages, stats] = await Promise.all([
     getFeaturedProducts(),
     getTrendingProducts(),
     getBcvRate(),
-    getActiveBanners()
+    getActiveBanners(),
+    getStats()
   ]);
 
   return (
@@ -191,9 +211,9 @@ export default async function HomePage() {
               </div>
               
               <div className="grid grid-cols-3 gap-4 pt-8">
-                <StatCard number="500+" label="Productos" />
-                <StatCard number="1000+" label="Clientes" />
-                <StatCard number="5★" label="Calificación" />
+                <StatCard number={`${stats.products}+`} label="Productos" />
+                <StatCard number={`${stats.customers}+`} label="Clientes" />
+                <StatCard number={`${stats.rating}★`} label="Calificación" />
               </div>
             </div>
           </div>

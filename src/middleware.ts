@@ -10,11 +10,11 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   
-  // Content Security Policy básico
+  // Content Security Policy mejorado
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "script-src 'self' https://maps.googleapis.com",
+    "style-src 'self' https://fonts.googleapis.com",
     "img-src 'self' data: https: blob:",
     "font-src 'self' https://fonts.gstatic.com",
     "connect-src 'self' https://api.cloudinary.com https://maps.googleapis.com https://nominatim.openstreetmap.org",
@@ -27,7 +27,7 @@ export function middleware(request: NextRequest) {
 
   // Rate limiting básico para rutas sensibles
   const pathname = request.nextUrl.pathname;
-  if (pathname.startsWith('/api/auth/') || pathname.startsWith('/api/orders')) {
+  if (pathname.startsWith('/api/auth/') || pathname.startsWith('/api/orders') || pathname.startsWith('/api/admin/')) {
     // Los rate limits específicos se manejan en cada endpoint
     response.headers.set('X-RateLimit-Policy', 'active');
   }

@@ -92,7 +92,8 @@ export async function POST(request: Request) {
 
     const productMap = new Map(productsInDb.map((p: Product) => [p.id, p]));
 
-    // Verificación de stock (la lógica de cálculo de total se elimina de aquí)
+    // Recalcular total en servidor para prevenir manipulación
+    let calculatedTotal = shippingCost;
     for (const item of items) {
       const product = productMap.get(item.id);
       if (!product) {
@@ -101,6 +102,22 @@ export async function POST(request: Request) {
       if (product.stock < item.quantity) {
         throw new Error(`Stock insuficiente para el producto: ${product.name}`);
       }
+      
+      // Usar precio de oferta si está activo, sino precio normal
+      const now = new Date();
+      const effectivePrice = product.isOfferActive && 
+                            product.offerPriceUSD && 
+                            product.offerEndsAt && 
+                            product.offerEndsAt > now
+                            ? product.offerPriceUSD 
+                            : product.priceUSD;
+      
+      calculatedTotal += effectivePrice * item.quantity;
+    }
+    
+    // Verificar que el total enviado coincida con el calculado (tolerancia de $0.01)
+    if (Math.abs(total - calculatedTotal) > 0.01) {
+      return NextResponse.json({ error: "Total inválido." }, { status: 400 });
     }
 
     const order = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
@@ -109,7 +126,7 @@ export async function POST(request: Request) {
           customerName: sanitizedCustomerData.name,
           customerEmail: sanitizedCustomerData.email,
           address: sanitizedCustomerData.address,
-          total: total, 
+          total: calculatedTotal, 
           identityCard: sanitizedCustomerData.identityCard,
           phone: sanitizedCustomerData.phone,
           instagram: sanitizedCustomerData.instagram,
