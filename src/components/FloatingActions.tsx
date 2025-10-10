@@ -30,7 +30,7 @@ export function FloatingActions() {
 
   const openWhatsApp = () => {
     const message = encodeURIComponent('¡Hola! Me interesa conocer más sobre sus productos de repostería.');
-    window.open(`https://wa.me/584241234567?text=${message}`, '_blank');
+    window.open(`https://wa.me/584248536954?text=${message}`, '_blank');
   };
 
   return (
