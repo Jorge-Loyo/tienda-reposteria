@@ -49,7 +49,7 @@ export default async function RootLayout({
                   <div className="flex-shrink-0 relative z-10">
                     <Link 
                       href="/" 
-                      className="relative block h-24 w-60 -my-2 transition-transform duration-300 hover:scale-105"
+                      className="relative block h-32 w-72 mt-6 -mb-6 transition-transform duration-300 hover:scale-105"
                       aria-label="Página de inicio de Casa Dulce"
                     >
                       <Image
