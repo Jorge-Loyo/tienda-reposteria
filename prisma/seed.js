@@ -1,6 +1,6 @@
-// prisma/seed.ts
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+// prisma/seed.js
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 

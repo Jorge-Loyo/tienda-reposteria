@@ -103,6 +103,8 @@ async function getActiveBanners() {
       orderBy: { order: 'asc' },
     });
     
+
+    
     return banners.map(banner => ({
       src: banner.src,
       alt: banner.alt,
@@ -166,9 +168,18 @@ export default async function HomePage() {
     getStats()
   ]);
 
+  // Fallback banner si no hay banners en la base de datos
+  const finalBannerImages = bannerImages.length > 0 ? bannerImages : [
+    {
+      src: 'https://images.unsplash.com/photo-1558326567-98ae2405596b?q=80&w=2070&auto=format&fit=crop',
+      alt: 'Casa Dulce Oriente - Repostería Premium',
+      title: 'Casa Dulce Oriente'
+    }
+  ];
+
   return (
     <div>
-      <HomeBanner images={bannerImages} />
+      <HomeBanner images={finalBannerImages} />
       
       <TrendingSection products={trendingProducts} bcvRate={bcvRate} />
       

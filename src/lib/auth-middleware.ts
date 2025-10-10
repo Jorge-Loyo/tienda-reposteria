@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
 
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function verifyAdminAuth(request: NextRequest) {

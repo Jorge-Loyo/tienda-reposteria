@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   try {
     // Rate limiting por IP
     const clientIP = getClientIP(request);
-    const rateLimitResult = rateLimit(`login:${clientIP}`, 5, 300000); // 5 intentos por 5 minutos
+    const rateLimitResult = rateLimit(`login:${clientIP}`, 5, 300000);
     
     if (!rateLimitResult.success) {
       return NextResponse.json(

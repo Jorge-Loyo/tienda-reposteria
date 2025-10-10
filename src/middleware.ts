@@ -10,11 +10,11 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   
-  // Content Security Policy mejorado
+  // Content Security Policy temporal para debugging
   const csp = [
     "default-src 'self'",
-    "script-src 'self' https://maps.googleapis.com",
-    "style-src 'self' https://fonts.googleapis.com",
+    "script-src 'self' 'unsafe-inline' https://maps.googleapis.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: https: blob:",
     "font-src 'self' https://fonts.gstatic.com",
     "connect-src 'self' https://api.cloudinary.com https://maps.googleapis.com https://nominatim.openstreetmap.org",

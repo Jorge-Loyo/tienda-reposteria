@@ -46,10 +46,10 @@ export default async function RootLayout({
             <header className="glass sticky top-0 z-50 border-b border-white/10">
               <div className="max-w-7xl mx-auto px-6 lg:px-8">
                 <div className="flex justify-between items-center h-20">
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 relative z-10">
                     <Link 
                       href="/" 
-                      className="relative block h-16 w-48 transition-transform duration-300 hover:scale-105"
+                      className="relative block h-24 w-60 -my-2 transition-transform duration-300 hover:scale-105"
                       aria-label="Página de inicio de Casa Dulce"
                     >
                       <Image
