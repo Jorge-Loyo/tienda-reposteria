@@ -22,7 +22,6 @@ interface Product {
 // Componente para mostrar el estado de la oferta de forma visual
 function OfferStatusBadge({ isActive, endDate }: { isActive: boolean, endDate: Date | null }) {
     const now = new Date();
-    // Una oferta se considera activa si está marcada como tal Y la fecha de fin no ha pasado.
     const isCurrentlyActive = isActive && (!endDate || new Date(endDate) > now);
 
     if (isCurrentlyActive) {

@@ -5,6 +5,7 @@ import SearchInput from '@/components/SearchInput';
 import { ToastContainer } from '@/components/ui/toast';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const prisma = new PrismaClient();
 

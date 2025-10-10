@@ -38,13 +38,15 @@ export function OfferForm({ product }: { product: Product }) {
       <input type="hidden" name="productId" value={product.id} />
 
       <div className="flex items-center space-x-2 p-4 border rounded-md">
-        <Switch
-          id="isOfferActive"
-          name="isOfferActive"
+        <input 
+          type="checkbox" 
+          id="isOfferActive" 
+          name="isOfferActive" 
           checked={isActive}
-          onCheckedChange={setIsActive}
+          onChange={(e) => setIsActive(e.target.checked)}
+          className="w-4 h-4 text-pink-600 bg-gray-100 border-gray-300 rounded focus:ring-pink-500"
         />
-        <Label htmlFor="isOfferActive" className="text-base font-medium">
+        <Label htmlFor="isOfferActive" className="text-base font-medium cursor-pointer">
           {isActive ? "Oferta Activa" : "Oferta Inactiva"}
         </Label>
       </div>

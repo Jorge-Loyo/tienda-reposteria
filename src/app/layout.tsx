@@ -10,6 +10,7 @@ import React from 'react';
 import UserSession from '@/components/UserSession';
 import { APP_CONFIG } from '@/lib/constants';
 import dynamic from 'next/dynamic';
+import { initializeScheduler } from '@/lib/scheduler';
 
 const LocationMap = dynamic(() => import('@/components/LocationMap'), {
   ssr: false,
@@ -34,6 +35,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Inicializar scheduler solo en servidor
+  if (typeof window === 'undefined') {
+    initializeScheduler();
+  }
+  
   const bcvRate = await getBcvRate();
   const { lat, lng, address } = APP_CONFIG.COMPANY_LOCATION;
   const { phone, email } = APP_CONFIG.CONTACT;

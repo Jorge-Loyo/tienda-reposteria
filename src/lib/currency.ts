@@ -1,7 +1,11 @@
-import { unstable_cache as cache } from 'next/cache';
 import * as cheerio from 'cheerio';
-import https from 'https'; // Módulo para el agente HTTPS
-import axios from 'axios'; // Nueva librería para peticiones HTTP
+import https from 'https';
+import axios from 'axios';
+
+// Sistema de caché en memoria
+let cachedRate: number | null = null;
+let lastUpdate: Date | null = null;
+let isUpdating = false;
 
 /**
  * Interfaz que define la estructura esperada de la respuesta de la API para la tasa del BCV.
@@ -26,13 +30,9 @@ const httpsAgent = new https.Agent({
  */
 async function getRateFromApi(): Promise<number | null> {
   try {
-    console.log('Intentando obtener la tasa del BCV desde la API...');
-    const response = await fetch('https://pydolarvenezuela.vercel.app/api/v1/dollar/bcv', {
-      next: { revalidate: 21600 }, // Cache de 6 horas
-    });
+    const response = await fetch('https://pydolarvenezuela.vercel.app/api/v1/dollar/bcv');
 
     if (!response.ok) {
-      console.error('API falló con estado:', response.status);
       return null;
     }
 
@@ -40,14 +40,11 @@ async function getRateFromApi(): Promise<number | null> {
     const rate = data?.price;
 
     if (typeof rate === 'number') {
-      console.log('Tasa obtenida de la API exitosamente:', rate);
       return rate;
     }
     
-    console.error('El formato de la tasa en la respuesta de la API no es el esperado.');
     return null;
   } catch (error) {
-    console.error('Error al contactar la API:', error instanceof Error ? error.message : 'Error desconocido');
     return null;
   }
 }
@@ -59,33 +56,19 @@ async function getRateFromApi(): Promise<number | null> {
  */
 async function getRateFromBcvWebsite(): Promise<number | null> {
   try {
-    console.log('FALLBACK: Intentando obtener la tasa directamente del sitio web del BCV con Axios...');
-    // Hacemos la petición con Axios, pasándole nuestro agente HTTPS personalizado.
     const response = await axios.get('https://www.bcv.org.ve/', {
       httpsAgent,
     });
 
     const html = response.data;
     const $ = cheerio.load(html);
-
     const rateText = $('#dolar strong').text().trim();
 
-    if (!rateText) {
-      console.error('No se pudo encontrar el elemento de la tasa en el HTML del BCV.');
-      return null;
-    }
+    if (!rateText) return null;
 
     const rate = parseFloat(rateText.replace(/\./g, '').replace(',', '.'));
-
-    if (isNaN(rate)) {
-      console.error('No se pudo convertir el texto de la tasa a un número.');
-      return null;
-    }
-
-    console.log('Tasa obtenida del sitio web del BCV exitosamente:', rate);
-    return rate;
+    return isNaN(rate) ? null : rate;
   } catch (error) {
-    console.error('Error durante el web scraping al sitio del BCV con Axios:', error instanceof Error ? error.message : 'Error desconocido');
     return null;
   }
 }
@@ -115,28 +98,57 @@ export function formatToVes(amount: number): string {
 
 
 /**
- * Obtiene la tasa de cambio actual del Dólar (USD) según el BCV con un sistema de fallback.
- * Primero intenta con una API y si falla, hace web scraping al sitio oficial del BCV.
- * La función está cacheada por Next.js para optimizar el rendimiento.
- *
- * @returns {Promise<number | null>} Una promesa que se resuelve con la tasa, o `null` si ambos métodos fallan.
+ * Verifica si necesita actualizar la tasa (primera vez o después de las 12 de la noche)
  */
-export const getBcvRate = cache(
-  async (): Promise<number | null> => {
-    let rate = await getRateFromApi();
+function shouldUpdateRate(): boolean {
+  if (!lastUpdate || cachedRate === null) return true;
+  
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const lastUpdateDate = new Date(lastUpdate.getFullYear(), lastUpdate.getMonth(), lastUpdate.getDate());
+  
+  // Si es un día diferente y ya pasaron las 12 de la noche
+  return today > lastUpdateDate;
+}
 
+/**
+ * Actualiza la tasa en segundo plano
+ */
+async function updateRateInBackground(): Promise<void> {
+  if (isUpdating) return;
+  
+  isUpdating = true;
+  try {
+    let rate = await getRateFromApi();
     if (rate === null) {
       rate = await getRateFromBcvWebsite();
     }
-
-    if (rate === null) {
-        console.error('FALLO TOTAL: No se pudo obtener la tasa del BCV por ninguna de las vías.');
+    
+    if (rate !== null) {
+      cachedRate = rate;
+      lastUpdate = new Date();
+      console.log('Tasa BCV actualizada:', rate);
     }
-
-    return rate;
-  },
-  ['bcv-exchange-rate-v2'], // Cambiamos la clave para invalidar el caché anterior
-  {
-    tags: ['exchange-rate', 'bcv'],
+  } catch (error) {
+    console.error('Error actualizando tasa BCV:', error);
+  } finally {
+    isUpdating = false;
   }
-);
+}
+
+/**
+ * Obtiene la tasa de cambio del BCV con caché inteligente
+ */
+export async function getBcvRate(): Promise<number | null> {
+  // Si necesita actualización, hazlo en segundo plano
+  if (shouldUpdateRate()) {
+    updateRateInBackground();
+  }
+  
+  // Si no hay tasa cacheada, espera la primera actualización
+  if (cachedRate === null && !isUpdating) {
+    await updateRateInBackground();
+  }
+  
+  return cachedRate || 50; // Valor por defecto si falla todo
+}
