@@ -13,7 +13,7 @@ export function middleware(request: NextRequest) {
   // Content Security Policy temporal para debugging
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' https://maps.googleapis.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: https: blob:",
     "font-src 'self' https://fonts.gstatic.com",

@@ -33,8 +33,19 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json();
-    const { email, password } = body;
+    let email, password;
+    
+    // Manejar tanto JSON como form-data
+    const contentType = request.headers.get('content-type');
+    if (contentType?.includes('application/json')) {
+      const body = await request.json();
+      email = body.email;
+      password = body.password;
+    } else {
+      const formData = await request.formData();
+      email = formData.get('email') as string;
+      password = formData.get('password') as string;
+    }
 
     // Validación más estricta
     if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
@@ -85,7 +96,7 @@ export async function POST(request: Request) {
     });
 
     // 5. Enviamos la respuesta exitosa con la cookie
-    const response = NextResponse.json({ message: 'Inicio de sesión exitoso' });
+    const response = NextResponse.redirect(new URL('/perfil', request.url));
     response.headers.set('Set-Cookie', sessionCookie);
     return response;
 

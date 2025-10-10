@@ -48,7 +48,9 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: res.cloudinary.com images.unsplash.com maps.googleapis.com; font-src 'self' data:; connect-src 'self' https://nominatim.openstreetmap.org https://maps.googleapis.com https://pydolarvenezuela.vercel.app https://www.bcv.org.ve;",
+            value: process.env.NODE_ENV === 'development' 
+              ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https: ws: wss:; frame-src 'self';"
+              : "default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: res.cloudinary.com images.unsplash.com maps.googleapis.com; font-src 'self' data:; connect-src 'self' https://nominatim.openstreetmap.org https://maps.googleapis.com https://pydolarvenezuela.vercel.app https://www.bcv.org.ve; frame-src 'self';",
           },
         ],
       },

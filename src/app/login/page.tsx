@@ -1,68 +1,96 @@
-// src/app/login/page.tsx
-'use client';
-
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import Image from 'next/image';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error en el inicio de sesión');
-      }
-
-      // Si el login es exitoso, redirigimos y refrescamos para que el layout se actualice
-      router.push('/perfil');
-      router.refresh();
-
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-128px)] bg-gray-50">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center">Acceso de Personal</h1>
-        <p className="text-center text-sm text-gray-500">Ingresa tus credenciales para continuar</p>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Correo Electrónico</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="correo@ejemplo.com" />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Contraseña</Label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          </div>
-          {error && <p className="text-sm text-center font-medium text-red-500">{error}</p>}
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-          </Button>
-        </form>
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-orange-50 to-pink-100 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Elementos decorativos de fondo */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
       </div>
+
+      {/* Tarjeta de login */}
+      <div className="relative w-full max-w-md">
+        <div className="backdrop-blur-lg bg-white/30 border border-white/20 rounded-3xl shadow-2xl p-8 space-y-6">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <div className="relative h-20 w-48 mx-auto mb-4">
+              <Image
+                src="https://res.cloudinary.com/dnc0btnuv/image/upload/v1753391048/Logo_kewmlf.png"
+                alt="Casa Dulce Oriente"
+                fill
+                style={{ objectFit: 'contain' }}
+                priority
+              />
+            </div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-orange-600 bg-clip-text text-transparent">
+              Iniciar Sesión
+            </h1>
+            <p className="text-gray-600 text-sm mt-2">Accede a tu cuenta</p>
+          </div>
+
+          <form action="/api/auth/login" method="POST" className="space-y-6">
+            {/* Email */}
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium text-gray-700">
+                Correo Electrónico
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                  </svg>
+                </div>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="correo@ejemplo.com"
+                  className="w-full pl-10 pr-4 py-3 bg-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 placeholder-gray-500"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium text-gray-700">
+                Contraseña
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  className="w-full pl-10 pr-12 py-3 bg-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 placeholder-gray-500"
+                />
+
+              </div>
+            </div>
+
+
+
+            {/* Submit button */}
+            <button
+              type="submit"
+              className="w-full bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
+            >
+              Iniciar Sesión
+            </button>
+          </form>
+        </div>
+      </div>
+
+
     </div>
   );
 }
