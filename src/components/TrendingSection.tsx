@@ -1,7 +1,7 @@
 'use client';
 
 import ProductCard from '@/components/ProductCard';
-import { TrendingUp, Fire, Star } from 'lucide-react';
+import { TrendingUp, Star } from 'lucide-react';
 
 interface Product {
   id: number;

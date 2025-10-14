@@ -10,10 +10,12 @@ interface UserRoleFilterProps {
 }
 
 const roleNames: Record<Role, string> = {
-  ADMIN: 'Administradores',
-  ORDERS_USER: 'Usuarios de Pedidos',
-  CLIENT: 'Clientes',
-  CLIENT_VIP: 'Clientes VIP',
+  MASTER: 'Master',
+  ADMINISTRADOR: 'Administrador',
+  CLIENTE: 'Cliente',
+  CLIENTE_VIP: 'Cliente VIP',
+  MARKETING: 'Marketing',
+  OPERARIO: 'Operario'
 };
 
 export default function UserRoleFilter({ availableRoles, currentRole }: UserRoleFilterProps) {
