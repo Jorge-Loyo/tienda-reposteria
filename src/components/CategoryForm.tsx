@@ -46,7 +46,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
   };
 
   return (
-    <form action={handleSubmit} className="space-y-6">
+    <form action={async (formData) => { await handleSubmit(formData); }} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="name">Nombre de la Categoría</Label>
         <Input
