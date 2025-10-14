@@ -302,7 +302,8 @@ export default function GalleryManagementPage() {
                         variant="outline" 
                         className="w-full" 
                         disabled={isUploading}
-                        onClick={() => document.querySelector('input[type="file"]')?.click()}
+                        // Corregido: forzamos el tipo (casting) a HTMLInputElement para acceder al método click
+                        onClick={() => (document.querySelector('input[type="file"]') as HTMLInputElement)?.click()}
                       >
                         {isUploading ? (
                           <>
