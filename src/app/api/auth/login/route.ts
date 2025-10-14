@@ -68,12 +68,28 @@ export async function POST(request: Request) {
       where: { email: sanitizedEmail },
     });
 
-    // 2. Si no se encuentra el usuario o la contraseña no coincide, devolvemos el mismo error genérico por seguridad.
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+// 2. Verificar si el usuario existe
+if (!user) {
+  // Log del intento fallido sin exponer información sensible
+  logError('Login attempt failed', `User not found for email: ${sanitizeForLog(sanitizedEmail)}`);
+  return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
+}
+
+    // 3. Verificar si el usuario está activo
+    if (!user.isActive) {
+      logError('Login attempt failed', `Inactive user attempted login: ${sanitizeForLog(sanitizedEmail)}`);
+      return NextResponse.json({ error: 'Cuenta desactivada. Contacta al administrador.' }, { status: 401 });
+    }
+
+    // 4. Verificar la contraseña
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      logError('Login attempt failed', `Invalid password for user: ${sanitizeForLog(sanitizedEmail)}`);
       return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
     }
 
-    // 3. Si las credenciales son válidas, creamos el token de sesión
+    // 5. Login exitoso - crear token de sesión
+    logError('Login successful', `User logged in: ${sanitizeForLog(sanitizedEmail)} with role: ${user.role}`);
     const token = jwt.sign(
       {
         userId: user.id,
@@ -86,7 +102,7 @@ export async function POST(request: Request) {
       }
     );
 
-    // 4. Creamos una cookie segura que solo el servidor puede leer
+    // 6. Creamos una cookie segura que solo el servidor puede leer
     const sessionCookie = serialize('sessionToken', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -95,8 +111,20 @@ export async function POST(request: Request) {
       sameSite: 'strict',
     });
 
-    // 5. Enviamos la respuesta exitosa con la cookie
-    const response = NextResponse.redirect(new URL('/perfil', request.url));
+    // 7. Enviamos la respuesta exitosa con la cookie
+    // Obtener la URL base (que ya configuraste en el .env)
+    const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
+    // Definir la ruta de redirección según el rol
+    const redirectPath = user.role === 'MASTER' || user.role === 'ADMINISTRADOR'
+      ? '/admin'
+      : '/perfil';
+
+    // Crear la URL absoluta de redirección
+    const redirectUrl = new URL(redirectPath, BASE_URL);
+
+    // Enviar la respuesta con la cookie y la URL absoluta
+    const response = NextResponse.redirect(redirectUrl);
     response.headers.set('Set-Cookie', sessionCookie);
     return response;
 
