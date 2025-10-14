@@ -1,0 +1,35 @@
+version: 1
+# La fase 'backend' se usa aquí para manejar las operaciones de la DB (Prisma)
+backend:
+  phases:
+    build:
+      commands:
+        # Instala dependencias con npm ci (más limpio para CI/CD)
+        - npm ci
+        # Genera el cliente Prisma
+        - npx prisma generate
+        # Ejecuta las migraciones de Prisma contra la DB (Neon)
+        # Esto creará las tablas si la DB está vacía
+        - npx prisma migrate deploy
+frontend:
+  # La fase 'frontend' se enfoca en compilar Next.js
+  phases:
+    preBuild:
+      commands:
+        # Vuelve a instalar dependencias (aunque ya se hizo en backend, es una buena práctica)
+        - npm ci
+    build:
+      commands:
+        # Ejecuta el script de build de Next.js
+        - npm run build
+  # Define los artefactos (archivos de salida) del build
+  artifacts:
+    # Next.js genera la salida en la carpeta .next
+    baseDirectory: .next
+    files:
+      - "**/*"
+  # Configuración de caché para acelerar builds futuros
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*

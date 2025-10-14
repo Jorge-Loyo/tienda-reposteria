@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -14,7 +14,7 @@ datasource db {
 model Category {
   id       Int       @id @default(autoincrement())
   name     String    @unique
-  imageUrl String?   // URL de la imagen de la categoría
+  imageUrl String? // URL de la imagen de la categoría
   products Product[]
 }
 
@@ -26,19 +26,19 @@ model Role {
 }
 
 model User {
-  id                   Int       @id @default(autoincrement())
+  id                   Int              @id @default(autoincrement())
   name                 String?
-  email                String    @unique
+  email                String           @unique
   password             String
-  role                 String    @default("ORDERS_USER")
-  isActive             Boolean   @default(true)
-  createdAt            DateTime  @default(now())
+  role                 String           @default("ORDERS_USER")
+  isActive             Boolean          @default(true)
+  createdAt            DateTime         @default(now())
   instagram            String?
   phoneNumber          String?
   address              String?
   identityCard         String?
   avatarUrl            String?
-  passwordResetToken   String?   @unique
+  passwordResetToken   String?          @unique
   passwordResetExpires DateTime?
   permissions          UserPermission[]
 }
@@ -56,7 +56,7 @@ model UserPermission {
   permissionId Int
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-  
+
   @@unique([userId, permissionId])
 }
 
@@ -92,8 +92,8 @@ model Order {
   phone                  String?
   instagram              String?
   paymentMethod          String?
-  receiptNumber          String?     // Número de comprobante de pago
-  confirmedBy            String?     // Usuario que confirmó el pago
+  receiptNumber          String? // Número de comprobante de pago
+  confirmedBy            String? // Usuario que confirmó el pago
   shippingZoneIdentifier String?
   shippingCost           Float       @default(0)
   status                 String      @default("PENDIENTE_DE_PAGO")
@@ -113,27 +113,27 @@ model OrderItem {
 }
 
 model ShippingZone {
-  id                    Int       @id @default(autoincrement())
-  identifier            String    @unique // e.g., BARCELONA, PUERTO_LA_CRUZ
-  name                  String    // e.g., Barcelona, Puerto la Cruz
-  cost                  Float     @default(0)
+  id                    Int            @id @default(autoincrement())
+  identifier            String         @unique // e.g., BARCELONA, PUERTO_LA_CRUZ
+  name                  String // e.g., Barcelona, Puerto la Cruz
+  cost                  Float          @default(0)
   freeShippingThreshold Float?
-  isActive              Boolean   @default(true)
-  postalCodes           String?   // JSON array of postal codes
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt @default(now())
+  isActive              Boolean        @default(true)
+  postalCodes           String? // JSON array of postal codes
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @default(now()) @updatedAt
   auditLogs             ZoneAuditLog[]
 }
 
 model ZoneAuditLog {
-  id          Int          @id @default(autoincrement())
-  zoneId      Int
-  action      String       // CREATE, UPDATE, DELETE, ACTIVATE, DEACTIVATE
-  oldValues   String?      // JSON of old values
-  newValues   String?      // JSON of new values
-  userId      String?      // Who made the change
-  createdAt   DateTime     @default(now())
-  zone        ShippingZone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  id        Int          @id @default(autoincrement())
+  zoneId    Int
+  action    String // CREATE, UPDATE, DELETE, ACTIVATE, DEACTIVATE
+  oldValues String? // JSON of old values
+  newValues String? // JSON of new values
+  userId    String? // Who made the change
+  createdAt DateTime     @default(now())
+  zone      ShippingZone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
 }
 
 model InstagramPost {
@@ -163,7 +163,7 @@ model Testimonial {
   name      String
   email     String
   role      String?
-  rating    Int      // 1-5 stars
+  rating    Int // 1-5 stars
   comment   String
   approved  Boolean  @default(false)
   createdAt DateTime @default(now())
