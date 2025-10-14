@@ -1,0 +1,39 @@
+# Comandos para ejecutar en el servidor Ubuntu
+
+# 1. Conectar al servidor
+ssh -i "casa-dulce-key.pem" ubuntu@98.81.143.13
+
+# 2. Ir al directorio del proyecto
+cd casadulce-oriente
+
+# 3. Actualizar variables de entorno
+cat > .env << 'EOF'
+# Variables de la aplicación (RUNTIME)
+NEXT_PUBLIC_BASE_URL="http://98.81.143.13:3000"
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="re_5SLQZiWv_8AYYvrhpikqeXsNfVvRHE9uy"
+
+# Credenciales y Secrets (RUNTIME Y BUILD)
+DATABASE_URL="postgresql://neondb_owner:npg_u3QgVBMRt5kd@ep-small-grass-adoqj79t-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+JWT_SECRET="S2JXzg6oJTok88e6KHr028W8AdhROEGhNtjEhT8Iu9e0+kBbnNq7MCBKAB8EU3+3+T36mIqbst6xDfCaLTRURQ=="
+RESEND_API_KEY="TEMPORAL_RESEND_KEY"
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME="dnc0btnuv"
+CLOUDINARY_API_KEY="528497696243236"
+CLOUDINARY_API_SECRET="qhJT-1WlXZzf25m99WFidMF-Ssw"
+EOF
+
+# 4. Actualizar base de datos
+npx prisma db push
+
+# 5. Crear datos iniciales
+npm run db:seed
+
+# 6. Recompilar aplicación
+npm run build
+
+# 7. Reiniciar aplicación
+pm2 restart casadulce-app
+
+# 8. Verificar logs
+pm2 logs casadulce-app --lines 20

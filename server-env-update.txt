@@ -1,0 +1,21 @@
+# Ejecuta estos comandos en tu servidor Ubuntu:
+
+# 1. Editar el archivo .env
+nano .env
+
+# 2. Reemplaza la línea DATABASE_URL con esta URL correcta:
+DATABASE_URL="postgresql://neondb_owner:npg_u3QgVBMRt5kd@ep-small-grass-adoqj79t-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+# 3. Guarda el archivo (Ctrl+X, Y, Enter)
+
+# 4. Ejecuta Prisma
+npx prisma db push
+
+# 5. Ejecuta el seed
+npm run db:seed
+
+# 6. Recompila
+npm run build
+
+# 7. Reinicia la aplicación
+pm2 restart casadulce-app
