@@ -17,8 +17,8 @@ export function DeleteDropDownItem({
   const router = useRouter()
   return (
     <DropdownMenuItem
-      variant="destructive"
       disabled={disabled || isPending}
+      className="text-red-600 focus:text-red-600"
       onClick={() => {
         startTransition(async () => {
           const result = await deleteAction(id)

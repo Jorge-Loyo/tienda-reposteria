@@ -5,7 +5,13 @@ import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TestimonialForm } from './TestimonialForm';
 
-
+interface Testimonial {
+  id: number;
+  name: string;
+  rating: number;
+  comment: string;
+  role: string;
+}
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -24,7 +30,7 @@ function StarRating({ rating }: { rating: number }) {
 
 export function TestimonialsSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [testimonials, setTestimonials] = useState([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

@@ -28,12 +28,12 @@ export default function OrderReceipt({ order }: OrderReceiptProps) {
     const pageWidth = pdf.internal.pageSize.width;
     
     // Paleta de colores moderna
-    const brand = [236, 72, 153]; // Pink-500
-    const accent = [251, 146, 60]; // Orange-400
-    const dark = [17, 24, 39]; // Gray-900
-    const medium = [75, 85, 99]; // Gray-600
-    const light = [249, 250, 251]; // Gray-50
-    const white = [255, 255, 255];
+    const brand: [number, number, number] = [236, 72, 153]; // Pink-500
+    const accent: [number, number, number] = [251, 146, 60]; // Orange-400
+    const dark: [number, number, number] = [17, 24, 39]; // Gray-900
+    const medium: [number, number, number] = [75, 85, 99]; // Gray-600
+    const light: [number, number, number] = [249, 250, 251]; // Gray-50
+    const white: [number, number, number] = [255, 255, 255];
     
     // Header elegante con curva
     pdf.setFillColor(...brand);
@@ -184,7 +184,7 @@ export default function OrderReceipt({ order }: OrderReceiptProps) {
     pdf.setFontSize(11);
     pdf.setFont('times', 'bold');
     pdf.text('TOTAL A PAGAR:', pageWidth-115, yPos+32);
-    pdf.text(`$${order.total.toFixed(2)}`, pageWidth-25, yPos+32, { align: 'right' });
+    pdf.text(`$${order.total.toFixed(2)}`, pageWidth-25, yPos+32, { align: 'right' } as any);
     
     yPos += 60;
     
@@ -204,7 +204,7 @@ export default function OrderReceipt({ order }: OrderReceiptProps) {
     pdf.setFont('times', 'normal');
     pdf.setTextColor(...medium);
     pdf.setFontSize(7);
-    pdf.text('WhatsApp: +58 424-853-6954  |  Email: casadulceoriente@gmail.com', pageWidth/2, yPos+26, { align: 'center' });
+    pdf.text('WhatsApp: +58 424-853-6954  |  Email: casadulceoriente@gmail.com', pageWidth/2, yPos+26, { align: 'center' } as any);
     
     pdf.save(`Comprobante_Pedido_${order.id}.pdf`);
   };

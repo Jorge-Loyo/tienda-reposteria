@@ -184,7 +184,7 @@ export function MarketingProductForm({ product, categories }: MarketingProductFo
         <select
           id="categoryId"
           name="categoryId"
-          defaultValue={product.category.id}
+          defaultValue={categories.find(cat => cat.name === product.category.name)?.id || ''}
           className="mt-2 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs transition-colors focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
         >
           {categories.map((category) => (
