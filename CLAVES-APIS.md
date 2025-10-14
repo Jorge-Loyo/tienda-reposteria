@@ -54,7 +54,7 @@ FROM_EMAIL="onboarding@resend.dev"
 
 ```env
 # URL base de la aplicación
-NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+NEXT_PUBLIC_BASE_URL="http://54.234.83.233:3000"
 
 # Entorno de ejecución
 NODE_ENV="development"
@@ -99,7 +99,7 @@ NODE_ENV="development"
 # CAMBIAR OBLIGATORIAMENTE
 JWT_SECRET="S2JXzg6oJTok88e6KHr028W8AdhROEGhNtjEhT8Iu9e0+kBbnNq7MCBKAB8EU3+3+T36mIqbst6xDfCaLTRURQ=="
 DATABASE_URL="postgresql://[casadulce_admin]:[feqcOpqxs2U+6nlV9z+KNTbjbhDdCO0e6Sx9uMVNZ9Q/N771iCVujtGyrwXAn88h0wBugCBOvZxx4bNlQ88jfA==]@[HOST]:5432/[DATABASE]"
-NEXT_PUBLIC_BASE_URL="https://tu-dominio.com"
+NEXT_PUBLIC_BASE_URL="http://54.234.83.233:3000"
 
 # Mantener si funcionan correctamente
 CLOUDINARY_CLOUD_NAME="dnc0btnuv"
@@ -209,7 +209,7 @@ CLOUDINARY_API_SECRET="qhJT-1WlXZzf25m99WFidMF-Ssw"
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="AIzaSyA7NF5r-pJS1LO3ZvrYVYCDBlluGNC1Wq8"
 JWT_SECRET="AIzaSyDNoBIpBY77KqN4Ba6TJOi6ae9DR3J5zHg"
 RESEND_API_KEY="re_5SLQZiWv_8AYYvrhpikqeXsNfVvRHE9uy"
-NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+NEXT_PUBLIC_BASE_URL="http://54.234.83.233:3000"
 ```
 
 ---
