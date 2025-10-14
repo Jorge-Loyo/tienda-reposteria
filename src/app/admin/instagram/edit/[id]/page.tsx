@@ -27,10 +27,10 @@ export default async function EditInstagramPostPage({
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50">
       <div className="max-w-4xl mx-auto px-6 lg:px-8 py-16">
-        <PageHeader 
-          title="Editar Publicación de Instagram"
-          description="Modifica la información de la publicación"
-        />
+        <PageHeader>
+          Editar Publicación de Instagram
+        </PageHeader>
+        <p className="text-gray-600 text-center mb-8">Modifica la información de la publicación</p>
 
         <div className="glass rounded-2xl shadow-xl p-8">
           <InstagramPostForm post={post} />
