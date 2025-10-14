@@ -46,12 +46,17 @@ export async function GET(request: Request) {
     const allowedHost = 'nominatim.openstreetmap.org';
     const url = `https://${allowedHost}/reverse?format=json&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`;
     
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
     const geoResponse = await fetch(url, {
       headers: {
         'User-Agent': 'CasaDulceOriente/1.0 (tutienda.com)', 
       },
-      timeout: 5000, // Timeout de 5 segundos
+      signal: controller.signal,
     });
+    
+    clearTimeout(timeoutId);
 
     if (!geoResponse.ok) {
       return NextResponse.json({ error: 'Failed to fetch from geocoding service' }, { status: 502 });

@@ -48,9 +48,14 @@ export async function GET(request: Request) {
     
     const externalMapUrl = `${baseUrl}?${params.toString()}`;
     
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    
     const imageResponse = await fetch(externalMapUrl, {
-      timeout: 10000 // Timeout de 10 segundos
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
 
     if (!imageResponse.ok) {
       logError('Google Maps API error', `HTTP ${imageResponse.status}`);
