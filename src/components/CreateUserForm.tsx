@@ -16,10 +16,13 @@ import type { Role } from '@/app/admin/users/page'; // Importamos el tipo Role
 
 // Mapeo de roles a nombres más amigables
 const roleNames: Record<Role, string> = {
-    ADMIN: 'Administrador',
-    ORDERS_USER: 'Usuario de Pedidos',
-    CLIENT: 'Cliente',
-    CLIENT_VIP: 'Cliente VIP',
+    MASTER: 'Master', // o el nombre que uses para Master
+    ADMINISTRADOR: 'Administrador',
+    OPERARIO: 'Operario de Pedidos', // Usamos el rol que ya existe
+    CLIENTE: 'Cliente',
+    CLIENTE_VIP: 'Cliente VIP',
+    MARKETING: 'Marketing', // Si existe
+    // Asegúrate de que todos los roles de tu ENUM estén aquí con su nombre completo
 };
 
 // El componente ahora recibe la lista de roles disponibles como prop
@@ -27,7 +30,7 @@ export default function CreateUserForm({ availableRoles }: { availableRoles: Rol
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   // Establecemos 'CLIENT' como el rol por defecto
-  const [role, setRole] = useState<Role>('CLIENT');
+  const [role, setRole] = useState<Role>('CLIENTE');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -53,7 +56,7 @@ export default function CreateUserForm({ availableRoles }: { availableRoles: Rol
       console.log('¡Usuario creado con éxito!');
       setEmail('');
       setPassword('');
-      setRole('CLIENT');
+      setRole('CLIENTE');
       router.refresh();
 
     } catch (err) {
