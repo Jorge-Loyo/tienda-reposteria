@@ -108,7 +108,7 @@ async function getActiveBanners() {
     return banners.map(banner => ({
       src: banner.src,
       alt: banner.alt,
-      title: banner.title,
+      title: banner.title || undefined,
     }));
   } catch (error) {
     console.error("Error al obtener banners:", error);
