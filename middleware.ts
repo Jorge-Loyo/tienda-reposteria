@@ -59,7 +59,8 @@ export async function middleware(request: NextRequest) {
 
     // Si el token es válido, aplicamos la lógica de roles.
     const userRole = payload.role as string;
-    if (userRole === USER_ROLES.ORDERS_USER && !pathname.startsWith('/admin/orders')) {
+    // Cambia 'ORDERS_USER' por el rol correcto, por ejemplo 'OPERARIO'
+    if (userRole === USER_ROLES.OPERARIO && !pathname.startsWith('/admin/orders')) {
       // Si es un usuario de "pedidos" e intenta ir a otro sitio, lo forzamos a ir a /admin/orders.
       const ordersUrl = '/admin/orders';
       if (isValidRedirectUrl(ordersUrl, request.url)) {
