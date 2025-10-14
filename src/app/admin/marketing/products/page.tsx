@@ -73,10 +73,10 @@ export default async function MarketingProductsPage({
           </Button>
         </div>
 
-        <PageHeader 
-          title="Productos - Marketing"
-          description="Edita imágenes y descripciones de productos"
-        />
+        <PageHeader>
+          Productos - Marketing
+        </PageHeader>
+        <p className="text-gray-600 text-center mb-8">Edita imágenes y descripciones de productos</p>
 
         <div className="glass p-6 rounded-2xl shadow-xl mb-8">
           <div className="flex justify-between items-center mb-4">

@@ -39,10 +39,10 @@ export default async function EditMarketingProductPage({
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50">
       <div className="max-w-4xl mx-auto px-6 lg:px-8 py-16">
-        <PageHeader 
-          title={`Editar: ${product.name}`}
-          description="Solo puedes modificar la imagen y descripción del producto"
-        />
+        <PageHeader>
+          Editar: {product.name}
+        </PageHeader>
+        <p className="text-gray-600 text-center mb-8">Solo puedes modificar la imagen y descripción del producto</p>
 
         <div className="glass rounded-2xl shadow-xl p-8">
           <MarketingProductForm product={product} categories={categories} />

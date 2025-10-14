@@ -33,10 +33,10 @@ export default async function NewUserPage() {
           </Button>
         </div>
 
-        <PageHeader 
-          title="Crear Nuevo Usuario"
-          description="Completa todos los campos para crear un usuario completo"
-        />
+        <PageHeader>
+          Crear Nuevo Usuario
+        </PageHeader>
+        <p className="text-gray-600 text-center mb-8">Completa todos los campos para crear un usuario completo</p>
 
         <div className="glass rounded-2xl shadow-xl p-8">
           <FullUserForm availableRoles={availableRoles} />
