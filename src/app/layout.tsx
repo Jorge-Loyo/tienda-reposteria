@@ -59,7 +59,7 @@ export default async function RootLayout({
                       aria-label="Página de inicio de Casa Dulce"
                     >
                       <Image
-                        src="/images/casadulce.png"
+                        src="https://res.cloudinary.com/dnc0btnuv/image/upload/v1760487147/CASADULCE_fwwhkm.png"
                         alt="Logo de Casa Dulce Oriente"
                         fill
                         style={{ objectFit: 'contain' }}
