@@ -1,7 +1,7 @@
 # Comandos para ejecutar en el servidor Ubuntu
 
 # 1. Conectar al servidor
-ssh -i "casa-dulce-key.pem" ubuntu@98.81.143.13
+ssh -i "casa-dulce-key.pem" ubuntu@54.221.73.93
 
 # 2. Ir al directorio del proyecto
 cd casadulce-oriente
@@ -9,7 +9,7 @@ cd casadulce-oriente
 # 3. Actualizar variables de entorno
 cat > .env << 'EOF'
 # Variables de la aplicación (RUNTIME)
-NEXT_PUBLIC_BASE_URL="http://98.81.143.13:3000"
+NEXT_PUBLIC_BASE_URL="http://54.221.73.93:3000"
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="re_5SLQZiWv_8AYYvrhpikqeXsNfVvRHE9uy"
 
 # Credenciales y Secrets (RUNTIME Y BUILD)

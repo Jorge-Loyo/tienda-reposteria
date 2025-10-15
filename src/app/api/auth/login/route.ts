@@ -115,10 +115,8 @@ if (!user) {
     // Obtener la URL base (que ya configuraste en el .env)
     const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-    // Definir la ruta de redirección según el rol
-    const redirectPath = user.role === 'MASTER' || user.role === 'ADMINISTRADOR'
-      ? '/admin'
-      : '/perfil';
+    // Todos los usuarios se redirigen a perfil
+    const redirectPath = '/perfil';
 
     // Crear la URL absoluta de redirección
     const redirectUrl = new URL(redirectPath, BASE_URL);
