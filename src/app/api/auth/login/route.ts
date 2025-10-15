@@ -105,7 +105,7 @@ if (!user) {
     // 6. Creamos una cookie segura que solo el servidor puede leer
     const sessionCookie = serialize('sessionToken', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure:false, //process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 8, // 8 horas en segundos
       path: '/',
       sameSite: 'strict',
