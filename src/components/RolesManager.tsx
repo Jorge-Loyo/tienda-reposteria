@@ -5,24 +5,39 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { createRole, updateRole, deleteRole } from '@/app/admin/users/roles/actions';
+import { createRole, updateRole, deleteRole, updateRolePermissions } from '@/app/admin/users/roles/actions';
 
 interface Role {
   id: number;
   name: string;
   description: string | null;
   userCount: number;
+  permissions: {
+    permission: {
+      id: number;
+      name: string;
+    };
+  }[];
+}
+
+interface Permission {
+  id: number;
+  name: string;
+  description: string | null;
 }
 
 interface RolesManagerProps {
   roles: Role[];
+  permissions: Permission[];
 }
 
-export function RolesManager({ roles }: RolesManagerProps) {
+export function RolesManager({ roles, permissions }: RolesManagerProps) {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [rolePermissions, setRolePermissions] = useState<number[]>([]);
+  const [showPermissions, setShowPermissions] = useState(false);
 
   const getRoleDisplayName = (roleName: string): string => {
     const displayNames: Record<string, string> = {
@@ -40,6 +55,15 @@ export function RolesManager({ roles }: RolesManagerProps) {
     setSelectedRole(role);
     setIsEditing(true);
     setIsCreating(false);
+    setShowPermissions(false);
+  };
+
+  const handlePermissions = (role: Role) => {
+    setSelectedRole(role);
+    setRolePermissions(role.permissions.map(p => p.permission.id));
+    setShowPermissions(true);
+    setIsEditing(false);
+    setIsCreating(false);
   };
 
   const handleCreate = () => {
@@ -52,6 +76,29 @@ export function RolesManager({ roles }: RolesManagerProps) {
     setSelectedRole(null);
     setIsEditing(false);
     setIsCreating(false);
+    setShowPermissions(false);
+  };
+
+  const handlePermissionToggle = (permissionId: number) => {
+    setRolePermissions(prev => 
+      prev.includes(permissionId)
+        ? prev.filter(id => id !== permissionId)
+        : [...prev, permissionId]
+    );
+  };
+
+  const handleSavePermissions = async () => {
+    if (!selectedRole) return;
+    
+    setIsSubmitting(true);
+    try {
+      await updateRolePermissions(selectedRole.id, rolePermissions);
+      window.location.reload();
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSubmit = async (formData: FormData) => {
@@ -114,6 +161,13 @@ export function RolesManager({ roles }: RolesManagerProps) {
                 </div>
                 <div className="flex gap-2 ml-4">
                   <Button
+                    onClick={() => handlePermissions(role)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Permisos
+                  </Button>
+                  <Button
                     onClick={() => handleEdit(role)}
                     variant="outline"
                     size="sm"
@@ -137,10 +191,52 @@ export function RolesManager({ roles }: RolesManagerProps) {
 
       <div>
         <h3 className="text-lg font-semibold mb-4">
-          {isCreating ? 'Crear Nuevo Rol' : isEditing ? `Editar Rol: ${getRoleDisplayName(selectedRole?.name || '')}` : 'Selecciona un rol'}
+          {isCreating ? 'Crear Nuevo Rol' : isEditing ? `Editar Rol: ${getRoleDisplayName(selectedRole?.name || '')}` : showPermissions ? `Permisos: ${getRoleDisplayName(selectedRole?.name || '')}` : 'Selecciona un rol'}
         </h3>
         
-        {(isCreating || isEditing) ? (
+        {showPermissions ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto">
+              {permissions.map((permission) => (
+                <label
+                  key={permission.id}
+                  className="flex items-start space-x-3 p-3 bg-white rounded-lg border hover:bg-gray-50 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={rolePermissions.includes(permission.id)}
+                    onChange={() => handlePermissionToggle(permission.id)}
+                    className="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500 mt-1"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium">{permission.name}</div>
+                    {permission.description && (
+                      <div className="text-sm text-gray-600">{permission.description}</div>
+                    )}
+                  </div>
+                </label>
+              ))}
+            </div>
+            
+            <div className="flex gap-3 pt-4">
+              <Button
+                onClick={handleSavePermissions}
+                disabled={isSubmitting}
+                variant="gradient"
+                className="flex-1"
+              >
+                {isSubmitting ? 'Guardando...' : 'Guardar Permisos'}
+              </Button>
+              <Button
+                onClick={handleCancel}
+                variant="outline"
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        ) : (isCreating || isEditing) ? (
           <form action={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="name">Nombre del Rol</Label>
@@ -190,7 +286,7 @@ export function RolesManager({ roles }: RolesManagerProps) {
           </form>
         ) : (
           <div className="text-center py-12 text-gray-500">
-            Selecciona un rol para editarlo o crea uno nuevo
+            Selecciona un rol para editarlo, configurar permisos o crea uno nuevo
           </div>
         )}
       </div>

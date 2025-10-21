@@ -126,7 +126,7 @@ export default async function AdminUsersPage({
         </div>
         
         <div className="mt-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="glass p-6 rounded-2xl shadow-xl">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold gradient-text">Acciones</h2>
@@ -143,20 +143,6 @@ export default async function AdminUsersPage({
             
             <div className="glass p-6 rounded-2xl shadow-xl">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold gradient-text">Gestión de Permisos</h2>
-                <Button variant="outline" asChild>
-                  <Link href="/admin/users/permissions">
-                    Configurar Permisos
-                  </Link>
-                </Button>
-              </div>
-              <p className="text-gray-600 text-sm">
-                Configura permisos granulares para usuarios y roles específicos.
-              </p>
-            </div>
-            
-            <div className="glass p-6 rounded-2xl shadow-xl">
-              <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold gradient-text">Gestión de Roles</h2>
                 <Button variant="outline" asChild>
                   <Link href="/admin/users/roles">
@@ -165,7 +151,7 @@ export default async function AdminUsersPage({
                 </Button>
               </div>
               <p className="text-gray-600 text-sm">
-                Crea, edita y elimina roles del sistema.
+                Crea, edita y elimina roles del sistema con sus permisos.
               </p>
             </div>
           </div>

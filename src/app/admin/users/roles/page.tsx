@@ -9,11 +9,18 @@ async function getRolesData() {
   // Roles nuevos que queremos gestionar
   const validRoles = ['MASTER', 'ADMINISTRADOR', 'CLIENTE', 'CLIENTE_VIP', 'MARKETING', 'OPERARIO'];
   
-  const [roles, userCounts] = await Promise.all([
+  const [roles, userCounts, permissions] = await Promise.all([
     prisma.role.findMany({
       where: {
         name: {
           in: validRoles
+        }
+      },
+      include: {
+        permissions: {
+          include: {
+            permission: true
+          }
         }
       },
       orderBy: { name: 'asc' }
@@ -28,6 +35,9 @@ async function getRolesData() {
           in: validRoles
         }
       }
+    }),
+    prisma.permission.findMany({
+      orderBy: { name: 'asc' }
     })
   ]);
 
@@ -58,7 +68,7 @@ async function getRolesData() {
     userCount: userCounts.find(uc => uc.role === role.name)?._count.role || 0
   }));
 
-  return rolesWithCounts;
+  return { roles: rolesWithCounts, permissions };
 }
 
 function getRoleDescription(roleName: string): string {
@@ -74,7 +84,7 @@ function getRoleDescription(roleName: string): string {
 }
 
 export default async function RolesPage() {
-  const roles = await getRolesData();
+  const { roles, permissions } = await getRolesData();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50">
@@ -93,7 +103,7 @@ export default async function RolesPage() {
         </div>
 
         <div className="glass rounded-2xl shadow-xl p-8">
-          <RolesManager roles={roles} />
+          <RolesManager roles={roles} permissions={permissions} />
         </div>
       </div>
     </div>

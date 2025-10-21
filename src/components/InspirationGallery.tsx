@@ -4,53 +4,20 @@ import { useState } from 'react';
 import { X, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const galleryImages = [
-  {
-    id: 1,
-    src: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop",
-    alt: "Cupcakes decorados",
-    title: "Cupcakes Gourmet",
-    description: "Hechos con nuestros colorantes premium"
-  },
-  {
-    id: 2,
-    src: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400&h=400&fit=crop",
-    alt: "Torta de chocolate",
-    title: "Torta de Chocolate",
-    description: "Con nuestro chocolate belga importado"
-  },
-  {
-    id: 3,
-    src: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&h=400&fit=crop",
-    alt: "Macarons coloridos",
-    title: "Macarons Franceses",
-    description: "Perfectos con nuestras harinas especiales"
-  },
-  {
-    id: 4,
-    src: "https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=400&h=400&fit=crop",
-    alt: "Donuts glaseados",
-    title: "Donuts Artesanales",
-    description: "Glaseados con nuestros azúcares glas"
-  },
-  {
-    id: 5,
-    src: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&h=400&fit=crop",
-    alt: "Cheesecake de frutos rojos",
-    title: "Cheesecake Premium",
-    description: "Con mermeladas de frutas naturales"
-  },
-  {
-    id: 6,
-    src: "https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=400&h=400&fit=crop",
-    alt: "Cookies decoradas",
-    title: "Cookies Decoradas",
-    description: "Usando nuestros moldes y cortadores"
-  }
-];
+interface GalleryImage {
+  id: number;
+  title: string;
+  description: string;
+  imageUrl: string;
+  alt: string;
+}
 
-export function InspirationGallery() {
-  const [selectedImage, setSelectedImage] = useState<typeof galleryImages[0] | null>(null);
+interface InspirationGalleryProps {
+  images: GalleryImage[];
+}
+
+export function InspirationGallery({ images }: InspirationGalleryProps) {
+  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
   return (
     <>
@@ -65,20 +32,21 @@ export function InspirationGallery() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {galleryImages.map((image) => (
-              <div
-                key={image.id}
-                className="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
-                onClick={() => setSelectedImage(image)}
-              >
-                <div className="aspect-square">
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                  />
-                </div>
+          {images.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {images.map((image) => (
+                <div
+                  key={image.id}
+                  className="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                  onClick={() => setSelectedImage(image)}
+                >
+                  <div className="aspect-square">
+                    <img
+                      src={image.imageUrl}
+                      alt={image.alt}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                  </div>
                 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
@@ -91,10 +59,16 @@ export function InspirationGallery() {
                   <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
                     <ExternalLink className="w-5 h-5 text-white" />
                   </div>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500 mb-4">¡Próximamente más inspiración!</p>
+              <p className="text-sm text-gray-400">Estamos preparando increíbles creaciones para inspirarte.</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -112,7 +86,7 @@ export function InspirationGallery() {
             <div className="bg-white rounded-2xl overflow-hidden shadow-2xl">
               <div className="aspect-video">
                 <img
-                  src={selectedImage.src}
+                  src={selectedImage.imageUrl}
                   alt={selectedImage.alt}
                   className="w-full h-full object-cover"
                 />

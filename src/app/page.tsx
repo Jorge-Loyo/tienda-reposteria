@@ -135,6 +135,42 @@ async function getStats() {
   }
 }
 
+async function getGalleryImages() {
+  try {
+    return await prisma.galleryImage.findMany({
+      where: { isActive: true },
+      orderBy: { order: 'asc' },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        alt: true
+      }
+    });
+  } catch (error) {
+    console.error("Error al obtener imágenes de galería:", error);
+    return [];
+  }
+}
+
+async function getSiteConfig() {
+  try {
+    const aboutImage = await prisma.siteConfig.findUnique({
+      where: { key: 'about_section_image' }
+    });
+    
+    return {
+      aboutSectionImage: aboutImage?.value || 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=1987&auto=format&fit=crop'
+    };
+  } catch (error) {
+    console.error("Error al obtener configuración del sitio:", error);
+    return {
+      aboutSectionImage: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=1987&auto=format&fit=crop'
+    };
+  }
+}
+
 function FeatureCard({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) {
   return (
     <div className="group relative overflow-hidden bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-pink-200">
@@ -160,12 +196,14 @@ function StatCard({ number, label }: { number: string, label: string }) {
 }
 
 export default async function HomePage() {
-  const [featuredProducts, trendingProducts, bcvRate, bannerImages, stats] = await Promise.all([
+  const [featuredProducts, trendingProducts, bcvRate, bannerImages, stats, galleryImages, siteConfig] = await Promise.all([
     getFeaturedProducts(),
     getTrendingProducts(),
     getBcvRate(),
     getActiveBanners(),
-    getStats()
+    getStats(),
+    getGalleryImages(),
+    getSiteConfig()
   ]);
 
   // Fallback banner si no hay banners en la base de datos
@@ -191,7 +229,7 @@ export default async function HomePage() {
               <div className="relative bg-white rounded-3xl p-2 shadow-2xl">
                 <div className="relative w-full h-96 rounded-2xl overflow-hidden">
                   <Image 
-                    src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=1987&auto=format&fit=crop"
+                    src={siteConfig.aboutSectionImage}
                     alt="Interior de la pastelería Casa Dulce"
                     fill
                     style={{ objectFit: 'cover' }}
@@ -291,7 +329,7 @@ export default async function HomePage() {
       </section>
 
       <TestimonialsSection />
-      <InspirationGallery />
+      <InspirationGallery images={galleryImages} />
       <InstagramSection />
 
       <section className="py-20 bg-gradient-to-br from-pink-900 via-purple-900 to-orange-900 text-white relative overflow-hidden">
