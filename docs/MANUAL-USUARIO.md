@@ -145,6 +145,90 @@
 
 ---
 
+## 🏆 El Club de Casa Dulce
+
+### ¿Qué es el Club?
+
+El Club de Casa Dulce es nuestro sistema de recompensas donde ganas puntos por cada compra y compites por premios mensuales.
+
+### Cómo Ganar Puntos
+
+- **Por cada compra**: Ganas puntos según el monto gastado
+- **Sistema de puntos**: Cada cierta cantidad de dólares = 1 punto
+- **Acumulación**: Los puntos se suman automáticamente a tu perfil
+
+### Niveles de Membresía
+
+- **🥉 Bronce**: Nivel inicial con cashback básico
+- **🥈 Plata**: Mayor cashback y beneficios adicionales
+- **🥇 Oro**: Máximo nivel con mejores recompensas
+
+### Competencia Mensual
+
+- **Ranking**: Los usuarios con más puntos del mes compiten
+- **Premios**:
+  - 🥇 1er Lugar: Premio principal
+  - 🥈 2do Lugar: Premio secundario
+  - 🥉 3er Lugar: Premio de consolación
+- **Reinicio**: El ranking se reinicia cada mes
+
+### Ver tu Progreso
+
+1. **Perfil → Club**: Ver tu dashboard del club
+2. **Información Disponible**:
+   - Puntos totales acumulados
+   - Puntos del mes actual
+   - Tu posición en el ranking
+   - Nivel de membresía actual
+   - Premios del mes
+
+---
+
+## 💳 Casa Dulce VIP
+
+### ¿Qué es VIP?
+
+Casa Dulce VIP es nuestro sistema de crédito exclusivo para clientes selectos, permitiendo comprar ahora y pagar después.
+
+### Características VIP
+
+- **Crédito Rotativo**: Funciona como una tarjeta de crédito
+- **Sin Intereses**: Crédito completamente gratuito
+- **Renovación Mensual**: Tu crédito se renueva cada mes
+- **Acceso Exclusivo**: Solo por invitación del administrador
+
+### Cómo Funciona
+
+1. **Asignación**: El administrador te asigna un límite de crédito
+2. **Compras**: Puedes comprar hasta tu límite disponible
+3. **Pago**: Pagas antes de la fecha de corte mensual
+4. **Renovación**: Tu crédito se restaura automáticamente
+
+### Tu Estado VIP
+
+**Perfil → VIP**: Ver tu información VIP
+
+- **Crédito Disponible**: Saldo actual que puedes usar
+- **Límite Total**: Máximo crédito asignado
+- **Fecha de Corte**: Cuándo vence tu pago mensual
+- **Días Restantes**: Tiempo hasta la fecha de corte
+
+### Beneficios VIP
+
+- **💳 Gift Cards de Crédito**: Compra ahora, paga después
+- **👥 Atención Prioritaria**: Soporte dedicado
+- **💬 Ofertas Exclusivas**: Acceso anticipado a productos
+- **📦 Envío Gratuito**: Sin costo en todos tus pedidos
+
+### Fechas de Corte
+
+Tu fecha de corte se repite cada mes:
+- **Día Fijo**: Ejemplo: cada 15 del mes
+- **Último Día**: Último día de cada mes
+- **Día Hábil**: Primer día hábil del mes
+
+---
+
 ## 📱 Funciones Móviles
 
 ### Diseño Responsivo

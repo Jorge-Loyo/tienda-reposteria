@@ -48,6 +48,59 @@ Listar pedidos según rol de usuario.
 }
 ```
 
+## Club de Casa Dulce
+
+### GET /api/club/config
+Obtener configuración del club (público).
+
+### PUT /api/club/config (Admin)
+```json
+{
+  "points_per_dollar": 5.0,
+  "first_prize_object": "{\"type\":\"money\",\"amount\":200}",
+  "bronze_threshold": 50,
+  "bronze_cashback": 2.5
+}
+```
+
+### GET /api/club/top-users
+Obtener ranking mensual de usuarios.
+
+### GET /api/club/user-stats
+Obtener estadísticas del usuario autenticado.
+
+## Sistema VIP
+
+### GET /api/club/vip-users (Admin)
+Listar todos los usuarios VIP con sus créditos.
+
+### GET /api/club/all-vip-users (Admin)
+Listar todos los usuarios con rol CLIENTE_VIP.
+
+### POST /api/club/assign-vip (Admin)
+```json
+{
+  "userId": "user@example.com",
+  "creditLimit": 500.00,
+  "notes": "Cliente premium",
+  "paymentDueDate": "15"
+}
+```
+
+### PUT /api/club/update-vip-credit (Admin)
+```json
+{
+  "vipId": "1",
+  "creditLimit": 750.00,
+  "paymentDueDate": "ultimo"
+}
+```
+
+### Opciones de Fecha de Corte VIP
+- `"1"`, `"5"`, `"10"`, `"15"`, `"20"`, `"25"` - Día específico del mes
+- `"ultimo"` - Último día del mes
+- `"habil"` - Primer día hábil del mes
+
 ## Códigos de Error
 - `400` - Datos inválidos
 - `401` - No autenticado

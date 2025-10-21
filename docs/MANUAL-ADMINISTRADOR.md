@@ -244,6 +244,92 @@
 
 ---
 
+## 🏆 Sistema de Club de Casa Dulce
+
+### Configuración del Club
+
+1. **Admin → Club → Configuración Club**
+2. **Configurar Puntos**:
+   - $ para ganar 1 punto (ej: $5 = 1 punto)
+   - Sistema de puntos inverso (dinero gastado por punto)
+3. **Premios Mensuales**:
+   - 1er Lugar 🥇: Configurar premio (dinero o producto)
+   - 2do Lugar 🥈: Configurar premio
+   - 3er Lugar 🥉: Configurar premio
+   - Subir imágenes de premios (Cloudinary)
+4. **Niveles de Membresía**:
+   - Bronce: Puntos requeridos y % cashback
+   - Plata: Puntos requeridos y % cashback
+   - Oro: Puntos requeridos y % cashback
+
+### Gestión de Premios
+
+- **Tipos de Premio**: Dinero (vales) o productos físicos
+- **Imágenes**: Subida automática a Cloudinary
+- **Descripciones**: Texto personalizable para cada premio
+- **Configuración Dinámica**: Cambios reflejados inmediatamente
+
+### Ranking Mensual
+
+- **Visualización**: Top usuarios del mes actual
+- **Métricas**: Puntos mensuales, nivel alcanzado
+- **Posiciones**: Iconos especiales para top 3
+- **Historial**: Registro de ganadores por mes
+
+---
+
+## 💳 Sistema VIP Casa Dulce
+
+### Gestión de Usuarios VIP
+
+1. **Admin → Club → Gestión VIP**
+2. **Ver Todos los Usuarios VIP**:
+   - Lista completa de usuarios con rol CLIENTE_VIP
+   - Estado de crédito (asignado/sin asignar)
+   - Información de límites y saldos
+
+### Asignación de Crédito VIP
+
+1. **Seleccionar Usuario**: Click en "Asignar Crédito"
+2. **Configurar Crédito**:
+   - Límite de crédito en USD
+   - Día de corte mensual:
+     - Día específico (1, 5, 10, 15, 20, 25)
+     - Último día del mes
+     - Primer día hábil del mes
+   - Notas administrativas
+3. **Funcionamiento**:
+   - Crédito se renueva automáticamente cada mes
+   - Fecha de corte recurrente según día seleccionado
+   - Balance se resetea al límite cada ciclo
+
+### Edición de Créditos VIP
+
+1. **Edición Inline**: Click en "Editar Crédito"
+2. **Modificar**:
+   - Nuevo límite de crédito
+   - Cambiar día de corte mensual
+   - Actualizar notas
+3. **Guardado**: Cambios aplicados inmediatamente
+4. **Mensajes**: Confirmación en la página (no alerts)
+
+### Características del Sistema VIP
+
+- **Asignación Manual**: Solo administradores asignan VIP
+- **Crédito Rotativo**: Funciona como tarjeta de crédito
+- **Fechas Inteligentes**: Manejo automático de días de corte
+- **Sin Intereses**: Sistema de crédito gratuito
+- **Seguimiento**: Historial completo de transacciones
+
+### Estados de Crédito VIP
+
+- **Activo**: Usuario puede usar el crédito
+- **Inactivo**: Crédito suspendido temporalmente
+- **Límite Disponible**: Saldo actual vs límite total
+- **Monto Usado**: Crédito utilizado en el ciclo actual
+
+---
+
 ## 📱 Gestión de Contenido Instagram
 
 ### Publicaciones

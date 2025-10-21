@@ -1,11 +1,31 @@
 import { getSessionData } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import ProfileLayout from '@/components/ProfileLayout';
+import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function VipPage() {
   const session = await getSessionData();
   if (!session) {
     redirect('/login');
+  }
+
+  // Query VIP credit from database
+  let vipCredit = null;
+  
+  try {
+    const result = await prisma.$queryRaw`
+      SELECT vc.* 
+      FROM vip_credits vc
+      JOIN "User" u ON vc.user_id = u.id
+      WHERE u.email = 'clientevip@casadulce.com'
+    ` as any[];
+    vipCredit = result.length > 0 ? result[0] : null;
+    console.log('VIP Credit found:', vipCredit);
+  } catch (error) {
+    console.error('Error fetching VIP credit:', error);
   }
 
   return (
@@ -17,15 +37,35 @@ export default async function VipPage() {
       
       <div className="space-y-8">
         <div className="glass p-8 rounded-2xl shadow-xl">
-          <div className="text-center mb-8">
-            <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
-                <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm2 16h16"></path>
-              </svg>
+          <h2 className="text-2xl font-bold gradient-text mb-6">Estado de Cuenta VIP</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-xl text-center">
+              <h3 className="text-lg font-bold mb-2">Crédito Disponible</h3>
+              <p className="text-4xl font-bold">
+                ${vipCredit ? vipCredit.current_balance : '0.00'}
+              </p>
+              <p className="text-purple-100 text-sm mt-2">
+                Límite: ${vipCredit ? vipCredit.credit_limit : '0.00'}
+              </p>
             </div>
-            <h2 className="text-2xl font-bold gradient-text mb-4">Estado de Membresía VIP</h2>
-            <div className="inline-block bg-gray-100 px-6 py-3 rounded-full">
-              <span className="text-gray-600 font-medium">No eres miembro VIP</span>
+            <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white p-6 rounded-xl text-center">
+              <h3 className="text-lg font-bold mb-2">Fecha de Corte</h3>
+              <p className="text-2xl font-bold">
+                {vipCredit && vipCredit.payment_due_date 
+                  ? new Date(vipCredit.payment_due_date).toLocaleDateString('es-ES', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric'
+                    })
+                  : 'No asignada'
+                }
+              </p>
+              <p className="text-red-100 text-sm mt-2">
+                {vipCredit && vipCredit.payment_due_date 
+                  ? `${Math.ceil((new Date(vipCredit.payment_due_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} días restantes`
+                  : 'Sin fecha límite'
+                }
+              </p>
             </div>
           </div>
         </div>
@@ -79,24 +119,6 @@ export default async function VipPage() {
               <p className="text-sm text-gray-600">Envío sin costo en todos tus pedidos, sin monto mínimo</p>
             </div>
           </div>
-        </div>
-
-        <div className="glass p-8 rounded-2xl shadow-xl">
-          <h2 className="text-2xl font-bold gradient-text mb-6">Mi Crédito VIP</h2>
-          <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-6 rounded-xl text-center">
-            <h3 className="text-xl font-bold mb-2">Crédito Disponible</h3>
-            <p className="text-3xl font-bold mb-4">$0.00</p>
-            <p className="text-yellow-100 text-sm">Solicita tu membresía VIP para acceder a crédito</p>
-          </div>
-        </div>
-
-        <div className="text-center">
-          <button className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-lg transition-all duration-200">
-            Solicitar Membresía VIP
-          </button>
-          <p className="text-sm text-gray-600 mt-4">
-            Contacta con nuestro equipo para evaluar tu solicitud de membresía VIP
-          </p>
         </div>
       </div>
     </ProfileLayout>
