@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,6 +31,30 @@ interface RolesManagerProps {
   permissions: Permission[];
 }
 
+const ROLE_DISPLAY_NAMES: Record<string, string> = {
+  'MASTER': 'Master',
+  'ADMINISTRADOR': 'Administrador', 
+  'CLIENTE': 'Cliente',
+  'CLIENTE_VIP': 'Cliente VIP',
+  'MARKETING': 'Marketing',
+  'OPERARIO': 'Operario'
+};
+
+const getRoleDisplayName = (roleName: string): string => 
+  ROLE_DISPLAY_NAMES[roleName] || roleName;
+
+const getFormTitle = (isCreating: boolean, isEditing: boolean, showPermissions: boolean, selectedRole: Role | null): string => {
+  if (isCreating) return 'Crear Nuevo Rol';
+  if (isEditing) return `Editar Rol: ${getRoleDisplayName(selectedRole?.name || '')}`;
+  if (showPermissions) return `Permisos: ${getRoleDisplayName(selectedRole?.name || '')}`;
+  return 'Selecciona un rol';
+};
+
+const getButtonText = (isSubmitting: boolean, isCreating: boolean): string => {
+  if (isSubmitting) return 'Guardando...';
+  return isCreating ? 'Crear Rol' : 'Actualizar Rol';
+};
+
 export function RolesManager({ roles, permissions }: RolesManagerProps) {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -38,18 +62,7 @@ export function RolesManager({ roles, permissions }: RolesManagerProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rolePermissions, setRolePermissions] = useState<number[]>([]);
   const [showPermissions, setShowPermissions] = useState(false);
-
-  const getRoleDisplayName = (roleName: string): string => {
-    const displayNames: Record<string, string> = {
-      'MASTER': 'Master',
-      'ADMINISTRADOR': 'Administrador',
-      'CLIENTE': 'Cliente',
-      'CLIENTE_VIP': 'Cliente VIP',
-      'MARKETING': 'Marketing',
-      'OPERARIO': 'Operario'
-    };
-    return displayNames[roleName] || roleName;
-  };
+  const [error, setError] = useState<string | null>(null);
 
   const handleEdit = (role: Role) => {
     setSelectedRole(role);
@@ -79,23 +92,24 @@ export function RolesManager({ roles, permissions }: RolesManagerProps) {
     setShowPermissions(false);
   };
 
-  const handlePermissionToggle = (permissionId: number) => {
+  const handlePermissionToggle = useCallback((permissionId: number) => {
     setRolePermissions(prev => 
       prev.includes(permissionId)
         ? prev.filter(id => id !== permissionId)
         : [...prev, permissionId]
     );
-  };
+  }, []);
 
   const handleSavePermissions = async () => {
     if (!selectedRole) return;
     
     setIsSubmitting(true);
+    setError(null);
     try {
       await updateRolePermissions(selectedRole.id, rolePermissions);
       window.location.reload();
     } catch (error) {
-      console.error('Error:', error);
+      setError('Error al guardar permisos. Inténtalo de nuevo.');
     } finally {
       setIsSubmitting(false);
     }
@@ -103,6 +117,7 @@ export function RolesManager({ roles, permissions }: RolesManagerProps) {
 
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
+    setError(null);
     try {
       if (isCreating) {
         await createRole(formData);
@@ -111,7 +126,7 @@ export function RolesManager({ roles, permissions }: RolesManagerProps) {
       }
       window.location.reload();
     } catch (error) {
-      console.error('Error:', error);
+      setError(isCreating ? 'Error al crear el rol. Inténtalo de nuevo.' : 'Error al actualizar el rol. Inténtalo de nuevo.');
     } finally {
       setIsSubmitting(false);
     }
@@ -119,16 +134,17 @@ export function RolesManager({ roles, permissions }: RolesManagerProps) {
 
   const handleDelete = async (role: Role) => {
     if (role.userCount > 0) {
-      alert('No se puede eliminar un rol que tiene usuarios asignados');
+      setError('No se puede eliminar un rol que tiene usuarios asignados');
       return;
     }
     
     if (confirm(`¿Estás seguro de que quieres eliminar el rol "${getRoleDisplayName(role.name)}"?`)) {
+      setError(null);
       try {
         await deleteRole(role.id);
         window.location.reload();
       } catch (error) {
-        console.error('Error eliminando rol:', error);
+        setError('Error al eliminar el rol. Inténtalo de nuevo.');
       }
     }
   };
@@ -143,7 +159,7 @@ export function RolesManager({ roles, permissions }: RolesManagerProps) {
           </Button>
         </div>
         
-        <div className="space-y-3 max-h-96 overflow-y-auto">
+        <div className="space-y-3">
           {roles.map((role) => (
             <div
               key={role.id}
@@ -191,31 +207,40 @@ export function RolesManager({ roles, permissions }: RolesManagerProps) {
 
       <div>
         <h3 className="text-lg font-semibold mb-4">
-          {isCreating ? 'Crear Nuevo Rol' : isEditing ? `Editar Rol: ${getRoleDisplayName(selectedRole?.name || '')}` : showPermissions ? `Permisos: ${getRoleDisplayName(selectedRole?.name || '')}` : 'Selecciona un rol'}
+          {getFormTitle(isCreating, isEditing, showPermissions, selectedRole)}
         </h3>
+        
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            {error}
+          </div>
+        )}
         
         {showPermissions ? (
           <div className="space-y-4">
             <div className="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto">
-              {permissions.map((permission) => (
-                <label
-                  key={permission.id}
-                  className="flex items-start space-x-3 p-3 bg-white rounded-lg border hover:bg-gray-50 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={rolePermissions.includes(permission.id)}
-                    onChange={() => handlePermissionToggle(permission.id)}
-                    className="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500 mt-1"
-                  />
-                  <div className="flex-1">
-                    <div className="font-medium">{permission.name}</div>
-                    {permission.description && (
-                      <div className="text-sm text-gray-600">{permission.description}</div>
-                    )}
-                  </div>
-                </label>
-              ))}
+              {permissions.map((permission) => {
+                const isChecked = rolePermissions.includes(permission.id);
+                return (
+                  <label
+                    key={permission.id}
+                    className="flex items-start space-x-3 p-3 bg-white rounded-lg border hover:bg-gray-50 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => handlePermissionToggle(permission.id)}
+                      className="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500 mt-1"
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium">{permission.name}</div>
+                      {permission.description && (
+                        <div className="text-sm text-gray-600">{permission.description}</div>
+                      )}
+                    </div>
+                  </label>
+                );
+              })}
             </div>
             
             <div className="flex gap-3 pt-4">
@@ -272,7 +297,7 @@ export function RolesManager({ roles, permissions }: RolesManagerProps) {
                 variant="gradient"
                 className="flex-1"
               >
-                {isSubmitting ? 'Guardando...' : (isCreating ? 'Crear Rol' : 'Actualizar Rol')}
+                {getButtonText(isSubmitting, isCreating)}
               </Button>
               <Button
                 type="button"

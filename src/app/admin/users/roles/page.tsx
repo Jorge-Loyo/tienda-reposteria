@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { RolesManager } from '@/components/RolesManager';
+import { ArrowLeft, Shield, Users, Settings } from 'lucide-react';
 
 const prisma = new PrismaClient();
 
@@ -87,22 +88,71 @@ export default async function RolesPage() {
   const { roles, permissions } = await getRolesData();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
-        <div className="mb-8">
-          <Button variant="outline" asChild>
-            <Link href="/admin/users">
-              ← Volver a Usuarios
-            </Link>
-          </Button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" size="sm" asChild className="hover:bg-white/50">
+              <Link href="/admin/users" className="flex items-center gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Usuarios
+              </Link>
+            </Button>
+            <div className="h-6 w-px bg-gray-300" />
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
+                <Shield className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Gestión de Roles</h1>
+                <p className="text-sm text-gray-500">Administra roles y permisos del sistema</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold gradient-text mb-4">Gestión de Roles</h1>
-          <p className="text-gray-600">Crea, edita y elimina roles del sistema</p>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Roles</p>
+                <p className="text-2xl font-bold text-gray-900">{roles.length}</p>
+              </div>
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <Shield className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Usuarios Asignados</p>
+                <p className="text-2xl font-bold text-gray-900">{roles.reduce((acc, role) => acc + role.userCount, 0)}</p>
+              </div>
+              <div className="p-3 bg-green-50 rounded-lg">
+                <Users className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Permisos Disponibles</p>
+                <p className="text-2xl font-bold text-gray-900">{permissions.length}</p>
+              </div>
+              <div className="p-3 bg-purple-50 rounded-lg">
+                <Settings className="h-6 w-6 text-purple-600" />
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="glass rounded-2xl shadow-xl p-8">
+        {/* Main Content */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <RolesManager roles={roles} permissions={permissions} />
         </div>
       </div>
