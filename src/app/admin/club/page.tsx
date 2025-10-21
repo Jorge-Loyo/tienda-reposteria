@@ -1,107 +1,97 @@
-import { getSessionData } from '@/lib/session';
-import { redirect } from 'next/navigation';
 import { PrismaClient } from '@prisma/client';
+import { ClubManager } from '@/components/ClubManager';
+import { ArrowLeft, Trophy, Settings, Users } from 'lucide-react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 const prisma = new PrismaClient();
 
-export default async function ClubManagementPage() {
-  const session = await getSessionData();
-  if (!session) {
-    redirect('/login');
-  }
+async function getClubData() {
+  const [config, topUsers, totalUsers] = await Promise.all([
+    prisma.$queryRaw`SELECT * FROM club_config WHERE id = 1`,
+    prisma.$queryRaw`
+      SELECT u.name, u.email, up.monthly_points, up.total_points, up.level,
+             ROW_NUMBER() OVER (ORDER BY up.monthly_points DESC) as position
+      FROM user_points up 
+      JOIN "User" u ON up.user_id = u.id 
+      WHERE up.current_month = EXTRACT(MONTH FROM CURRENT_DATE)
+      AND up.current_year = EXTRACT(YEAR FROM CURRENT_DATE)
+      ORDER BY up.monthly_points DESC 
+      LIMIT 10
+    `,
+    prisma.$queryRaw`SELECT COUNT(*) as count FROM user_points WHERE monthly_points > 0`
+  ]);
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId },
-    select: { role: true },
-  });
+  return {
+    config: config[0] || {},
+    topUsers: topUsers || [],
+    totalUsers: totalUsers[0]?.count || 0
+  };
+}
 
-  if (!user || user.role !== 'MASTER') {
-    redirect('/');
-  }
+export default async function ClubPage() {
+  const { config, topUsers, totalUsers } = await getClubData();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50 p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold gradient-text mb-4">Gestión del Club de Casa Dulce</h1>
-          <p className="text-gray-600">Configura las condiciones y beneficios del sistema de puntos</p>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between mb-16 mt-8">
+          <div></div>
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg">
+                <Trophy className="h-5 w-5 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900">Gestión del Club</h1>
+            </div>
+            <p className="text-sm text-gray-500">Administra premios, puntos y configuración</p>
+          </div>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/perfil" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Atrás
+            </Link>
+          </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="glass p-8 rounded-2xl shadow-xl">
-            <h2 className="text-2xl font-bold gradient-text mb-6">Configuración de Puntos</h2>
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Puntos por cada $1 gastado
-                </label>
-                <input 
-                  type="number" 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                  placeholder="10"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Monto mínimo para acumular puntos
-                </label>
-                <input 
-                  type="number" 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                  placeholder="5.00"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Valor de cada punto (en $)
-                </label>
-                <input 
-                  type="number" 
-                  step="0.01"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                  placeholder="0.10"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="glass p-8 rounded-2xl shadow-xl">
-            <h2 className="text-2xl font-bold gradient-text mb-6">Niveles de Membresía</h2>
-            <div className="space-y-4">
-              <div className="p-4 bg-white/50 rounded-xl">
-                <h3 className="font-semibold text-gray-800">Bronce (0-499 puntos)</h3>
-                <p className="text-sm text-gray-600">Beneficios básicos del club</p>
-              </div>
-              <div className="p-4 bg-white/50 rounded-xl">
-                <h3 className="font-semibold text-gray-800">Plata (500-999 puntos)</h3>
-                <p className="text-sm text-gray-600">5% descuento adicional</p>
-              </div>
-              <div className="p-4 bg-white/50 rounded-xl">
-                <h3 className="font-semibold text-gray-800">Oro (1000+ puntos)</h3>
-                <p className="text-sm text-gray-600">10% descuento + envío gratis</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="glass p-8 rounded-2xl shadow-xl lg:col-span-2">
-            <h2 className="text-2xl font-bold gradient-text mb-6">Estado del Sistema</h2>
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-xl p-6 shadow-sm border">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-gray-800">Sistema de Puntos</h3>
-                <p className="text-sm text-gray-600">Activar o desactivar el club de fidelidad</p>
+                <p className="text-sm font-medium text-gray-600">Miembros Activos</p>
+                <p className="text-2xl font-bold text-gray-900">{totalUsers}</p>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pink-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600"></div>
-              </label>
+              <Users className="h-8 w-8 text-purple-600" />
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-xl p-6 shadow-sm border">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">$ para 1 Punto</p>
+                <p className="text-2xl font-bold text-gray-900">${config.points_per_dollar || 1}</p>
+              </div>
+              <Settings className="h-8 w-8 text-green-600" />
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-xl p-6 shadow-sm border">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Premio 1er Lugar</p>
+                <p className="text-2xl font-bold text-gray-900">${config.first_prize || 200}</p>
+              </div>
+              <Trophy className="h-8 w-8 text-yellow-600" />
             </div>
           </div>
         </div>
 
-        <div className="mt-8 flex justify-end">
-          <button className="bg-gradient-to-r from-pink-500 to-orange-500 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-200">
-            Guardar Configuración
-          </button>
+        {/* Main Content */}
+        <div className="bg-white rounded-xl shadow-sm border p-6">
+          <ClubManager config={config} topUsers={topUsers} />
         </div>
       </div>
     </div>
