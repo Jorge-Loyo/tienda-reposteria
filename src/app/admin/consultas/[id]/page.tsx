@@ -43,14 +43,15 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50 p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold gradient-text mb-2">Ticket #{ticket.ticketNumber}</h1>
-            <p className="text-gray-600">{ticket.subject}</p>
-          </div>
+        <div className="flex justify-end mb-12">
           <a href="/admin/consultas" className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
             ← Volver a Consultas
           </a>
+        </div>
+
+        <div className="text-center mb-12">
+          <h1 className="text-3xl font-bold gradient-text mb-2">Ticket #{ticket.ticketNumber}</h1>
+          <p className="text-gray-600">{ticket.subject}</p>
         </div>
 
         <TicketConversation ticket={ticket} />

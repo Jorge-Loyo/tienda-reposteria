@@ -38,11 +38,14 @@ export default function UserTicketConversation({ ticket }: UserTicketConversatio
     
     setIsSubmitting(true);
     try {
-      await addUserResponse(ticket.id, response);
-      setResponse('');
-      window.location.reload();
+      const result = await addUserResponse(ticket.id, response);
+      if (result.success) {
+        setResponse('');
+        window.location.reload();
+      }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error enviando mensaje:', error);
+      alert('Error al enviar el mensaje. Inténtalo de nuevo.');
     } finally {
       setIsSubmitting(false);
     }

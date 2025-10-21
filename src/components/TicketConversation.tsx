@@ -34,11 +34,19 @@ export default function TicketConversation({ ticket }: TicketConversationProps) 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleStatusChange = async (status: string) => {
-    await updateTicketStatus(ticket.id, status);
+    try {
+      await updateTicketStatus(ticket.id, status);
+    } catch (error) {
+      console.error('Error actualizando estado:', error);
+    }
   };
 
   const handlePriorityChange = async (priority: string) => {
-    await updateTicketPriority(ticket.id, priority);
+    try {
+      await updateTicketPriority(ticket.id, priority);
+    } catch (error) {
+      console.error('Error actualizando prioridad:', error);
+    }
   };
 
   const handleSendResponse = async () => {
@@ -46,11 +54,14 @@ export default function TicketConversation({ ticket }: TicketConversationProps) 
     
     setIsSubmitting(true);
     try {
-      await addTicketResponse(ticket.id, response);
-      setResponse('');
-      window.location.reload();
+      const result = await addTicketResponse(ticket.id, response);
+      if (result.success) {
+        setResponse('');
+        window.location.reload();
+      }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error enviando respuesta:', error);
+      alert('Error al enviar la respuesta. Inténtalo de nuevo.');
     } finally {
       setIsSubmitting(false);
     }

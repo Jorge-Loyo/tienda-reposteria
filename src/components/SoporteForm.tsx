@@ -82,8 +82,9 @@ export default function SoporteForm() {
             name="subject"
             type="text" 
             required
+            maxLength={200}
             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-            placeholder="Describe brevemente el problema"
+            placeholder="Describe brevemente el problema (máx. 200 caracteres)"
           />
         </div>
 
@@ -95,8 +96,9 @@ export default function SoporteForm() {
             name="description"
             rows={6}
             required
+            maxLength={2000}
             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-            placeholder="Describe detalladamente lo que ocurrió..."
+            placeholder="Describe detalladamente lo que ocurrió... (máx. 2000 caracteres)"
           ></textarea>
         </div>
 

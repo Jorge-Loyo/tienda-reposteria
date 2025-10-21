@@ -6,21 +6,35 @@ import { revalidatePath } from 'next/cache';
 const prisma = new PrismaClient();
 
 export async function updateTicketStatus(ticketId: number, status: string) {
-  await prisma.supportTicket.update({
-    where: { id: ticketId },
-    data: { status }
-  });
-  
-  revalidatePath('/admin/consultas');
+  try {
+    await prisma.supportTicket.update({
+      where: { id: ticketId },
+      data: { status, updatedAt: new Date() }
+    });
+    
+    revalidatePath('/admin/consultas');
+    revalidatePath(`/admin/consultas/${ticketId}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating ticket status:', error);
+    throw error;
+  }
 }
 
 export async function updateTicketPriority(ticketId: number, priority: string) {
-  await prisma.supportTicket.update({
-    where: { id: ticketId },
-    data: { priority }
-  });
-  
-  revalidatePath('/admin/consultas');
+  try {
+    await prisma.supportTicket.update({
+      where: { id: ticketId },
+      data: { priority, updatedAt: new Date() }
+    });
+    
+    revalidatePath('/admin/consultas');
+    revalidatePath(`/admin/consultas/${ticketId}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating ticket priority:', error);
+    throw error;
+  }
 }
 
 export async function addTicketResponse(ticketId: number, message: string) {
