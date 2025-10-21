@@ -329,7 +329,7 @@ export default async function HomePage() {
       </section>
 
       <TestimonialsSection />
-      <InspirationGallery images={galleryImages} />
+      <InspirationGallery inspirationImages={galleryImages} />
       <InstagramSection />
 
       <section className="py-20 bg-gradient-to-br from-pink-900 via-purple-900 to-orange-900 text-white relative overflow-hidden">
