@@ -7,25 +7,23 @@ import { Button } from '@/components/ui/button';
 const prisma = new PrismaClient();
 
 async function getClubData() {
-  const [config, topUsers, totalUsers] = await Promise.all([
-    prisma.$queryRaw`SELECT * FROM club_config WHERE id = 1`,
-    prisma.$queryRaw`
-      SELECT u.name, u.email, up.monthly_points, up.total_points, up.level,
-             ROW_NUMBER() OVER (ORDER BY up.monthly_points DESC) as position
-      FROM user_points up 
-      JOIN "User" u ON up.user_id = u.id 
-      WHERE up.current_month = EXTRACT(MONTH FROM CURRENT_DATE)
-      AND up.current_year = EXTRACT(YEAR FROM CURRENT_DATE)
-      ORDER BY up.monthly_points DESC 
-      LIMIT 10
-    `,
-    prisma.$queryRaw`SELECT COUNT(*) as count FROM user_points WHERE monthly_points > 0`
-  ]);
+  const config = await prisma.$queryRaw`SELECT * FROM club_config WHERE id = 1` as any[];
+  const topUsers = await prisma.$queryRaw`
+    SELECT u.name, u.email, up.monthly_points, up.total_points, up.level,
+           ROW_NUMBER() OVER (ORDER BY up.monthly_points DESC) as position
+    FROM user_points up 
+    JOIN "User" u ON up.user_id = u.id 
+    WHERE up.current_month = EXTRACT(MONTH FROM CURRENT_DATE)
+    AND up.current_year = EXTRACT(YEAR FROM CURRENT_DATE)
+    ORDER BY up.monthly_points DESC 
+    LIMIT 10
+  ` as any[];
+  const totalUsers = await prisma.$queryRaw`SELECT COUNT(*) as count FROM user_points WHERE monthly_points > 0` as any[];
 
   return {
     config: config[0] || {},
     topUsers: topUsers || [],
-    totalUsers: totalUsers[0]?.count || 0
+    totalUsers: (totalUsers[0] as any)?.count || 0
   };
 }
 
