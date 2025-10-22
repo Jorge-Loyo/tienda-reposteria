@@ -35,7 +35,9 @@ export function CategoryForm({ category }: CategoryFormProps) {
   const [selectedImage, setSelectedImage] = useState(category?.imageUrl || '');
   const isEditing = !!category;
   
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
     formData.append('imageUrl', selectedImage);
     
     if (isEditing) {
@@ -46,7 +48,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
   };
 
   return (
-    <form action={async (formData) => { await handleSubmit(formData); }} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="name">Nombre de la Categoría</Label>
         <Input

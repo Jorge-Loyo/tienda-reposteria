@@ -64,8 +64,8 @@ export function EmojiPicker({ selectedEmoji, onEmojiSelect, onClose }: EmojiPick
   const filteredEmojis = getFilteredEmojis();
 
   return (
-    <Card className="absolute top-full left-0 z-50 mt-2 w-96 max-h-96 overflow-hidden shadow-lg">
-      <CardContent className="p-4">
+    <Card className="w-full max-w-2xl mx-auto overflow-hidden shadow-lg">
+      <CardContent className="p-6">
         {/* Header con búsqueda */}
         <div className="flex items-center gap-2 mb-4">
           <div className="relative flex-1">
@@ -114,7 +114,6 @@ export function EmojiPicker({ selectedEmoji, onEmojiSelect, onClose }: EmojiPick
               key={`${emoji}-${index}`}
               onClick={() => {
                 onEmojiSelect(emoji);
-                onClose();
               }}
               className={`
                 w-12 h-12 flex items-center justify-center text-xl rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer

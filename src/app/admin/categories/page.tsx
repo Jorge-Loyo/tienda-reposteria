@@ -47,24 +47,24 @@ export default async function AdminCategoriesPage() {
   const stats = await getCategoryStats();
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <FolderOpen className="h-8 w-8 text-blue-600" />
-            Gestión de Categorías
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Organiza y administra las categorías de productos
-          </p>
+      <div className="relative text-center mb-12">
+        <div className="absolute top-0 right-0">
+          <Button variant="outline" asChild>
+            <Link href="/perfil" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Volver al Perfil
+            </Link>
+          </Button>
         </div>
-        <Button variant="outline" asChild className="w-fit">
-          <Link href="/perfil" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Volver al Perfil
-          </Link>
-        </Button>
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white flex items-center justify-center gap-3 mb-4">
+          <FolderOpen className="h-10 w-10 text-blue-600" />
+          Gestión de Categorías
+        </h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          Organiza y administra las categorías de productos
+        </p>
       </div>
 
       {/* Stats Cards */}
