@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { redirect } from 'next/navigation';
 import VipAssignForm from '@/components/VipAssignForm';
 
 const prisma = new PrismaClient();
