@@ -1,4 +1,5 @@
 import './globals.css';
+import './layout.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Link from 'next/link';
@@ -14,7 +15,7 @@ import dynamic from 'next/dynamic';
 
 const LocationMap = dynamic(() => import('@/components/LocationMap'), {
   ssr: false,
-  loading: () => <div className="h-48 bg-gray-700 rounded-lg animate-pulse flex items-center justify-center text-gray-300">Cargando mapa...</div>
+  loading: () => <div className="layout-map-loading">Cargando mapa...</div>
 });
 
 const inter = Inter({ subsets: ['latin'] });
@@ -46,13 +47,13 @@ export default async function RootLayout({
     <html lang="es" suppressHydrationWarning>
       <body className={inter.className}>
           <CurrencyProvider rate={bcvRate}>
-            <header className="glass sticky top-0 z-50 border-b border-white/10">
-              <div className="max-w-7xl mx-auto px-6 lg:px-8">
-                <div className="flex justify-between items-center h-20">
-                  <div className="flex-shrink-0 relative z-10">
+            <header className="glass layout-header">
+              <div className="layout-header-container">
+                <div className="layout-header-content">
+                  <div className="layout-logo">
                     <Link 
                       href="/" 
-                      className="relative block h-32 w-72 mt-6 -mb-6 transition-transform duration-300 hover:scale-105"
+                      className="layout-logo-link"
                       aria-label="Página de inicio de Casa Dulce"
                     >
                       <Image
@@ -64,17 +65,17 @@ export default async function RootLayout({
                       />
                     </Link>
                   </div>
-                  <nav className="hidden md:flex items-center gap-12">
-                    <Link href="/tienda" className="relative text-base font-semibold text-gray-700 hover:text-pink-600 transition-all duration-300 group">
+                  <nav className="layout-nav">
+                    <Link href="/tienda" className="layout-nav-link group">
                       Tienda
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-orange-500 group-hover:w-full transition-all duration-300"></span>
+                      <span className="layout-nav-link-underline"></span>
                     </Link>
-                    <Link href="/ofertas" className="relative text-base font-semibold text-gray-700 hover:text-orange-500 transition-all duration-300 group">
+                    <Link href="/ofertas" className="layout-nav-link ofertas group">
                       Ofertas
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-orange-500 to-pink-500 group-hover:w-full transition-all duration-300"></span>
+                      <span className="layout-nav-link-underline"></span>
                     </Link>
                   </nav>
-                  <div className="flex items-center gap-6">
+                  <div className="layout-header-actions">
                     <CartIcon />
                     <UserSession />
                   </div>
@@ -82,76 +83,71 @@ export default async function RootLayout({
               </div>
             </header>
 
-            <main className="bg-muted">
+            <main className="layout-main">
               {children}
             </main>
             
-            <footer className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white overflow-hidden">
-              {/* Elementos decorativos de fondo */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-10 left-10 w-32 h-32 bg-pink-500 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-10 right-10 w-40 h-40 bg-orange-500 rounded-full blur-3xl"></div>
+            <footer className="layout-footer">
+              <div className="layout-footer-bg">
+                <div className="layout-footer-bg-circle-1"></div>
+                <div className="layout-footer-bg-circle-2"></div>
               </div>
               
-              <div className="relative max-w-7xl mx-auto py-8 px-6 lg:px-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                      {/* Información de contacto */}
-                      <div className="lg:col-span-2 space-y-4">
+              <div className="layout-footer-content">
+                  <div className="layout-footer-grid">
+                      <div className="layout-footer-contact">
                           <div>
-                              <h3 className="text-xl font-bold gradient-text mb-4">Contáctanos</h3>
-                              <div className="space-y-3">
+                              <h3 className="layout-footer-contact-title gradient-text">Contáctanos</h3>
+                              <div className="layout-footer-contact-items">
                                   <a 
                                       href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`} 
                                       target="_blank" 
                                       rel="noopener noreferrer"
-                                      className="flex items-start gap-3 p-3 bg-white/5 rounded-lg border border-white/10"
+                                      className="layout-footer-contact-item"
                                   >
-                                      <div className="text-pink-400">
+                                      <div className="layout-footer-contact-icon pink">
                                           <MapPinIcon />
                                       </div>
                                       <div>
-                                          <span className="font-semibold text-white">Dirección</span>
-                                          <p className="text-gray-200 text-sm mt-1">{address}</p>
+                                          <span className="layout-footer-contact-label">Dirección</span>
+                                          <p className="layout-footer-contact-text">{address}</p>
                                       </div>
                                   </a>
                                   
-                                  
-                                  <a href="https://wa.me/584248536954" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/10">
-                                      <div className="text-green-500">
+                                  <a href="https://wa.me/584248536954" target="_blank" rel="noopener noreferrer" className="layout-footer-contact-item center">
+                                      <div className="layout-footer-contact-icon green">
                                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/></svg>
                                       </div>
                                       <div>
-                                          <span className="font-semibold text-white">WhatsApp</span>
-                                          <p className="text-gray-200 text-sm">+58 424-853-6954</p>
+                                          <span className="layout-footer-contact-label">WhatsApp</span>
+                                          <p className="layout-footer-contact-text small">+58 424-853-6954</p>
                                       </div>
                                   </a>
                                   
-                                  <a href={`mailto:${email}`} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/10">
-                                      <div className="text-blue-400">
+                                  <a href={`mailto:${email}`} className="layout-footer-contact-item center">
+                                      <div className="layout-footer-contact-icon blue">
                                           <MailIcon />
                                       </div>
                                       <div>
-                                          <span className="font-semibold text-white">Email</span>
-                                          <p className="text-gray-200 text-sm">{email}</p>
+                                          <span className="layout-footer-contact-label">Email</span>
+                                          <p className="layout-footer-contact-text small">{email}</p>
                                       </div>
                                   </a>
                               </div>
                           </div>
                       </div>
                       
-                      {/* Mapa */}
-                      <div className="w-full">
-                          <div className="bg-white/5 rounded-xl overflow-hidden shadow-xl border border-white/10">
+                      <div className="layout-footer-map">
+                          <div className="layout-footer-map-container">
                               <LocationMap lat={lat} lon={lng} />
                           </div>
                       </div>
                   </div>
                   
-                  {/* Copyright */}
-                  <div className="mt-8 pt-4 border-t border-white/10">
-                      <div className="text-center">
-                          <p className="text-gray-400 text-sm">
-                              &copy; {new Date().getFullYear()} <span className="gradient-text font-semibold">Casa Dulce Oriente</span>. Todos los derechos reservados.
+                  <div className="layout-footer-copyright">
+                      <div className="layout-footer-copyright-content">
+                          <p className="layout-footer-copyright-text">
+                              &copy; {new Date().getFullYear()} <span className="gradient-text layout-footer-copyright-brand">Casa Dulce Oriente</span>. Todos los derechos reservados.
                           </p>
                       </div>
                   </div>

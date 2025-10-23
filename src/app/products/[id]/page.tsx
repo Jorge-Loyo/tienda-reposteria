@@ -6,6 +6,7 @@ import ProductPurchaseControls from '@/components/ProductPurchaseControls';
 import { getBcvRate, formatToVes } from '@/lib/currency';
 import { formatCurrency } from '@/lib/formatters'; // Se asume que esta función ya existe en tu proyecto
 import { ToastContainer } from '@/components/ui/toast';
+import './product-detail.css';
 
 const prisma = new PrismaClient();
 
@@ -48,14 +49,14 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50 py-12">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+    <div className="product-detail-container">
+      <div className="product-detail-content">
+        <div className="product-detail-grid">
           {/* Imagen del producto */}
-          <div className="relative">
-            <div className="relative aspect-square rounded-3xl overflow-hidden glass shadow-2xl">
+          <div className="product-detail-image-container">
+            <div className="product-detail-image-wrapper glass">
               {onSale && discountPercent > 0 && (
-                <div className="absolute top-6 right-6 bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-bold px-4 py-2 rounded-full z-10 shadow-lg animate-pulse">
+                <div className="product-detail-discount-badge">
                   -{discountPercent}%
                 </div>
               )}
@@ -65,67 +66,67 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
                 fill 
                 style={{ objectFit: 'cover' }} 
                 priority 
-                className="transition-transform duration-700 hover:scale-105"
+                className="product-detail-image"
               />
             </div>
           </div>
 
           {/* Información del producto */}
-          <div className="flex flex-col justify-center space-y-8">
-            <div>
-              <h1 className="text-4xl lg:text-5xl font-bold gradient-text leading-tight">
+          <div className="product-detail-info">
+            <div className="product-detail-title-section">
+              <h1 className="product-detail-title gradient-text">
                 {product.name}
               </h1>
               
               {/* Precios */}
-              <div className="mt-6 p-6 glass rounded-2xl">
-                <div className="flex items-baseline gap-4 mb-2">
-                  <p className="text-4xl gradient-text font-bold">
+              <div className="product-detail-price-card glass">
+                <div className="product-detail-price-container">
+                  <p className="product-detail-price-main gradient-text">
                     {formatCurrency(displayPrice ?? 0)} USD
                   </p>
                   {onSale && (
-                    <p className="text-2xl text-gray-400 line-through">
+                    <p className="product-detail-price-original">
                       {formatCurrency(product.priceUSD)}
                     </p>
                   )}
                 </div>
                 {priceVes ? (
-                  <p className="text-xl text-gray-600">
+                  <p className="product-detail-price-ves">
                     o {formatToVes(priceVes)}
                   </p>
                 ) : (
-                  <p className="text-sm text-amber-600">Tasa Bs. no disponible</p>
+                  <p className="product-detail-price-unavailable">Tasa Bs. no disponible</p>
                 )}
               </div>
             </div>
 
             {/* Descripción */}
-            <div className="glass p-6 rounded-2xl">
-              <h3 className="text-lg font-semibold gradient-text mb-3">Descripción</h3>
-              <p className="text-gray-700 leading-relaxed text-lg">
+            <div className="product-detail-description-card glass">
+              <h3 className="product-detail-description-title gradient-text">Descripción</h3>
+              <p className="product-detail-description-text">
                 {product.description || 'No hay descripción disponible para este producto.'}
               </p>
             </div>
             
             {/* Stock */}
-            <div className="glass p-4 rounded-2xl">
+            <div className="product-detail-stock-card glass">
               {product.stock > 0 ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <p className="text-green-600 font-semibold text-lg">
+                <div className="product-detail-stock-container">
+                  <div className="product-detail-stock-indicator in-stock"></div>
+                  <p className="product-detail-stock-text in-stock">
                     En Stock: {product.stock} unidades
                   </p>
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <p className="text-red-600 font-semibold text-lg">Agotado</p>
+                <div className="product-detail-stock-container">
+                  <div className="product-detail-stock-indicator out-of-stock"></div>
+                  <p className="product-detail-stock-text out-of-stock">Agotado</p>
                 </div>
               )}
             </div>
 
             {/* Controles de compra */}
-            <div className="pt-4">
+            <div className="product-detail-purchase-section">
               <ProductPurchaseControls product={product} />
             </div>
           </div>

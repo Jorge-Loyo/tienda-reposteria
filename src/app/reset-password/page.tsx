@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
+import './reset-password.css';
 
 // El formulario se extrae a su propio componente para poder usar useSearchParams
 function ResetPasswordForm() {
@@ -53,21 +54,21 @@ function ResetPasswordForm() {
   };
   
   return (
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Establecer Nueva Contraseña</h1>
+      <div className="reset-password-card">
+        <div className="reset-password-header">
+          <h1 className="reset-password-title">Establecer Nueva Contraseña</h1>
         </div>
         
         {message ? (
-          <div className="text-center p-4 bg-green-50 text-green-800 rounded-md">
+          <div className="reset-password-success">
             <p>{message}</p>
-            <Link href="/login" className="text-sm font-semibold text-indigo-600 hover:underline mt-4 block">
+            <Link href="/login" className="reset-password-success-link">
               Ir a Iniciar Sesión
             </Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
+          <form onSubmit={handleSubmit} className="reset-password-form">
+            <div className="reset-password-field">
               <Label htmlFor="password">Nueva Contraseña</Label>
               <Input
                 id="password"
@@ -77,7 +78,7 @@ function ResetPasswordForm() {
                 required
               />
             </div>
-            <div>
+            <div className="reset-password-field">
               <Label htmlFor="confirmPassword">Confirmar Nueva Contraseña</Label>
               <Input
                 id="confirmPassword"
@@ -87,8 +88,8 @@ function ResetPasswordForm() {
                 required
               />
             </div>
-            {error && <p className="text-sm font-medium text-red-500">{error}</p>}
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            {error && <p className="reset-password-error">{error}</p>}
+            <Button type="submit" className="reset-password-submit" disabled={isLoading}>
               {isLoading ? 'Guardando...' : 'Guardar Nueva Contraseña'}
             </Button>
           </form>
@@ -101,8 +102,8 @@ function ResetPasswordForm() {
 // Esto es necesario en el App Router de Next.js para que useSearchParams funcione correctamente.
 export default function ResetPasswordPage() {
     return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-128px)] bg-gray-50 px-4">
-            <Suspense fallback={<div>Cargando...</div>}>
+        <div className="reset-password-container">
+            <Suspense fallback={<div className="reset-password-loading">Cargando...</div>}>
                 <ResetPasswordForm />
             </Suspense>
         </div>

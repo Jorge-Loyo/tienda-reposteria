@@ -1,0 +1,108 @@
+/* Tienda Page Styles */
+
+/* Main Container */
+.tienda-container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #fdf2f8, #ffffff, #fff7ed);
+}
+
+.tienda-content {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .tienda-content {
+    padding: 4rem 2rem;
+  }
+}
+
+/* Header Section */
+.tienda-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.tienda-title {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.tienda-subtitle {
+  color: #4b5563;
+  font-size: 1.125rem;
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+/* Category Filter Section */
+.tienda-filters {
+  margin-bottom: 3rem;
+}
+
+/* Products Grid */
+.tienda-products-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 640px) {
+  .tienda-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .tienda-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .tienda-products-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Empty State */
+.tienda-empty-state {
+  text-align: center;
+  padding: 5rem 0;
+}
+
+.tienda-empty-card {
+  padding: 3rem;
+  border-radius: 1.5rem;
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+.tienda-empty-icon {
+  width: 4rem;
+  height: 4rem;
+  background: linear-gradient(to right, #ec4899, #f97316);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.tienda-empty-icon svg {
+  width: 2rem;
+  height: 2rem;
+  color: white;
+}
+
+.tienda-empty-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+}
+
+.tienda-empty-text {
+  color: #4b5563;
+}

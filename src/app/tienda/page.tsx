@@ -3,6 +3,7 @@ import ProductCard from '@/components/ProductCard';
 import { getBcvRate } from '@/lib/currency';
 import CategoryFilter from '@/components/CategoryFilter';
 import { ToastContainer } from '@/components/ui/toast';
+import './tienda.css';
 
 const prisma = new PrismaClient();
 
@@ -57,35 +58,35 @@ export default async function TiendaPage({
   ]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
-            <div className="text-center mb-12">
-                <h1 className="text-5xl font-bold gradient-text mb-4">Nuestra Tienda</h1>
-                <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+    <div className="tienda-container">
+        <div className="tienda-content">
+            <div className="tienda-header">
+                <h1 className="tienda-title gradient-text">Nuestra Tienda</h1>
+                <p className="tienda-subtitle">
                     Descubre los mejores insumos para tus creaciones de repostería
                 </p>
             </div>
             
-            <div className="mb-12">
+            <div className="tienda-filters">
                 <CategoryFilter categories={categories} />
             </div>
 
             {products.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <div className="tienda-products-grid">
                     {products.map((product) => (
                         <ProductCard key={product.id} product={product} bcvRate={bcvRate} />
                     ))}
                 </div>
             ) : (
-                <div className="text-center py-20">
-                    <div className="glass p-12 rounded-3xl max-w-md mx-auto">
-                        <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="tienda-empty-state">
+                    <div className="tienda-empty-card glass">
+                        <div className="tienda-empty-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
-                        <h2 className="text-2xl font-bold gradient-text mb-3">No se encontraron productos</h2>
-                        <p className="text-gray-600">
+                        <h2 className="tienda-empty-title gradient-text">No se encontraron productos</h2>
+                        <p className="tienda-empty-text">
                             Intenta con otra categoría o vuelve a revisar más tarde.
                         </p>
                     </div>
