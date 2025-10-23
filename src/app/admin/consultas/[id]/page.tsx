@@ -20,7 +20,7 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
     redirect('/');
   }
 
-  const ticket = await prisma.supportTicket.findUnique({
+  const ticketData = await prisma.supportTicket.findUnique({
     where: { id: parseInt(params.id) },
     include: {
       user: {
@@ -35,10 +35,19 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
     }
   });
 
-
-  if (!ticket) {
+  if (!ticketData) {
     redirect('/admin/consultas');
   }
+
+  const ticket = {
+    ...ticketData,
+    createdAt: ticketData.createdAt.toISOString(),
+    updatedAt: ticketData.updatedAt.toISOString(),
+    responses: ticketData.responses.map(response => ({
+      ...response,
+      createdAt: response.createdAt.toISOString()
+    }))
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50 p-8">
