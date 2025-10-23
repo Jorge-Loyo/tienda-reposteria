@@ -36,8 +36,7 @@ export function AboutSection({ aboutSectionImage, stats }: AboutSectionProps) {
                   src={aboutSectionImage}
                   alt="Interior de la pastelería Casa Dulce"
                   fill
-                  style={{ objectFit: 'cover' }}
-                  className="about-image"
+                  className="about-image object-cover"
                 />
               </div>
             </div>

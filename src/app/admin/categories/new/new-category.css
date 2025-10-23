@@ -1,0 +1,61 @@
+/* New Category Page Styles */
+.new-category-container {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .new-category-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .new-category-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.new-category-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.new-category-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.new-category-title.dark {
+  color: white;
+}
+
+.new-category-title-icon {
+  height: 2rem;
+  width: 2rem;
+  color: #2563eb;
+}
+
+.new-category-subtitle {
+  color: #4b5563;
+  margin-top: 0.25rem;
+}
+
+.new-category-subtitle.dark {
+  color: #9ca3af;
+}
+
+.new-category-back-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

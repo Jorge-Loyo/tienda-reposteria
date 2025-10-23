@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import './banner-management.css';
 
 export default function BannerManagementPage() {
   const [banners, setBanners] = useState<any[]>([]);
@@ -45,9 +46,9 @@ export default function BannerManagementPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
-        <div className="flex justify-between items-center mb-12">
+    <div className="banner-management-container">
+      <div className="banner-management-content">
+        <div className="banner-management-header">
           <div>
             <h1 className="text-4xl font-bold gradient-text mb-2">Gestión de Banner</h1>
             <p className="text-gray-600">Administra las imágenes del carrusel principal</p>
@@ -57,8 +58,8 @@ export default function BannerManagementPage() {
           </Button>
         </div>
 
-        <div className="glass p-8 rounded-2xl shadow-xl mb-8">
-          <div className="flex justify-between items-center mb-6">
+        <div className="banner-management-section">
+          <div className="banner-management-section-header">
             <h2 className="text-2xl font-bold gradient-text">Imágenes Actuales</h2>
             <Button variant="gradient" asChild>
               <Link href="/admin/banner/create">
@@ -68,38 +69,38 @@ export default function BannerManagementPage() {
           </div>
 
           {loading ? (
-            <div className="text-center py-8">
-              <p className="text-gray-600">Cargando banners...</p>
+            <div className="banner-loading">
+              <p>Cargando banners...</p>
             </div>
           ) : banners.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-600">No hay banners creados. Crea el primero.</p>
+            <div className="banner-empty">
+              <p>No hay banners creados. Crea el primero.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="banner-management-grid">
               {banners.map((image) => (
-              <div key={image.id} className="glass rounded-xl overflow-hidden shadow-lg">
-                <div className="aspect-video relative">
+              <div key={image.id} className="banner-card">
+                <div className="banner-card-image-container">
                   <img
                     src={image.src}
                     alt={image.alt}
-                    className="w-full h-full object-cover"
+                    className="banner-card-image"
                   />
-                  <div className="absolute top-2 right-2">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      image.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  <div>
+                    <span className={`banner-card-status ${
+                      image.active ? 'active' : 'inactive'
                     }`}>
                       {image.active ? 'Activo' : 'Inactivo'}
                     </span>
                   </div>
                 </div>
                 
-                <div className="p-4">
-                  <h3 className="font-semibold text-gray-800 mb-2">
+                <div className="banner-card-content">
+                  <h3 className="banner-card-title">
                     {image.title || image.alt}
                   </h3>
-                  <div className="flex gap-2">
-                    <Button variant="outline-modern" size="sm" className="flex-1" asChild>
+                  <div className="banner-card-actions">
+                    <Button variant="outline-modern" size="sm" className="btn-flex-1" asChild>
                       <Link href={`/admin/banner/edit/${image.id}`}>
                         Editar
                       </Link>
@@ -111,7 +112,7 @@ export default function BannerManagementPage() {
                     >
                       {image.active ? 'Desactivar' : 'Activar'}
                     </Button>
-                    <Button variant="outline" size="sm" className="text-red-600 hover:bg-red-50">
+                    <Button variant="outline" size="sm" className="btn-delete">
                       Eliminar
                     </Button>
                   </div>
@@ -122,9 +123,9 @@ export default function BannerManagementPage() {
           )}
         </div>
 
-        <div className="glass p-6 rounded-2xl shadow-xl">
+        <div className="banner-instructions">
           <h3 className="text-lg font-bold gradient-text mb-4">Instrucciones</h3>
-          <ul className="text-gray-600 space-y-2">
+          <ul className="banner-instructions-list">
             <li>• Las imágenes deben tener una resolución mínima de 1920x1080px</li>
             <li>• Formatos soportados: JPG, PNG, WebP</li>
             <li>• Tamaño máximo: 5MB por imagen</li>

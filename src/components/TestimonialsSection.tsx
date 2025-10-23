@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TestimonialForm } from './TestimonialForm';
+import './TestimonialsSection.css';
 
 interface Testimonial {
   id: number;
@@ -15,12 +16,12 @@ interface Testimonial {
 
 function StarRating({ rating }: { rating: number }) {
   return (
-    <div className="flex gap-1">
+    <div className="testimonials-stars">
       {[1, 2, 3, 4, 5].map((star) => (
         <Star
           key={star}
-          className={`w-5 h-5 ${
-            star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+          className={`testimonials-star ${
+            star <= rating ? 'filled' : 'empty'
           }`}
         />
       ))}
@@ -56,47 +57,47 @@ export function TestimonialsSection() {
   };
 
   return (
-    <section className="py-16 sm:py-24 bg-gradient-to-br from-pink-50 to-orange-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold gradient-text mb-4">
+    <section className="testimonials-section">
+      <div className="testimonials-container">
+        <div className="testimonials-header">
+          <h2 className="testimonials-title gradient-text">
             Lo que dicen nuestros clientes
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="testimonials-subtitle">
             Miles de reposteros confían en nosotros para crear sus mejores obras
           </p>
         </div>
 
         {loading ? (
-          <div className="text-center py-12">
-            <div className="text-lg text-gray-500">Cargando testimonios...</div>
+          <div className="testimonials-loading">
+            <div className="testimonials-loading-text">Cargando testimonios...</div>
           </div>
         ) : testimonials.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-lg text-gray-500">Aún no hay testimonios disponibles</div>
+          <div className="testimonials-empty">
+            <div className="testimonials-empty-text">Aún no hay testimonios disponibles</div>
           </div>
         ) : (
-          <div className="relative max-w-4xl mx-auto">
-            <div className="glass rounded-2xl p-8 md:p-12 shadow-xl">
-              <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-shrink-0">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-orange-500 flex items-center justify-center shadow-lg">
-                    <span className="text-2xl font-bold text-white">
+          <div className="testimonials-card-container">
+            <div className="testimonials-card glass">
+              <div className="testimonials-card-content">
+                <div className="testimonials-avatar">
+                  <div className="testimonials-avatar-circle">
+                    <span className="testimonials-avatar-text">
                       {testimonials[currentIndex].name.charAt(0).toUpperCase()}
                     </span>
                   </div>
                 </div>
                 
-                <div className="flex-1 text-center md:text-left">
+                <div className="testimonials-content">
                   <StarRating rating={testimonials[currentIndex].rating} />
-                  <blockquote className="text-lg text-gray-700 mt-4 mb-6 italic">
+                  <blockquote className="testimonials-quote">
                     "{testimonials[currentIndex].comment}"
                   </blockquote>
                   <div>
-                    <p className="font-semibold text-gray-900">
+                    <p className="testimonials-author-name">
                       {testimonials[currentIndex].name}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="testimonials-author-role">
                       {testimonials[currentIndex].role}
                     </p>
                   </div>
@@ -106,23 +107,23 @@ export function TestimonialsSection() {
 
             {/* Navigation */}
             {testimonials.length > 1 && (
-              <div className="flex justify-center items-center gap-4 mt-8">
+              <div className="testimonials-navigation">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={prevTestimonial}
-                  className="rounded-full w-10 h-10 p-0"
+                  className="testimonials-nav-button"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="testimonials-nav-icon" />
                 </Button>
                 
-                <div className="flex gap-2">
+                <div className="testimonials-indicators">
                   {testimonials.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentIndex(index)}
-                      className={`w-3 h-3 rounded-full transition-colors ${
-                        index === currentIndex ? 'bg-pink-500' : 'bg-gray-300'
+                      className={`testimonials-indicator ${
+                        index === currentIndex ? 'active' : 'inactive'
                       }`}
                     />
                   ))}
@@ -132,9 +133,9 @@ export function TestimonialsSection() {
                   variant="outline"
                   size="sm"
                   onClick={nextTestimonial}
-                  className="rounded-full w-10 h-10 p-0"
+                  className="testimonials-nav-button"
                 >
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="testimonials-nav-icon" />
                 </Button>
               </div>
             )}

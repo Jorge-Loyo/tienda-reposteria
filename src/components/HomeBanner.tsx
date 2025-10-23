@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from './ui/button';
+import './HomeBanner.css';
 
 interface BannerImage {
   src: string;
@@ -43,7 +44,7 @@ export default function HomeBanner({ images }: HomeBannerProps) {
   };
 
   return (
-    <section className="relative h-[60vh] min-h-[400px] w-full overflow-hidden bg-gray-800">
+    <section className="home-banner">
       {images.map((image, index) => {
         // Determinamos si el slide actual debe tener texto y sombreado
         const hasOverlay = !!image.title;
@@ -51,8 +52,8 @@ export default function HomeBanner({ images }: HomeBannerProps) {
         return (
           <div
             key={image.src}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              index === currentIndex ? 'opacity-100' : 'opacity-0'
+            className={`home-banner-slide ${
+              index === currentIndex ? 'active' : 'inactive'
             }`}
           >
             <Image
@@ -64,7 +65,7 @@ export default function HomeBanner({ images }: HomeBannerProps) {
             />
             {/* CORRECCIÓN: El sombreado oscuro solo se aplica si hay un título */}
             {hasOverlay && (
-              <div className="absolute inset-0 bg-black opacity-50"></div>
+              <div className="home-banner-overlay"></div>
             )}
           </div>
         );
@@ -72,8 +73,8 @@ export default function HomeBanner({ images }: HomeBannerProps) {
       
       {/* CORRECCIÓN: El contenedor del texto solo se renderiza si el slide actual tiene un título */}
       {images[currentIndex]?.title && (
-        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white p-4">
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4 drop-shadow-lg">
+        <div className="home-banner-content">
+            <h1 className="home-banner-title">
               {images[currentIndex]?.title}
             </h1>
         </div>
@@ -84,19 +85,19 @@ export default function HomeBanner({ images }: HomeBannerProps) {
         <>
           <button
             onClick={goToPrevious}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-200"
+            className="home-banner-nav-button prev"
             aria-label="Imagen anterior"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="home-banner-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-200"
+            className="home-banner-nav-button next"
             aria-label="Imagen siguiente"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="home-banner-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
@@ -105,14 +106,14 @@ export default function HomeBanner({ images }: HomeBannerProps) {
 
       {/* Indicadores de puntos */}
       {images.length > 1 && (
-        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+        <div className="home-banner-indicators">
             {images.map((_, index) => (
                 <button
                     key={index}
                     aria-label={`Ir al slide ${index + 1}`}
                     onClick={() => setCurrentIndex(index)}
-                    className={`h-3 w-3 rounded-full transition-colors ${
-                        currentIndex === index ? 'bg-white' : 'bg-white/50 hover:bg-white'
+                    className={`home-banner-indicator ${
+                        currentIndex === index ? 'active' : 'inactive'
                     }`}
                 />
             ))}

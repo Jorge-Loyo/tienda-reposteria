@@ -1,27 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CategoryImageSelector } from '@/components/CategoryImageSelector';
-import { addCategory, updateCategory } from '@/app/admin/categories/_actions/categories';
-
-// Componente para el botón de envío que muestra un estado de carga
-function SubmitButton({ isEditing }: { isEditing: boolean }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending} className="w-full">
-      {pending 
-        ? "Guardando..." 
-        : isEditing 
-          ? "Actualizar Categoría" 
-          : "Crear Categoría"
-      }
-    </Button>
-  );
-}
 
 interface CategoryFormProps {
   category?: {
@@ -33,17 +17,34 @@ interface CategoryFormProps {
 
 export function CategoryForm({ category }: CategoryFormProps) {
   const [selectedImage, setSelectedImage] = useState(category?.imageUrl || '');
+  const [name, setName] = useState(category?.name || '');
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const isEditing = !!category;
   
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    formData.append('imageUrl', selectedImage);
+    if (!name.trim()) return;
     
-    if (isEditing) {
-      return updateCategory.bind(null, category.id)(null, formData);
-    } else {
-      return addCategory(null, formData);
+    setIsLoading(true);
+    try {
+      const url = isEditing ? `/api/categories/${category.id}` : '/api/categories';
+      const method = isEditing ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), imageUrl: selectedImage })
+      });
+      
+      if (response.ok) {
+        router.push('/admin/categories');
+        router.refresh();
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -54,9 +55,9 @@ export function CategoryForm({ category }: CategoryFormProps) {
         <Input
           type="text"
           id="name"
-          name="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           required
-          defaultValue={category?.name || ''}
           placeholder="Ej: Arequipes, Chocolates, etc."
         />
       </div>
@@ -66,7 +67,14 @@ export function CategoryForm({ category }: CategoryFormProps) {
         onImageSelect={setSelectedImage}
       />
       
-      <SubmitButton isEditing={isEditing} />
+      <Button type="submit" disabled={isLoading || !name.trim()} className="w-full">
+        {isLoading 
+          ? "Guardando..." 
+          : isEditing 
+            ? "Actualizar Categoría" 
+            : "Crear Categoría"
+        }
+      </Button>
     </form>
   );
 }

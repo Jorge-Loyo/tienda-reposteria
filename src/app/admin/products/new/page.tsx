@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import ProductForm from '@/components/ProductForm';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import './new-product.css';
 
 const prisma = new PrismaClient();
 
@@ -11,9 +12,9 @@ export default async function NewProductPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50">
-      <div className="max-w-4xl mx-auto px-6 lg:px-8 py-16">
-        <div className="flex justify-between items-center mb-12">
+    <div className="new-product-container">
+      <div className="new-product-content">
+        <div className="new-product-header">
           <div>
             <h1 className="text-4xl font-bold gradient-text mb-2">Crear Nuevo Producto</h1>
             <p className="text-gray-600">Agrega un nuevo producto al catálogo</p>
@@ -23,7 +24,7 @@ export default async function NewProductPage() {
           </Button>
         </div>
 
-        <div className="glass p-8 rounded-2xl shadow-xl">
+        <div className="new-product-form-container">
           <ProductForm categories={categories} />
         </div>
       </div>

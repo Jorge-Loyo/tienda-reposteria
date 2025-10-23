@@ -1,0 +1,126 @@
+/* HomeBanner Component Styles */
+
+/* Main Container */
+.home-banner {
+  position: relative;
+  height: 60vh;
+  min-height: 25rem;
+  width: 100%;
+  overflow: hidden;
+  background-color: #1f2937;
+}
+
+/* Slide Container */
+.home-banner-slide {
+  position: absolute;
+  inset: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.home-banner-slide.active {
+  opacity: 1;
+}
+
+.home-banner-slide.inactive {
+  opacity: 0;
+}
+
+/* Overlay */
+.home-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: black;
+  opacity: 0.5;
+}
+
+/* Content */
+.home-banner-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: white;
+  padding: 1rem;
+}
+
+.home-banner-title {
+  font-size: 2.25rem;
+  font-weight: bold;
+  letter-spacing: -0.025em;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.04)) drop-shadow(0 4px 3px rgba(0, 0, 0, 0.1));
+}
+
+@media (min-width: 768px) {
+  .home-banner-title {
+    font-size: 3.75rem;
+  }
+}
+
+/* Navigation Arrows */
+.home-banner-nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.home-banner-nav-button:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.home-banner-nav-button.prev {
+  left: 1rem;
+}
+
+.home-banner-nav-button.next {
+  right: 1rem;
+}
+
+.home-banner-nav-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* Indicators */
+.home-banner-indicators {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.home-banner-indicator {
+  height: 0.75rem;
+  width: 0.75rem;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.home-banner-indicator.active {
+  background-color: white;
+}
+
+.home-banner-indicator.inactive {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.home-banner-indicator.inactive:hover {
+  background-color: white;
+}

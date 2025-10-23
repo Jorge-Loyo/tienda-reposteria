@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import './LocationMap.css';
 
 // Fix para los iconos de Leaflet en Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -20,11 +21,11 @@ interface LocationMapProps {
 
 export default function LocationMap({ lat, lon }: LocationMapProps) {
   return (
-    <div className="h-48 w-full rounded-lg overflow-hidden">
+    <div className="location-map-container">
       <MapContainer
         center={[lat, lon]}
         zoom={15}
-        style={{ height: '100%', width: '100%' }}
+        className="location-map-leaflet"
         zoomControl={false}
       >
         <TileLayer
@@ -33,10 +34,10 @@ export default function LocationMap({ lat, lon }: LocationMapProps) {
         />
         <Marker position={[lat, lon]}>
           <Popup>
-            <div className="text-center">
-              <div className="text-lg">🏪</div>
-              <div className="font-medium">Casa Dulce Oriente</div>
-              <div className="text-xs text-gray-500">
+            <div className="location-map-popup">
+              <div className="location-map-popup-icon">🏪</div>
+              <div className="location-map-popup-title">Casa Dulce Oriente</div>
+              <div className="location-map-popup-coords">
                 {lat.toFixed(6)}, {lon.toFixed(6)}
               </div>
             </div>

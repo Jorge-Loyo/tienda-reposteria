@@ -2,6 +2,7 @@
 
 import ProductCard from '@/components/ProductCard';
 import { TrendingUp, Star } from 'lucide-react';
+import './TrendingSection.css';
 
 interface Product {
   id: number;
@@ -32,7 +33,7 @@ function TrendingBadge({ type }: { type: 'hot' | 'trending' | 'popular' }) {
   const badge = getBadgeConfig(type);
 
   return (
-    <div className={`${badge.color} text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg`}>
+    <div className={`trending-badge ${type}`}>
       <span>{badge.emoji}</span>
       {badge.text}
     </div>
@@ -50,31 +51,30 @@ export function TrendingSection({ products, bcvRate }: TrendingSectionProps) {
   }
 
   return (
-    <section className="py-16 sm:py-24 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <div className="flex justify-center mb-4">
+    <section className="trending-section">
+      <div className="trending-container">
+        <div className="trending-header">
+          <div className="trending-badge-container">
             <TrendingBadge type="trending" />
           </div>
-          <h2 className="text-4xl font-bold gradient-text mb-4">
+          <h2 className="trending-title gradient-text">
             🔥 Trending Now
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="trending-subtitle">
             Los productos más populares del momento. ¡No te quedes sin los favoritos de nuestros clientes!
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="trending-grid">
           {products.map((product, index) => (
-            <div key={product.id} className="relative">
-              {/* Badge según posición */}
-              <div className="absolute top-4 left-4 z-10">
+            <div key={product.id} className="trending-product-container">
+              <div className="trending-product-badge">
                 {index === 0 && <TrendingBadge type="hot" />}
                 {index === 1 && <TrendingBadge type="trending" />}
                 {index === 2 && <TrendingBadge type="popular" />}
               </div>
               
-              <div className="transform transition-all duration-300 hover:scale-105">
+              <div className="trending-product-card">
                 <ProductCard 
                   product={product} 
                   bcvRate={bcvRate}
@@ -84,14 +84,14 @@ export function TrendingSection({ products, bcvRate }: TrendingSectionProps) {
           ))}
         </div>
 
-        <div className="text-center mt-12">
-          <div className="inline-flex items-center gap-4 bg-white/80 backdrop-blur-sm rounded-2xl px-8 py-4 shadow-lg">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="trending-footer">
+          <div className="trending-footer-info">
+            <div className="trending-footer-item">
               <span>🔥</span>
               <span className="font-medium">Actualizado cada hora</span>
             </div>
-            <div className="w-px h-6 bg-gray-300"></div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="trending-footer-divider"></div>
+            <div className="trending-footer-item">
               <span>📈</span>
               <span className="font-medium">Basado en todos los pedidos</span>
             </div>

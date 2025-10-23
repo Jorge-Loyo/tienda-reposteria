@@ -1,0 +1,142 @@
+/* Trending Section Styles */
+.trending-section {
+  padding: 4rem 0 6rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #fdf2f8 50%, #fff7ed 100%);
+}
+
+.trending-container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .trending-container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .trending-container {
+    padding: 0 2rem;
+  }
+}
+
+.trending-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.trending-badge-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.trending-badge {
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.trending-badge.hot {
+  background-color: #ef4444;
+}
+
+.trending-badge.trending {
+  background-color: #10b981;
+}
+
+.trending-badge.popular {
+  background-color: #8b5cf6;
+}
+
+.trending-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.trending-subtitle {
+  color: #4b5563;
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+.trending-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 2rem;
+}
+
+@media (min-width: 640px) {
+  .trending-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .trending-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.trending-product-container {
+  position: relative;
+}
+
+.trending-product-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 10;
+}
+
+.trending-product-card {
+  transform: scale(1);
+  transition: all 0.3s ease;
+}
+
+.trending-product-card:hover {
+  transform: scale(1.05);
+}
+
+.trending-footer {
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.trending-footer-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+  border-radius: 1rem;
+  padding: 1rem 2rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.trending-footer-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.trending-footer-item .font-medium {
+  font-weight: 500;
+}
+
+.trending-footer-divider {
+  width: 1px;
+  height: 1.5rem;
+  background-color: #d1d5db;
+}

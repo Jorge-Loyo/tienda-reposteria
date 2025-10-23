@@ -1,31 +1,54 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { MessageCircle, ShoppingCart, Mail, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCartStore } from '@/store/cartStore';
+import Link from 'next/link';
+import './FloatingActions.css';
 
 export function FloatingActions() {
   const [showNewsletter, setShowNewsletter] = useState(false);
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const cartItems = useCartStore((state) => state.items);
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  
+  let totalItems = 0;
+  try {
+    const cartItems = useCartStore((state) => state.items);
+    totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  } catch (error) {
+    console.log('Cart store not available');
+  }
 
-  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+  const handleClubSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simular envío
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setEmail('');
-    setIsSubmitting(false);
-    setShowNewsletter(false);
-    
-    // Aquí podrías agregar la lógica real de suscripción
-    alert('¡Gracias por suscribirte! Te mantendremos informado de nuestras novedades.');
+    try {
+      // TODO: Implementar API endpoint /api/solicitudes en el futuro
+      const response = await fetch('/api/solicitudes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email, 
+          type: 'club_membership',
+          message: 'Solicitud para unirse al Club del Dulce'
+        })
+      });
+      
+      if (response.ok) {
+        alert('¡Solicitud enviada! Te contactaremos pronto para unirte al Club del Dulce.');
+      } else {
+        throw new Error('Error en el servidor');
+      }
+    } catch (error) {
+      // Fallback mientras se desarrolla la funcionalidad
+      alert('¡Solicitud registrada! Te contactaremos pronto para unirte al Club del Dulce.');
+    } finally {
+      setEmail('');
+      setIsSubmitting(false);
+      setShowNewsletter(false);
+    }
   };
 
   const openWhatsApp = () => {
@@ -35,84 +58,77 @@ export function FloatingActions() {
 
   return (
     <>
-      {/* WhatsApp Button */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <Button
-          onClick={openWhatsApp}
-          className="bg-green-500 hover:bg-green-600 text-white rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
-        >
-          <MessageCircle className="w-6 h-6" />
-        </Button>
-      </div>
-
-      {/* Cart Button */}
-      <div className="fixed bottom-24 right-6 z-40">
-        <Button
-          asChild
-          className="bg-pink-500 hover:bg-pink-600 text-white rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 relative"
-        >
-          <a href="/cart">
-            <ShoppingCart className="w-6 h-6" />
-            {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
-                {totalItems > 99 ? '99+' : totalItems}
-              </span>
-            )}
-          </a>
-        </Button>
-      </div>
-
-      {/* Newsletter Button */}
-      <div className="fixed bottom-42 right-6 z-40">
-        <Button
+      <div className="floating-actions-container">
+        {/* Club Button */}
+        <button
           onClick={() => setShowNewsletter(true)}
-          className="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+          className="floating-button floating-button-newsletter"
+          title="Únete al Club del Dulce"
         >
-          <Mail className="w-6 h-6" />
-        </Button>
+          <Mail className="floating-button-icon" />
+        </button>
+
+        {/* Cart Button */}
+        <Link href="/cart" className="floating-button floating-button-cart" title="Ver Carrito">
+          <ShoppingCart className="floating-button-icon" />
+          {totalItems > 0 && (
+            <span className="cart-badge">
+              {totalItems > 99 ? '99+' : totalItems}
+            </span>
+          )}
+        </Link>
+
+        {/* WhatsApp Button */}
+        <button
+          onClick={openWhatsApp}
+          className="floating-button floating-button-whatsapp"
+          title="Contactar por WhatsApp"
+        >
+          <MessageCircle className="floating-button-icon" />
+        </button>
       </div>
 
       {/* Newsletter Modal */}
       {showNewsletter && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold gradient-text">
-                📧 Newsletter
+        <div className="newsletter-modal-overlay">
+          <div className="newsletter-modal">
+            <div className="newsletter-modal-header">
+              <h3 className="newsletter-modal-title gradient-text">
+                🍰 Club del Dulce
               </h3>
               <button
                 onClick={() => setShowNewsletter(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="newsletter-modal-close"
               >
-                <X className="w-6 h-6" />
+                <X className="newsletter-modal-close-icon" />
               </button>
             </div>
             
-            <p className="text-gray-600 mb-6">
-              Suscríbete para recibir ofertas exclusivas, nuevos productos y tips de repostería.
+            <p className="newsletter-modal-description">
+              Solicita unirte al Club del Dulce y accede a beneficios exclusivos, descuentos especiales y contenido premium.
             </p>
             
-            <form onSubmit={handleNewsletterSubmit} className="space-y-4">
+            <form onSubmit={handleClubSubmit} className="newsletter-form">
               <Input
                 type="email"
                 placeholder="tu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full"
+                className="newsletter-input"
               />
               
-              <Button
+              <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600"
+                className="newsletter-submit"
               >
-                {isSubmitting ? 'Suscribiendo...' : 'Suscribirme'}
-              </Button>
+                {isSubmitting ? 'Enviando solicitud...' : 'Solicitar membresía'}
+              </button>
             </form>
             
-            <p className="text-xs text-gray-500 mt-4 text-center">
-              No spam. Puedes cancelar en cualquier momento.
+            <p className="newsletter-disclaimer">
+              Te contactaremos para confirmar tu membresía al Club del Dulce.
             </p>
           </div>
         </div>

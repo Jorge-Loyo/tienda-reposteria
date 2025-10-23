@@ -11,6 +11,7 @@ import { Upload, X } from 'lucide-react';
 import ProductCard from './ProductCard'; 
 import { Category } from '@prisma/client';
 import { sanitizeText } from '@/lib/sanitizer';
+import './ProductForm.css';
 
 interface ProductData {
   id?: number;
@@ -201,17 +202,17 @@ export default function ProductForm({
   return (
     <div>
       {alert && (
-        <div className={`mb-4 p-4 rounded-lg ${alert.type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>
+        <div className={`product-form-alert ${alert.type}`}>
           {alert.message}
         </div>
       )}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid w-full items-center gap-1.5"><Label htmlFor="name">Nombre del Producto</Label><Input type="text" id="name" name="name" value={product.name} onChange={handleChange} required /></div>
-        <div className="grid w-full items-center gap-1.5"><Label htmlFor="description">Descripción</Label><Textarea id="description" name="description" value={product.description || ''} onChange={handleChange} placeholder="Describe tu producto aquí." /></div>
-        <div className="grid w-full items-center gap-1.5">
+      <div className="product-form-grid">
+        <form onSubmit={handleSubmit} className="product-form-fields">
+        <div className="product-form-field"><Label htmlFor="name">Nombre del Producto</Label><Input type="text" id="name" name="name" value={product.name} onChange={handleChange} required /></div>
+        <div className="product-form-field"><Label htmlFor="description">Descripción</Label><Textarea id="description" name="description" value={product.description || ''} onChange={handleChange} placeholder="Describe tu producto aquí." /></div>
+        <div className="product-form-field">
           <Label htmlFor="categoryId">Categoría</Label>
-          <select id="categoryId" name="categoryId" value={product.categoryId} onChange={handleChange} required className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+          <select id="categoryId" name="categoryId" value={product.categoryId} onChange={handleChange} required className="product-form-category-select">
             <option value={0} disabled>Selecciona una categoría</option>
             {categories.map(category => (<option key={category.id} value={category.id}>{category.name}</option>))}
           </select>
@@ -222,60 +223,59 @@ export default function ProductForm({
           </Label>
           {!imagePreview ? (
             <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
-                isDragOver ? 'border-pink-400 bg-pink-50' : 'border-gray-300 hover:border-pink-400'
+              className={`product-form-upload-area ${
+                isDragOver ? 'drag-over' : ''
               }`}
               onDrop={handleDrop}
               onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
               onDragLeave={(e) => { e.preventDefault(); setIsDragOver(false); }}
               onClick={() => document.getElementById('image-input')?.click()}
             >
-              <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-gray-600 mb-2">Arrastra una imagen aquí o haz clic para seleccionar</p>
-              <p className="text-sm text-gray-500">PNG, JPG, WebP hasta 5MB</p>
+              <Upload className="product-form-upload-icon" />
+              <p className="product-form-upload-text">Arrastra una imagen aquí o haz clic para seleccionar</p>
+              <p className="product-form-upload-hint">PNG, JPG, WebP hasta 5MB</p>
               <input
                 id="image-input"
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="hidden"
+                className="product-form-upload-input"
               />
             </div>
           ) : (
-            <div className="relative">
+            <div className="product-form-preview">
               <img
                 src={imagePreview}
                 alt="Preview"
-                className="w-full h-64 object-cover rounded-lg"
+                className="product-form-preview-image"
               />
               <button
                 type="button"
                 onClick={removeImage}
-                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                className="product-form-remove-btn"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
           )}
         </div>
-        <div className="grid grid-cols-2 gap-4">
-            <div className="grid items-center gap-1.5"><Label htmlFor="sku">SKU</Label><Input type="text" id="sku" name="sku" value={product.sku ?? ''} onChange={handleChange} /></div>
-            {/* CORRECCIÓN: Se asegura que el campo de precio permita decimales */}
-            <div className="grid items-center gap-1.5"><Label htmlFor="priceUSD">Precio (USD)</Label><Input type="number" id="priceUSD" name="priceUSD" value={product.priceUSD} onChange={handleChange} required step="0.01" /></div>
+        <div className="product-form-grid-cols-2">
+            <div className="product-form-field"><Label htmlFor="sku">SKU</Label><Input type="text" id="sku" name="sku" value={product.sku ?? ''} onChange={handleChange} /></div>
+            <div className="product-form-field"><Label htmlFor="priceUSD">Precio (USD)</Label><Input type="number" id="priceUSD" name="priceUSD" value={product.priceUSD} onChange={handleChange} required step="0.01" /></div>
         </div>
-        <div className="grid items-center gap-1.5"><Label htmlFor="stock">Stock</Label><Input type="number" id="stock" name="stock" value={product.stock} onChange={handleChange} required /></div>
-        <Button type="submit" className="w-full" disabled={isUploading}>{isUploading ? 'Subiendo imagen...' : 'Guardar Producto'}</Button>
+        <div className="product-form-field"><Label htmlFor="stock">Stock</Label><Input type="number" id="stock" name="stock" value={product.stock} onChange={handleChange} required /></div>
+        <Button type="submit" className="product-form-submit" disabled={isUploading}>{isUploading ? 'Subiendo imagen...' : 'Guardar Producto'}</Button>
         </form>
-      <div className="flex flex-col items-center">
-        <h3 className="text-lg font-semibold mb-4 text-gray-700">Vista Previa en la Tienda</h3>
-        <div className="w-full max-w-xs">
+      <div className="product-form-preview-section">
+        <h3 className="product-form-preview-title">Vista Previa en la Tienda</h3>
+        <div className="product-form-preview-card">
           <ProductCard
             product={{
               id: product.id,
               name: product.name,
               priceUSD: Number(product.priceUSD),
               imageUrl: imagePreview,
-              stock: product.stock, // Añadido para que la vista previa sea más completa
+              stock: product.stock,
             }}
             bcvRate={null}
           />

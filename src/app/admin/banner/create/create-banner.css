@@ -1,0 +1,109 @@
+/* Create Banner Page Styles */
+.create-banner-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fdf2f8 0%, #ffffff 50%, #fff7ed 100%);
+}
+
+.create-banner-content {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+}
+
+.create-banner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+.create-banner-form {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.create-banner-form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.create-banner-upload-area {
+  border: 2px dashed #d1d5db;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-banner-upload-area:hover {
+  border-color: #f472b6;
+}
+
+.create-banner-upload-area.drag-over {
+  border-color: #f472b6;
+  background-color: #fdf2f8;
+}
+
+.create-banner-preview {
+  position: relative;
+}
+
+.create-banner-preview-image {
+  width: 100%;
+  height: 16rem;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.create-banner-remove-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: #ef4444;
+  color: white;
+  border-radius: 50%;
+  padding: 0.25rem;
+  transition: background-color 0.3s ease;
+}
+
+.create-banner-remove-btn:hover {
+  background-color: #dc2626;
+}
+
+.create-banner-checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.create-banner-checkbox {
+  border-radius: 0.25rem;
+  border-color: #d1d5db;
+  color: #ec4899;
+}
+
+.create-banner-checkbox:focus {
+  ring: 2px solid #ec4899;
+}
+
+.create-banner-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.create-banner-submit {
+  flex: 1;
+}
+
+@media (min-width: 1024px) {
+  .create-banner-content {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}

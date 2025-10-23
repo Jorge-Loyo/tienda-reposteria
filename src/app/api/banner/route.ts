@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import db from '@/db/db';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 });
     }
 
-    const banner = await prisma.banner.create({
+    const banner = await db.banner.create({
       data: {
         title,
         alt,
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const banners = await prisma.banner.findMany({
+    const banners = await db.banner.findMany({
       orderBy: { createdAt: 'desc' },
     });
 

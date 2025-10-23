@@ -1,20 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/db/db';
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest) {
   try {
     const { name, imageUrl } = await request.json();
-    const id = parseInt(params.id);
 
     if (!name?.trim()) {
       return NextResponse.json({ error: 'El nombre es requerido' }, { status: 400 });
     }
 
-    const category = await db.category.update({
-      where: { id },
+    const category = await db.category.create({
       data: {
         name: name.trim(),
         imageUrl: imageUrl || null,
@@ -23,7 +18,7 @@ export async function PUT(
 
     return NextResponse.json(category);
   } catch (error) {
-    console.error('Error updating category:', error);
-    return NextResponse.json({ error: 'Error al actualizar categoría' }, { status: 500 });
+    console.error('Error creating category:', error);
+    return NextResponse.json({ error: 'Error al crear categoría' }, { status: 500 });
   }
 }

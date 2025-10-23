@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Upload, X } from 'lucide-react';
+import './create-banner.css';
 
 export default function CreateBannerPage() {
   const router = useRouter();
@@ -94,9 +95,9 @@ export default function CreateBannerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50">
-      <div className="max-w-4xl mx-auto px-6 lg:px-8 py-16">
-        <div className="flex justify-between items-center mb-12">
+    <div className="create-banner-container">
+      <div className="create-banner-content">
+        <div className="create-banner-header">
           <div>
             <h1 className="text-4xl font-bold gradient-text mb-2">Añadir Nueva Imagen</h1>
             <p className="text-gray-600">Sube una nueva imagen para el carrusel principal</p>
@@ -106,15 +107,15 @@ export default function CreateBannerPage() {
           </Button>
         </div>
 
-        <form onSubmit={handleSubmit} className="glass p-8 rounded-2xl shadow-xl">
-          <div className="space-y-6">
+        <form onSubmit={handleSubmit} className="create-banner-form">
+          <div className="create-banner-form-content">
             <div>
               <Label htmlFor="image" className="text-sm font-medium text-gray-700 mb-2 block">
                 Imagen del Banner *
               </Label>
               {!imagePreview ? (
                 <div
-                  className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-pink-400 transition-colors cursor-pointer"
+                  className="create-banner-upload-area"
                   onDrop={handleDrop}
                   onDragOver={(e) => e.preventDefault()}
                   onClick={() => document.getElementById('image-input')?.click()}
@@ -127,20 +128,20 @@ export default function CreateBannerPage() {
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className="hidden"
+                    className="create-banner-upload-input"
                   />
                 </div>
               ) : (
-                <div className="relative">
+                <div className="create-banner-preview">
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    className="w-full h-64 object-cover rounded-lg"
+                    className="create-banner-preview-image"
                   />
                   <button
                     type="button"
                     onClick={removeImage}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    className="create-banner-remove-btn"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -173,13 +174,13 @@ export default function CreateBannerPage() {
               />
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="create-banner-checkbox-container">
               <input
                 id="active"
                 type="checkbox"
                 checked={formData.active}
                 onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                className="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
+                className="create-banner-checkbox"
               />
               <Label htmlFor="active" className="text-sm font-medium text-gray-700">
                 Activar imagen inmediatamente
@@ -187,12 +188,12 @@ export default function CreateBannerPage() {
             </div>
           </div>
 
-          <div className="flex gap-4 mt-8">
+          <div className="create-banner-actions">
             <Button
               type="submit"
               variant="gradient"
               disabled={!imageFile || !formData.alt || isLoading}
-              className="flex-1"
+              className="create-banner-submit"
             >
               {isLoading ? 'Creando...' : 'Crear Banner'}
             </Button>

@@ -256,15 +256,18 @@ export default function CartPage() {
     <div className="cart-container">
         <div className="cart-content">
             <div className="cart-header">
-                <Button variant="modern" size="icon" className="cart-back-button" onClick={() => router.back()}>
-                    <ArrowLeftIcon />
-                </Button>
-                <h1 className="cart-title gradient-text">Tu Carrito de Compras</h1>
+                <div className="cart-header-content">
+                    <h1 className="cart-title gradient-text">Tu Carrito de Compras</h1>
+                    <Button variant="modern" size="icon" className="cart-back-button" onClick={() => router.back()}>
+                        <ArrowLeftIcon />
+                    </Button>
+                </div>
             </div>
 
-            <div className="cart-grid">
-                <section aria-labelledby="cart-heading" className="lg:col-span-8">
-                    <ul role="list" className="space-y-4">
+            <div className="cart-main-grid">
+                <section aria-labelledby="cart-heading" className="cart-items-section">
+                    <h2 className="cart-items-title">Productos en tu carrito</h2>
+                    <ul role="list" className="cart-items-list">
                         {items.map((product) => {
                             const subtotal = (Number(product.price) || 0) * (Number(product.quantity) || 0);
                             return (
@@ -298,8 +301,8 @@ export default function CartPage() {
                     </ul>
                 </section>
 
-                <section aria-labelledby="summary-heading" className="mt-16 glass rounded-2xl p-8 shadow-xl lg:col-span-4 lg:mt-0 lg:sticky lg:top-24">
-                    <h2 id="summary-heading" className="text-2xl font-bold gradient-text mb-6">Resumen del Pedido</h2>
+                <section aria-labelledby="summary-heading" className="cart-summary-section">
+                    <h2 id="summary-heading" className="cart-summary-title">Resumen del Pedido</h2>
                     <dl className="mt-6 space-y-2">
                         <div className="flex items-center justify-between text-sm">
                             <dt className="text-gray-600">Subtotal</dt>

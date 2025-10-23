@@ -2,7 +2,8 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils'; // Asegúrate de que este archivo de utilidad exista en tu proyecto shadcn
+import { cn } from '@/lib/utils';
+import './CategoryFilter.css';
 
 interface CategoryFilterProps {
   categories: { id: number; name: string }[];
@@ -24,15 +25,13 @@ export default function CategoryFilter({ categories }: CategoryFilterProps) {
   };
 
   return (
-    <div className="glass p-6 rounded-2xl shadow-xl">
-      <h2 className="text-xl font-bold gradient-text mb-6 text-center">Explora por Categorías</h2>
-      <div className="flex flex-wrap justify-center gap-3">
+    <div className="category-filter-container">
+      <h2 className="category-filter-title gradient-text">Explora por Categorías</h2>
+      <div className="category-filter-buttons">
         <button
           className={cn(
-            "px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105",
-            !currentCategory
-              ? "bg-gradient-to-r from-pink-500 to-orange-500 text-white shadow-lg"
-              : "bg-white/50 text-gray-700 hover:bg-white/80 border border-white/30"
+            "category-filter-button",
+            !currentCategory ? "active" : "inactive"
           )}
           onClick={() => handleFilter(null)}
         >
@@ -42,10 +41,8 @@ export default function CategoryFilter({ categories }: CategoryFilterProps) {
           <button
             key={category.id}
             className={cn(
-              "px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105",
-              currentCategory === category.name
-                ? "bg-gradient-to-r from-pink-500 to-orange-500 text-white shadow-lg"
-                : "bg-white/50 text-gray-700 hover:bg-white/80 border border-white/30"
+              "category-filter-button",
+              currentCategory === category.name ? "active" : "inactive"
             )}
             onClick={() => handleFilter(category.name)}
           >

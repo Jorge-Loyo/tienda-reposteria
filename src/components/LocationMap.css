@@ -1,0 +1,29 @@
+/* Location Map Styles */
+.location-map-container {
+  height: 12rem;
+  width: 100%;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.location-map-leaflet {
+  height: 100%;
+  width: 100%;
+}
+
+.location-map-popup {
+  text-align: center;
+}
+
+.location-map-popup-icon {
+  font-size: 1.125rem;
+}
+
+.location-map-popup-title {
+  font-weight: 500;
+}
+
+.location-map-popup-coords {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
