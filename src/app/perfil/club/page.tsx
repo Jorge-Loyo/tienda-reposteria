@@ -10,8 +10,8 @@ async function getUserClubData(userId: number) {
     prisma.$queryRaw`
       SELECT * FROM user_points 
       WHERE user_id = ${userId}
-    `,
-    prisma.$queryRaw`SELECT * FROM club_config WHERE id = 1`,
+    ` as unknown as any[],
+    prisma.$queryRaw`SELECT * FROM club_config WHERE id = 1` as unknown as any[],
     prisma.$queryRaw`
       SELECT u.name, up.monthly_points, up.level,
              ROW_NUMBER() OVER (ORDER BY up.monthly_points DESC) as position
@@ -21,7 +21,7 @@ async function getUserClubData(userId: number) {
       AND up.current_year = EXTRACT(YEAR FROM CURRENT_DATE)
       ORDER BY up.monthly_points DESC 
       LIMIT 10
-    `,
+    ` as unknown as any[],
     prisma.$queryRaw`
       SELECT COUNT(*) + 1 as position FROM user_points 
       WHERE monthly_points > (
@@ -29,7 +29,7 @@ async function getUserClubData(userId: number) {
       )
       AND current_month = EXTRACT(MONTH FROM CURRENT_DATE)
       AND current_year = EXTRACT(YEAR FROM CURRENT_DATE)
-    `
+    ` as unknown as any[]
   ]);
 
   return {
