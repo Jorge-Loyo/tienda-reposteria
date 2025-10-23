@@ -3,10 +3,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
 import { serialize } from 'cookie';
-import { prisma } from '@/lib/prisma';
-import { logError, sanitizeForLog } from '@/lib/logger';
+import db from '@/db/db';
 import { isValidEmail, sanitizeText } from '@/lib/sanitizer';
-import { rateLimit, getClientIP } from '@/lib/rate-limit';
 
 // Validar que JWT_SECRET esté configurado
 if (!process.env.JWT_SECRET) {
@@ -17,21 +15,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(request: Request) {
   try {
-    // Rate limiting por IP
-    const clientIP = getClientIP(request);
-    const rateLimitResult = rateLimit(`login:${clientIP}`, 5, 300000);
-    
-    if (!rateLimitResult.success) {
-      return NextResponse.json(
-        { error: 'Demasiados intentos de inicio de sesión. Intenta de nuevo más tarde.' },
-        { 
-          status: 429,
-          headers: {
-            'Retry-After': Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000).toString()
-          }
-        }
-      );
-    }
+
 
     let email, password;
     
@@ -64,32 +48,32 @@ export async function POST(request: Request) {
     }
 
     // 1. Buscar al usuario por su email
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { email: sanitizedEmail },
     });
 
 // 2. Verificar si el usuario existe
 if (!user) {
   // Log del intento fallido sin exponer información sensible
-  logError('Login attempt failed', `User not found for email: ${sanitizeForLog(sanitizedEmail)}`);
+  console.error('Login attempt failed - User not found for email:', sanitizedEmail);
   return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
 }
 
     // 3. Verificar si el usuario está activo
     if (!user.isActive) {
-      logError('Login attempt failed', `Inactive user attempted login: ${sanitizeForLog(sanitizedEmail)}`);
+      console.error('Login attempt failed - Inactive user attempted login:', sanitizedEmail);
       return NextResponse.json({ error: 'Cuenta desactivada. Contacta al administrador.' }, { status: 401 });
     }
 
     // 4. Verificar la contraseña
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      logError('Login attempt failed', `Invalid password for user: ${sanitizeForLog(sanitizedEmail)}`);
+      console.error('Login attempt failed - Invalid password for user:', sanitizedEmail);
       return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
     }
 
     // 5. Login exitoso - crear token de sesión
-    logError('Login successful', `User logged in: ${sanitizeForLog(sanitizedEmail)} with role: ${user.role}`);
+    console.log('Login successful - User logged in:', sanitizedEmail, 'with role:', user.role);
     const token = jwt.sign(
       {
         userId: user.id,
@@ -127,7 +111,7 @@ if (!user) {
     return response;
 
   } catch (error) {
-    logError('Error en el login', error);
+    console.error('Error en el login:', error);
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

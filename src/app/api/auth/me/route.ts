@@ -2,8 +2,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { jwtVerify, JWTPayload } from 'jose';
-import { prisma } from '@/lib/prisma';
-import { logError } from '@/lib/logger';
+import db from '@/db/db';
 import { sanitizeText } from '@/lib/sanitizer';
 
 if (!process.env.JWT_SECRET) {
@@ -47,7 +46,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: userId },
       select: {
         name: true,
@@ -68,7 +67,7 @@ export async function GET() {
     const sanitizedUser = sanitizeUserData(user);
     return NextResponse.json(sanitizedUser);
   } catch (error) {
-    logError('Error en /api/auth/me', error);
+    console.error('Error en /api/auth/me:', error);
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

@@ -1,8 +1,8 @@
-import { prisma } from '@/lib/prisma';
+import db from '@/db/db';
 
 async function getInstagramPosts() {
   try {
-    return await prisma.instagramPost.findMany({
+    return await db.instagramPost.findMany({
       where: { isActive: true },
       orderBy: { order: 'asc' },
       take: 4

@@ -1,11 +1,9 @@
 // src/app/api/users/route.ts
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { prisma } from '@/lib/prisma';
-import { logError } from '@/lib/logger';
+import db from '@/db/db';
 import { sanitizeText, isValidEmail } from '@/lib/sanitizer';
 import { getSessionData } from '@/lib/session';
-import { rateLimit, getClientIP } from '@/lib/rate-limit';
 
 // Función para obtener todos los usuarios
 export async function GET() {
@@ -16,7 +14,7 @@ export async function GET() {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    const users = await prisma.user.findMany({
+    const users = await db.user.findMany({
       select: {
         id: true,
         name: true,
@@ -31,7 +29,7 @@ export async function GET() {
     });
     return NextResponse.json(users);
   } catch (error) {
-    logError('Error al obtener usuarios', error);
+    console.error('Error al obtener usuarios:', error);
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
 }
@@ -45,16 +43,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    // Rate limiting
-    const clientIP = getClientIP(request);
-    const rateLimitResult = rateLimit(`create-user:${clientIP}`, 5, 300000); // 5 usuarios por 5 minutos
-    
-    if (!rateLimitResult.success) {
-      return NextResponse.json(
-        { error: 'Demasiadas solicitudes de creación de usuarios' },
-        { status: 429 }
-      );
-    }
+
 
     const { email, password, role, name, phoneNumber, address, identityCard, instagram } = await request.json();
 
@@ -78,7 +67,7 @@ export async function POST(request: Request) {
     }
 
     // Verificamos si el usuario ya existe
-    const existingUser = await prisma.user.findUnique({ where: { email: sanitizedEmail } });
+    const existingUser = await db.user.findUnique({ where: { email: sanitizedEmail } });
     if (existingUser) {
       return NextResponse.json({ error: 'El correo electrónico ya está en uso' }, { status: 409 });
     }
@@ -86,7 +75,7 @@ export async function POST(request: Request) {
     // Encriptamos la contraseña
     const hashedPassword = await bcrypt.hash(password, 12); // Aumentamos el costo a 12
 
-    const newUser = await prisma.user.create({
+    const newUser = await db.user.create({
       data: {
         name: name ? sanitizeText(name) : null,
         email: sanitizedEmail,
@@ -105,7 +94,7 @@ export async function POST(request: Request) {
     return NextResponse.json(userWithoutPassword, { status: 201 });
 
   } catch (error) {
-    logError('Error al crear usuario', error);
+    console.error('Error al crear usuario:', error);
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
 }

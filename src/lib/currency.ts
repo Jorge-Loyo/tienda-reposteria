@@ -39,7 +39,7 @@ async function getRateFromApi(): Promise<number | null> {
     const data: BcvApiResponse = await response.json();
     const rate = data?.price;
 
-    if (typeof rate === 'number') {
+    if (typeof rate === 'number' && rate > 0) {
       return rate;
     }
     
@@ -58,6 +58,7 @@ async function getRateFromBcvWebsite(): Promise<number | null> {
   try {
     const response = await axios.get('https://www.bcv.org.ve/', {
       httpsAgent,
+      timeout: 10000
     });
 
     const html = response.data;
@@ -67,7 +68,7 @@ async function getRateFromBcvWebsite(): Promise<number | null> {
     if (!rateText) return null;
 
     const rate = parseFloat(rateText.replace(/\./g, '').replace(',', '.'));
-    return isNaN(rate) ? null : rate;
+    return isNaN(rate) || rate <= 0 ? null : rate;
   } catch (error) {
     return null;
   }
@@ -124,10 +125,12 @@ async function updateRateInBackground(): Promise<void> {
       rate = await getRateFromBcvWebsite();
     }
     
-    if (rate !== null) {
+    if (rate !== null && rate > 0) {
       cachedRate = rate;
       lastUpdate = new Date();
-      console.log('Tasa BCV actualizada:', rate);
+      console.log('Tasa BCV actualizada exitosamente:', rate);
+    } else {
+      console.log('No se pudo obtener tasa válida del BCV');
     }
   } catch (error) {
     console.error('Error actualizando tasa BCV:', error);
@@ -140,15 +143,14 @@ async function updateRateInBackground(): Promise<void> {
  * Obtiene la tasa de cambio del BCV con caché inteligente
  */
 export async function getBcvRate(): Promise<number | null> {
-  // Si necesita actualización, hazlo en segundo plano
-  if (shouldUpdateRate()) {
-    updateRateInBackground();
-  }
-  
-  // Si no hay tasa cacheada, espera la primera actualización
-  if (cachedRate === null && !isUpdating) {
+  // Si no hay tasa cacheada, obtenerla inmediatamente
+  if (cachedRate === null) {
     await updateRateInBackground();
   }
+  // Si necesita actualización, hazlo en segundo plano
+  else if (shouldUpdateRate()) {
+    updateRateInBackground(); // Sin await para no bloquear
+  }
   
-  return cachedRate || 50; // Valor por defecto si falla todo
+  return cachedRate;
 }

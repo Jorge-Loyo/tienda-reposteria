@@ -96,7 +96,7 @@ export default async function AdminDashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-end mb-6">
             <Button variant="outline" asChild>
               <Link href="/perfil">
                 🏠 Perfil
