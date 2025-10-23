@@ -47,7 +47,14 @@ export default async function UserTicketDetailPage({ params }: { params: { id: s
         <p className="text-gray-600">{ticket.subject}</p>
       </div>
 
-      <UserTicketConversation ticket={ticket} />
+      <UserTicketConversation ticket={{
+        ...ticket,
+        createdAt: ticket.createdAt.toISOString(),
+        responses: ticket.responses.map(response => ({
+          ...response,
+          createdAt: response.createdAt.toISOString()
+        }))
+      }} />
     </ProfileLayout>
   );
 }
