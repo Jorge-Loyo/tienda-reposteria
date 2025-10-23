@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     // Buscar usuario por email
     const user = await prisma.$queryRaw`
       SELECT id FROM "User" WHERE email = ${userId}
-    `;
+    ` as any[];
     
     if (!user || user.length === 0) {
       return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     `;
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Detailed error:', error);
     return NextResponse.json({ 
       error: `Error asignando VIP: ${error.message || error}`,
