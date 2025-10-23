@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { formatToVes } from '@/lib/currency';
 import { useCurrency } from '@/context/CurrencyContext';
 import { Label } from '@/components/ui/label';
+import './cart.css';
 import {
   Select,
   SelectContent,
@@ -232,19 +233,19 @@ export default function CartPage() {
 
   if (!isClient) {
     return (
-        <div className="min-h-[calc(100vh-200px)] flex flex-col justify-center items-center">
+        <div className="cart-loading">
             <LoadingSpinner />
-            <p className="text-lg text-gray-600">Cargando tu carrito...</p>
+            <p className="cart-loading-text">Cargando tu carrito...</p>
         </div>
     );
   }
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50 flex items-center justify-center">
-        <div className="glass p-12 rounded-3xl text-center max-w-md">
+      <div className="cart-empty-container">
+        <div className="cart-empty-card glass">
           <EmptyCartIcon />
-          <h1 className="text-3xl font-bold gradient-text mb-4">Tu carrito está vacío</h1>
-          <p className="text-gray-600 mb-8">Parece que aún no has agregado productos.</p>
+          <h1 className="cart-empty-title gradient-text">Tu carrito está vacío</h1>
+          <p className="cart-empty-text">Parece que aún no has agregado productos.</p>
           <Button asChild variant="gradient" size="lg"><Link href="/tienda">Explorar la tienda</Link></Button>
         </div>
       </div>
@@ -252,16 +253,16 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
-            <div className="flex items-center gap-4 mb-12">
-                <Button variant="modern" size="icon" className="h-12 w-12 flex-shrink-0" onClick={() => router.back()}>
+    <div className="cart-container">
+        <div className="cart-content">
+            <div className="cart-header">
+                <Button variant="modern" size="icon" className="cart-back-button" onClick={() => router.back()}>
                     <ArrowLeftIcon />
                 </Button>
-                <h1 className="text-4xl lg:text-5xl font-bold gradient-text">Tu Carrito de Compras</h1>
+                <h1 className="cart-title gradient-text">Tu Carrito de Compras</h1>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 lg:gap-x-12 lg:items-start">
+            <div className="cart-grid">
                 <section aria-labelledby="cart-heading" className="lg:col-span-8">
                     <ul role="list" className="space-y-4">
                         {items.map((product) => {

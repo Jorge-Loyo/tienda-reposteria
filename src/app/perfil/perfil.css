@@ -1,0 +1,37 @@
+/* Perfil Page Styles */
+
+/* Header Section */
+.perfil-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.perfil-title {
+  font-size: 2.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.perfil-subtitle {
+  color: #4b5563;
+}
+
+/* Content Section */
+.perfil-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Card Styles */
+.perfil-card {
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.perfil-card-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
