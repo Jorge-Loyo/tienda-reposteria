@@ -51,7 +51,7 @@ export default function VipAssignForm({ user }: VipAssignFormProps) {
         setMessage(`Error: ${error.error || 'Error desconocido'}`);
         setMessageType('error');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
       setMessage(`Error de conexión: ${error.message || 'Error desconocido'}`);
       setMessageType('error');
