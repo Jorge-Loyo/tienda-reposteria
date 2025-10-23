@@ -20,7 +20,7 @@ export default async function ConsultasPage() {
     redirect('/');
   }
 
-  const tickets = await prisma.supportTicket.findMany({
+  const ticketsData = await prisma.supportTicket.findMany({
     include: {
       user: {
         select: {
@@ -32,11 +32,17 @@ export default async function ConsultasPage() {
     orderBy: { createdAt: 'desc' }
   });
 
+  const tickets = ticketsData.map(ticket => ({
+    ...ticket,
+    createdAt: ticket.createdAt.toISOString(),
+    updatedAt: ticket.updatedAt.toISOString()
+  }));
+
   const stats = {
     urgentes: tickets.filter(t => t.priority === 'urgente' && t.status === 'pendiente').length,
     alta: tickets.filter(t => t.priority === 'alta' && t.status === 'pendiente').length,
     pendientes: tickets.filter(t => t.status === 'pendiente').length,
-    resueltas: tickets.filter(t => t.status === 'resuelto' && new Date(t.updatedAt).toDateString() === new Date().toDateString()).length
+    resueltas: ticketsData.filter(t => t.status === 'resuelto' && t.updatedAt.toDateString() === new Date().toDateString()).length
   };
 
   return (
