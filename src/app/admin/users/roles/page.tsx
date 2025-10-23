@@ -60,13 +60,21 @@ async function getRolesData() {
   const finalRoles = missingRoles.length > 0 
     ? await prisma.role.findMany({
         where: { name: { in: validRoles } },
+        include: {
+          permissions: {
+            include: {
+              permission: true
+            }
+          }
+        },
         orderBy: { name: 'asc' }
       })
     : roles;
 
   const rolesWithCounts = finalRoles.map(role => ({
     ...role,
-    userCount: userCounts.find(uc => uc.role === role.name)?._count.role || 0
+    userCount: userCounts.find(uc => uc.role === role.name)?._count.role || 0,
+    permissions: role.permissions || []
   }));
 
   return { roles: rolesWithCounts, permissions };
