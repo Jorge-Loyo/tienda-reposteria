@@ -35,7 +35,7 @@ export function FeaturedProductsSection({ featuredProducts, bcvRate }: FeaturedP
         {featuredProducts.length > 0 ? (
           <div className="featured-grid">
             {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} bcvRate={bcvRate} />
+              <ProductCard key={product.id} product={{...product, id: parseInt(product.id)}} bcvRate={bcvRate} />
             ))}
           </div>
         ) : (

@@ -219,7 +219,7 @@ export function ClubManager({ config, topUsers }: ClubManagerProps) {
         setUpdateMessage(`Error: ${error.error || 'Error desconocido'}`);
         setUpdateMessageType('error');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
       setUpdateMessage(`Error de conexión: ${error.message || 'Error desconocido'}`);
       setUpdateMessageType('error');
@@ -509,7 +509,7 @@ export function ClubManager({ config, topUsers }: ClubManagerProps) {
             <h4 className="font-medium mb-4 text-gray-700">Todos los Usuarios VIP</h4>
             <div className="space-y-3">
               {allVipUsers.map((user: any) => {
-                const vipCredit = vipUsers.find((vip: any) => vip.user?.email === user.email);
+                const vipCredit = vipUsers.find((vip: any) => vip.user?.email === user.email) as any;
                 
                 return (
                   <div key={user.email} className={`p-4 rounded-lg border ${
