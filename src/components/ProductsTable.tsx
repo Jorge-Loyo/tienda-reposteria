@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { logError } from '@/lib/logger';
+import { logger } from '@/lib/logger';
 import { showToast } from '@/components/ui/toast';
 
 // 1. Actualizamos la interfaz para que acepte los nuevos datos de la oferta
@@ -60,7 +60,7 @@ export default function ProductsTable({ products }: { products: Product[] }) {
       router.refresh();
       showToast('Producto eliminado exitosamente', 'success');
     } catch (error) {
-      logError('Error al eliminar producto', error);
+      logger.error('Error al eliminar producto', error);
       showToast('Error al eliminar el producto', 'error');
     }
   };
@@ -76,7 +76,7 @@ export default function ProductsTable({ products }: { products: Product[] }) {
       router.refresh();
       showToast(`Producto ${!product.published ? 'mostrado' : 'ocultado'} exitosamente`, 'success');
     } catch (error) {
-      logError('Error al actualizar estado del producto', error);
+      logger.error('Error al actualizar estado del producto', error);
       showToast('Error al actualizar el producto', 'error');
     }
   };

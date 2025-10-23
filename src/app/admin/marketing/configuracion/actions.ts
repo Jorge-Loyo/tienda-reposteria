@@ -1,11 +1,11 @@
 'use server';
 
-import { prisma } from '@/lib/prisma';
+import db from '@/db/db';
 import { revalidatePath } from 'next/cache';
 
 export async function updateSiteConfig(key: string, value: string) {
   try {
-    await prisma.siteConfig.upsert({
+    await db.siteConfig.upsert({
       where: { key },
       update: { value },
       create: { key, value }

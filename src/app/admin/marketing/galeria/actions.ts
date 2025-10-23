@@ -1,6 +1,6 @@
 'use server';
 
-import { prisma } from '@/lib/prisma';
+import db from '@/db/db';
 import { revalidatePath } from 'next/cache';
 
 export async function createGalleryImage(formData: FormData) {
@@ -11,7 +11,7 @@ export async function createGalleryImage(formData: FormData) {
     const alt = formData.get('alt') as string;
     const order = parseInt(formData.get('order') as string) || 0;
 
-    await prisma.galleryImage.create({
+    await db.galleryImage.create({
       data: {
         title,
         description,
@@ -40,7 +40,7 @@ export async function updateGalleryImage(id: number, formData: FormData) {
     const alt = formData.get('alt') as string;
     const order = parseInt(formData.get('order') as string) || 0;
 
-    await prisma.galleryImage.update({
+    await db.galleryImage.update({
       where: { id },
       data: {
         title,
@@ -63,7 +63,7 @@ export async function updateGalleryImage(id: number, formData: FormData) {
 
 export async function toggleGalleryImageStatus(id: number) {
   try {
-    const image = await prisma.galleryImage.findUnique({
+    const image = await db.galleryImage.findUnique({
       where: { id }
     });
 
@@ -71,7 +71,7 @@ export async function toggleGalleryImageStatus(id: number) {
       return { error: 'Imagen no encontrada' };
     }
 
-    await prisma.galleryImage.update({
+    await db.galleryImage.update({
       where: { id },
       data: {
         isActive: !image.isActive
@@ -90,7 +90,7 @@ export async function toggleGalleryImageStatus(id: number) {
 
 export async function deleteGalleryImage(id: number) {
   try {
-    await prisma.galleryImage.delete({
+    await db.galleryImage.delete({
       where: { id }
     });
 

@@ -1,9 +1,9 @@
-import { prisma } from '@/lib/prisma';
+import db from '@/db/db';
 import { GalleryManagement } from '@/components/GalleryManagement';
 
 async function getGalleryImages() {
   try {
-    return await prisma.galleryImage.findMany({
+    return await db.galleryImage.findMany({
       orderBy: { order: 'asc' }
     });
   } catch (error) {

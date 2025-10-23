@@ -1,9 +1,9 @@
-import { prisma } from '@/lib/prisma';
+import db from '@/db/db';
 import { SiteConfigForm } from '@/components/SiteConfigForm';
 
 async function getSiteConfig() {
   try {
-    const aboutImage = await prisma.siteConfig.findUnique({
+    const aboutImage = await db.siteConfig.findUnique({
       where: { key: 'about_section_image' }
     });
 
