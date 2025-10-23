@@ -44,7 +44,7 @@ export async function PUT(request: NextRequest) {
     `;
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Detailed update error:', error);
     return NextResponse.json({ 
       error: `Error actualizando VIP: ${error.message || error}`,
