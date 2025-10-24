@@ -1,8 +1,80 @@
+'use client';
+
 import Image from 'next/image';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import './login.css';
 import { CognitoLogin } from '@/components/CognitoLogin';
 
 export default function LoginPage() {
+  const [isLoading, setIsLoading] = useState(false);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error) {
+      let message = 'Error de autenticación';
+      switch (error) {
+        case 'cognito_error':
+          message = 'Error en la autenticación con AWS Cognito';
+          break;
+        case 'no_code':
+          message = 'No se recibió código de autorización';
+          break;
+        case 'auth_failed':
+          message = 'Falló la autenticación. Verifica tus credenciales';
+          break;
+        case 'invalid_credentials':
+          message = 'Credenciales inválidas. Verifica tu email y contraseña';
+          break;
+        case 'account_disabled':
+          message = 'Cuenta desactivada. Contacta al administrador';
+          break;
+        case 'missing_fields':
+          message = 'El correo y la contraseña son requeridos';
+          break;
+        case 'invalid_email':
+          message = 'Formato de email inválido';
+          break;
+        case 'server_error':
+          message = 'Error interno del servidor. Inténtalo de nuevo';
+          break;
+        default:
+          message = 'Error de autenticación';
+      }
+      alert(message);
+    }
+  }, [searchParams]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        window.location.href = '/admin';
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Credenciales inválidas');
+      }
+    } catch (error) {
+      alert('Error de conexión. Inténtalo de nuevo.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="login-container">
@@ -30,7 +102,7 @@ export default function LoginPage() {
             <p className="login-subtitle">Accede a tu cuenta</p>
           </div>
 
-          <form action="/api/auth/login" method="POST" className="login-form">
+          <form onSubmit={handleSubmit} className="login-form">
             <div className="login-field">
               <label htmlFor="email" className="login-label">
                 Correo Electrónico
@@ -46,6 +118,7 @@ export default function LoginPage() {
                   name="email"
                   type="email"
                   required
+                  disabled={isLoading}
                   placeholder="correo@ejemplo.com"
                   className="login-input"
                 />
@@ -67,14 +140,15 @@ export default function LoginPage() {
                   name="password"
                   type="password"
                   required
+                  disabled={isLoading}
                   placeholder="••••••••"
                   className="login-input password"
                 />
               </div>
             </div>
 
-            <button type="submit" className="login-submit">
-              Iniciar Sesión
+            <button type="submit" disabled={isLoading} className="login-submit">
+              {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </button>
           </form>
 
