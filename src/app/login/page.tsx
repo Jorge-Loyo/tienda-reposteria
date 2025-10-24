@@ -46,34 +46,9 @@ export default function LoginPage() {
     }
   }, [searchParams]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     setIsLoading(true);
-    
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        window.location.href = '/admin';
-      } else {
-        const data = await response.json();
-        alert(data.error || 'Credenciales inválidas');
-      }
-    } catch (error) {
-      alert('Error de conexión. Inténtalo de nuevo.');
-    } finally {
-      setIsLoading(false);
-    }
+    // No preventDefault - permitir submit normal para que funcione el redirect del servidor
   };
 
   return (
@@ -102,7 +77,7 @@ export default function LoginPage() {
             <p className="login-subtitle">Accede a tu cuenta</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="login-form">
+          <form action="/api/auth/login" method="POST" onSubmit={handleSubmit} className="login-form">
             <div className="login-field">
               <label htmlFor="email" className="login-label">
                 Correo Electrónico
