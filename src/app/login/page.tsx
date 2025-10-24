@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import './login.css';
+import { CognitoLogin } from '@/components/CognitoLogin';
 
 export default function LoginPage() {
 
@@ -76,6 +77,10 @@ export default function LoginPage() {
               Iniciar Sesión
             </button>
           </form>
+
+          <div className="mt-4">
+            <CognitoLogin />
+          </div>
         </div>
       </div>
     </div>
