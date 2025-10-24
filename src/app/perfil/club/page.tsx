@@ -1,42 +1,74 @@
 import { getSessionData } from '@/lib/session';
-import { PrismaClient } from '@prisma/client';
 import { ClubDashboard } from '@/components/ClubDashboard';
 import { redirect } from 'next/navigation';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 async function getUserClubData(userId: number) {
-  const [userPoints, config, ranking, userRank] = await Promise.all([
-    prisma.$queryRaw`
-      SELECT * FROM user_points 
-      WHERE user_id = ${userId}
-    ` as unknown as any[],
-    prisma.$queryRaw`SELECT * FROM club_config WHERE id = 1` as unknown as any[],
-    prisma.$queryRaw`
-      SELECT u.name, up.monthly_points, up.level,
-             ROW_NUMBER() OVER (ORDER BY up.monthly_points DESC) as position
-      FROM user_points up 
-      JOIN "User" u ON up.user_id = u.id 
-      WHERE up.current_month = EXTRACT(MONTH FROM CURRENT_DATE)
-      AND up.current_year = EXTRACT(YEAR FROM CURRENT_DATE)
-      ORDER BY up.monthly_points DESC 
-      LIMIT 10
-    ` as unknown as any[],
-    prisma.$queryRaw`
-      SELECT COUNT(*) + 1 as position FROM user_points 
-      WHERE monthly_points > (
-        SELECT monthly_points FROM user_points WHERE user_id = ${userId}
-      )
-      AND current_month = EXTRACT(MONTH FROM CURRENT_DATE)
-      AND current_year = EXTRACT(YEAR FROM CURRENT_DATE)
-    ` as unknown as any[]
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
+
+  const [userPoints, config, ranking] = await Promise.all([
+    prisma.userPoints.findUnique({
+      where: { userId },
+      include: { user: true }
+    }),
+    prisma.clubConfig.findFirst(),
+    prisma.userPoints.findMany({
+      where: {
+        currentMonth,
+        currentYear
+      },
+      include: { user: true },
+      orderBy: { monthlyPoints: 'desc' },
+      take: 10
+    })
   ]);
 
+  const finalUserPoints = userPoints || await prisma.userPoints.create({
+    data: {
+      userId,
+      currentMonth,
+      currentYear
+    },
+    include: { user: true }
+  });
+
+  const userPosition = ranking.findIndex(r => r.userId === userId) + 1;
+
   return {
-    userPoints: userPoints[0] || { total_points: 0, monthly_points: 0, level: 'BRONZE' },
-    config: config[0],
-    ranking: ranking || [],
-    userPosition: userRank[0]?.position || 0
+    userPoints: {
+      total_points: finalUserPoints.totalPoints,
+      monthly_points: finalUserPoints.monthlyPoints,
+      level: finalUserPoints.level
+    },
+    config: config ? {
+      first_prize: 100,
+      second_prize: 50,
+      third_prize: 25,
+      bronze_threshold: config.bronzeThreshold,
+      silver_threshold: config.silverThreshold,
+      gold_threshold: config.goldThreshold,
+      bronze_cashback: 2,
+      silver_cashback: 5,
+      gold_cashback: 10
+    } : {
+      first_prize: 100,
+      second_prize: 50,
+      third_prize: 25,
+      bronze_threshold: 0,
+      silver_threshold: 100,
+      gold_threshold: 500,
+      bronze_cashback: 2,
+      silver_cashback: 5,
+      gold_cashback: 10
+    },
+    ranking: ranking.map((r, index) => ({
+      name: r.user.name || r.user.email,
+      monthly_points: r.monthlyPoints,
+      level: r.level,
+      position: index + 1
+    })),
+    userPosition: userPosition || 0
   };
 }
 
