@@ -8,10 +8,9 @@ export function CognitoLogin() {
 
   const handleCognitoLogin = () => {
     setIsLoading(true);
-    const userPoolId = 'us-east-1_sZLFV5GOz';
     const clientId = '49g9h9j91atgnhh7ja4qsm2tkl';
-    const redirectUri = encodeURIComponent('http://18.235.130.104/api/auth/callback');
-    const cognitoUrl = `https://${userPoolId}.auth.us-east-1.amazoncognito.com/login?client_id=${clientId}&response_type=code&scope=email+openid+profile&redirect_uri=${redirectUri}`;
+    const redirectUri = encodeURIComponent('https://18.235.130.104/api/auth/callback');
+    const cognitoUrl = `https://us-east-1szlfv5goz.auth.us-east-1.amazoncognito.com/login?client_id=${clientId}&response_type=code&scope=email+openid+profile&redirect_uri=${redirectUri}`;
     window.location.href = cognitoUrl;
   };
 
