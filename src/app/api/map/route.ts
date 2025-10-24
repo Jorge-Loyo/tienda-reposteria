@@ -2,6 +2,8 @@
 import { NextResponse } from 'next/server';
 import { logError, logInfo } from '@/lib/logger';
 
+export const dynamic = 'force-dynamic';
+
 // Función para validar coordenadas
 function isValidCoordinate(lat: string, lon: string): boolean {
   const latitude = parseFloat(lat);
