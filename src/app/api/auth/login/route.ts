@@ -33,18 +33,18 @@ export async function POST(request: Request) {
 
     // Validación más estricta
     if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
-      return NextResponse.json({ error: 'El correo y la contraseña son requeridos' }, { status: 400 });
+      return NextResponse.redirect(new URL('/login?error=missing_fields', request.url));
     }
 
     // Sanitizar y validar email
     const sanitizedEmail = sanitizeText(email);
     if (!isValidEmail(sanitizedEmail)) {
-      return NextResponse.json({ error: 'Formato de email inválido' }, { status: 400 });
+      return NextResponse.redirect(new URL('/login?error=invalid_email', request.url));
     }
 
     // Validar longitud de contraseña
     if (password.length < 6 || password.length > 128) {
-      return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
+      return NextResponse.redirect(new URL('/login?error=invalid_credentials', request.url));
     }
 
     // 1. Buscar al usuario por su email
@@ -56,20 +56,20 @@ export async function POST(request: Request) {
 if (!user) {
   // Log del intento fallido sin exponer información sensible
   console.error('Login attempt failed - User not found for email:', sanitizedEmail);
-  return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
+  return NextResponse.redirect(new URL('/login?error=invalid_credentials', request.url));
 }
 
     // 3. Verificar si el usuario está activo
     if (!user.isActive) {
       console.error('Login attempt failed - Inactive user attempted login:', sanitizedEmail);
-      return NextResponse.json({ error: 'Cuenta desactivada. Contacta al administrador.' }, { status: 401 });
+      return NextResponse.redirect(new URL('/login?error=account_disabled', request.url));
     }
 
     // 4. Verificar la contraseña
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       console.error('Login attempt failed - Invalid password for user:', sanitizedEmail);
-      return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
+      return NextResponse.redirect(new URL('/login?error=invalid_credentials', request.url));
     }
 
     // 5. Login exitoso - crear token de sesión
@@ -112,6 +112,6 @@ if (!user) {
 
   } catch (error) {
     console.error('Error en el login:', error);
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+    return NextResponse.redirect(new URL('/login?error=server_error', request.url));
   }
 }
