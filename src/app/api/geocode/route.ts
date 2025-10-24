@@ -4,6 +4,8 @@ import { logError } from '@/lib/logger';
 import { sanitizeText } from '@/lib/sanitizer';
 import { rateLimit, getClientIP } from '@/lib/rate-limit';
 
+export const dynamic = 'force-dynamic';
+
 // Función para validar coordenadas
 function isValidCoordinate(lat: string, lon: string): boolean {
   const latitude = parseFloat(lat);

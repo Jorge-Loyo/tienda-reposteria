@@ -5,6 +5,8 @@ import { jwtVerify, JWTPayload } from 'jose';
 import db from '@/db/db';
 import { sanitizeText } from '@/lib/sanitizer';
 
+export const dynamic = 'force-dynamic';
+
 if (!process.env.JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable is required');
 }
