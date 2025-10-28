@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   
   try {
     // Intercambiar código por tokens
-    const tokenResponse = await fetch('https://lkfc0s.auth.us-east-1.amazoncognito.com/oauth2/token', {
+    const tokenResponse = await fetch('https://us-east-1szlfv5goz.auth.us-east-1.amazoncognito.com/oauth2/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
         grant_type: 'authorization_code',
         client_id: '49g9h9j91atgnhh7ja4qsm2tkl',
         code: code,
-        redirect_uri: 'http://18.235.130.104/api/auth/callback',
+        redirect_uri: 'https://18.235.130.104/api/auth/callback',
       }),
     });
     
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     const userGroups = await getUserGroups(username);
     
     // Extraer email de los atributos
-    const emailAttr = cognitoUser.UserAttributes?.find(attr => attr.Name === 'email');
+    const emailAttr = cognitoUser.UserAttributes?.find((attr: any) => attr.Name === 'email');
     const email = emailAttr?.Value;
     
     if (!email) {
@@ -59,11 +59,11 @@ export async function GET(request: NextRequest) {
     
     // Determinar rol basado en grupos de Cognito
     let role = 'ORDERS_USER';
-    if (userGroups.some(group => group.GroupName === 'Administrators')) {
+    if (userGroups.some((group: any) => group.GroupName === 'Administrators')) {
       role = 'ADMIN';
-    } else if (userGroups.some(group => group.GroupName === 'OrdersManagers')) {
+    } else if (userGroups.some((group: any) => group.GroupName === 'OrdersManagers')) {
       role = 'ORDERS_MANAGER';
-    } else if (userGroups.some(group => group.GroupName === 'VipUsers')) {
+    } else if (userGroups.some((group: any) => group.GroupName === 'VipUsers')) {
       role = 'VIP_USER';
     }
     
