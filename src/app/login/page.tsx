@@ -23,9 +23,7 @@ export default function LoginPage() {
       });
 
       if (response.ok) {
-        // Mostrar mensaje de éxito y redirigir con window.location
-        alert('¡Login exitoso! Serás redirigido a tu perfil.');
-        window.location.href = '/perfil';
+        router.push('/perfil');
       } else {
         const data = await response.json();
         setError(data.error || 'Error de login');
