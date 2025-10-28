@@ -4,11 +4,11 @@ const client = createClient({
   socket: {
     host: process.env.REDIS_HOST,
     port: parseInt(process.env.REDIS_PORT || '6379'),
-    tls: true, // Valkey serverless requiere TLS
+    tls: true,
   },
 });
 
-client.on('error', (err) => console.log('Redis Client Error', err));
+client.on('error', (err: any) => console.log('Redis Client Error', err));
 
 let isConnected = false;
 
@@ -24,7 +24,7 @@ export async function setCache(key: string, value: any, ttl: number = 3600) {
     await connectRedis();
     await client.setEx(key, ttl, JSON.stringify(value));
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Redis set error:', error);
     return false;
   }
@@ -35,19 +35,8 @@ export async function getCache(key: string) {
     await connectRedis();
     const value = await client.get(key);
     return value ? JSON.parse(value) : null;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Redis get error:', error);
     return null;
-  }
-}
-
-export async function deleteCache(key: string) {
-  try {
-    await connectRedis();
-    await client.del(key);
-    return true;
-  } catch (error) {
-    console.error('Redis delete error:', error);
-    return false;
   }
 }
