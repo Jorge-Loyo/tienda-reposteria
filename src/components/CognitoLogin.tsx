@@ -1,17 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-// Removido import del Button component
 
 export function CognitoLogin() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCognitoLogin = () => {
     setIsLoading(true);
-    // URL directa y simple para probar
-    const cognitoUrl = 'https://us-east-1szlfv5goz.auth.us-east-1.amazoncognito.com/login?client_id=49g9h9j91atgnhh7ja4qsm2tkl&response_type=code&scope=email+openid+profile&redirect_uri=https://18.235.130.104/api/auth/callback';
-    console.log('Redirigiendo a:', cognitoUrl);
-    window.location.href = cognitoUrl;
+    
+    const clientId = '49g9h9j91atgnhh7ja4qsm2tkl';
+    const redirectUri = 'https://18.235.130.104/api/auth/callback';
+    const loginUrl = `https://us-east-1szlfv5goz.auth.us-east-1.amazoncognito.com/oauth2/authorize?client_id=${clientId}&response_type=code&scope=email+openid+profile&redirect_uri=${redirectUri}`;
+
+    console.log('Redirigiendo a:', loginUrl);
+    window.location.href = loginUrl;
   };
 
   return (
