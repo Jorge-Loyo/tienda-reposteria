@@ -1,6 +1,7 @@
 // src/app/api/products/route.ts
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import { getCache, setCache } from '@/lib/redis';
 
 const prisma = new PrismaClient();
 
@@ -40,12 +41,46 @@ export async function POST(request: Request) {
       },
     });
 
+    // Limpiar cache de productos al crear uno nuevo
+    await setCache('products:all', null, 0);
+    
     return NextResponse.json(newProduct, { status: 201 });
   } catch (error) {
     console.error("Error creating product:", error);
-    // Devolvemos un error genérico para no exponer detalles de la base de datos.
     return NextResponse.json(
       { error: 'No se pudo crear el producto. Error interno del servidor.' },
+      { status: 500 }
+    );
+  }
+}
+
+// GET - Obtener productos con cache
+export async function GET() {
+  try {
+    // Intentar obtener del cache primero
+    const cachedProducts = await getCache('products:all');
+    if (cachedProducts) {
+      return NextResponse.json(cachedProducts);
+    }
+
+    // Si no está en cache, consultar DB
+    const products = await prisma.product.findMany({
+      include: {
+        category: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    // Guardar en cache por 10 minutos
+    await setCache('products:all', products, 600);
+    
+    return NextResponse.json(products);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    return NextResponse.json(
+      { error: 'Error al obtener productos' },
       { status: 500 }
     );
   }
