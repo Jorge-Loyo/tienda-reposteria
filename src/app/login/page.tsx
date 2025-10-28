@@ -23,7 +23,8 @@ export default function LoginPage() {
       });
 
       if (response.ok) {
-        router.push('/perfil');
+        // Usar window.location.replace para evitar CSP
+        window.location.replace('/perfil');
       } else {
         const data = await response.json();
         setError(data.error || 'Error de login');
