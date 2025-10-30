@@ -15,7 +15,7 @@ const ROLE_TO_GROUP_MAP = {
   'MARKETING': 'Marketing'
 };
 
-async function migrateUsersTocognito() {
+async function migrateUsersToCognito() {
   try {
     console.log('🚀 Iniciando migración de usuarios a AWS Cognito...');
     
@@ -86,4 +86,4 @@ async function migrateUsersTocognito() {
 }
 
 // Ejecutar migración
-migrateUsersToognito().catch(console.error);
+migrateUsersToCognito().catch(console.error);
