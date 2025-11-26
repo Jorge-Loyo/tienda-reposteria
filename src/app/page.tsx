@@ -91,7 +91,7 @@ async function getTrendingProducts() {
       return bQuantity - aQuantity;
     });
 
-    return sortedProducts.slice(0, 6);
+    return sortedProducts.slice(0, 3);
   } catch (error) {
     console.error("Error al obtener productos trending:", error);
     return [];
