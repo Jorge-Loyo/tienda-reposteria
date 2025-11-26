@@ -23,9 +23,9 @@ export async function POST(request: NextRequest) {
       cloudinary.uploader.upload_stream(
         {
           folder: 'banners',
-          transformation: [
-            { width: 1920, height: 1080, crop: 'fill', quality: 'auto' }
-          ]
+          quality: 100,
+          format: 'jpg',
+          flags: 'preserve_transparency'
         },
         (error, result) => {
           if (error) reject(error);

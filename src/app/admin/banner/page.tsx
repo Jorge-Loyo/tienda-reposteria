@@ -45,6 +45,23 @@ export default function BannerManagementPage() {
     }
   };
 
+  const deleteBanner = async (id: number) => {
+    if (!confirm('¿Estás seguro de eliminar este banner?')) return;
+    
+    try {
+      const response = await fetch(`/api/banner/${id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setBanners(banners.filter(b => b.id !== id));
+      } else {
+        alert('Error al eliminar banner');
+      }
+    } catch (error) {
+      alert('Error al eliminar banner');
+    }
+  };
+
   return (
     <div className="banner-management-container">
       <div className="banner-management-content">
@@ -112,7 +129,12 @@ export default function BannerManagementPage() {
                     >
                       {image.active ? 'Desactivar' : 'Activar'}
                     </Button>
-                    <Button variant="outline" size="sm" className="btn-delete">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="btn-delete"
+                      onClick={() => deleteBanner(image.id)}
+                    >
                       Eliminar
                     </Button>
                   </div>
