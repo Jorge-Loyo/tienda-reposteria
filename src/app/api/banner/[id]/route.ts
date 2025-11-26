@@ -35,3 +35,18 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({ error: 'Error al actualizar banner' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const id = parseInt(params.id);
+
+    await prisma.banner.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ message: 'Banner eliminado exitosamente' });
+  } catch (error) {
+    console.error('Error deleting banner:', error);
+    return NextResponse.json({ error: 'Error al eliminar banner' }, { status: 500 });
+  }
+}
