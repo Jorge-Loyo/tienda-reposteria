@@ -66,26 +66,12 @@ export function ClubDashboard({ userPoints, config, ranking, userPosition }: Clu
   const daysLeft = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate() - new Date().getDate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-6">
-      <div className="max-w-6xl mx-auto">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div></div>
-          <div className="text-center">
-            <h1 className="text-4xl font-bold gradient-text mb-2">El Club de Casa Dulce</h1>
-            <p className="text-gray-600">¡Compite, acumula puntos y gana increíbles premios!</p>
-          </div>
-          <button 
-            onClick={() => window.history.back()}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-white/50 rounded-lg transition-colors"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Atrás
-          </button>
-        </div>
+    <div>
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold gradient-text mb-2">El Club de Casa Dulce</h1>
+        <p className="text-gray-600">¡Compite, acumula puntos y gana increíbles premios!</p>
+      </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -218,7 +204,6 @@ export function ClubDashboard({ userPoints, config, ranking, userPosition }: Clu
             ))}
           </div>
         </div>
-      </div>
     </div>
   );
 }
