@@ -3,11 +3,6 @@ const nextConfig = {
   experimental: {
     missingSuspenseWithCSRBailout: false,
   },
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
-  },
   images: {
     remotePatterns: [
       // Dominio para las imágenes de productos (Cloudinary)
