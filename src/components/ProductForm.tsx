@@ -77,9 +77,6 @@ export default function ProductForm({
         newValue = value === '' ? '' : parseFloat(value);
       } else if (['stock', 'categoryId'].includes(name)) {
         newValue = parseInt(value, 10) || 0;
-      } else if (typeof value === 'string') {
-        // Sanitizar campos de texto
-        newValue = sanitizeText(value);
       }
       
       return {
