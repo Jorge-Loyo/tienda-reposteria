@@ -55,6 +55,7 @@ model User {
   passwordResetExpires DateTime?
   permissions          UserPermission[]
   supportTickets       SupportTicket[]
+  points               UserPoints?
 }
 
 model Permission {
@@ -206,26 +207,60 @@ model SiteConfig {
 }
 
 model SupportTicket {
-  id          Int      @id @default(autoincrement())
-  ticketNumber String  @unique
-  userId      Int
-  type        String
-  subject     String
-  description String
-  orderNumber String?
-  priority    String   @default("media")
-  status      String   @default("pendiente")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id])
-  responses   TicketResponse[]
+  id           Int              @id @default(autoincrement())
+  ticketNumber String           @unique
+  userId       Int
+  type         String
+  subject      String
+  description  String
+  orderNumber  String?
+  priority     String           @default("media")
+  status       String           @default("pendiente")
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  user         User             @relation(fields: [userId], references: [id])
+  responses    TicketResponse[]
 }
 
 model TicketResponse {
-  id        Int           @id @default(autoincrement())
-  ticketId  Int
-  message   String
-  isFromUser Boolean     @default(false)
-  createdAt DateTime     @default(now())
-  ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  id         Int           @id @default(autoincrement())
+  ticketId   Int
+  message    String
+  isFromUser Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+  ticket     SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+}
+
+model UserPoints {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique @map("user_id")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  totalPoints   Int      @default(0) @map("total_points")
+  monthlyPoints Int      @default(0) @map("monthly_points")
+  level         String   @default("BRONZE")
+  currentMonth  Int      @default(0) @map("current_month")
+  currentYear   Int      @default(0) @map("current_year")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("user_points")
+}
+
+model ClubConfig {
+  id                Int      @id @default(autoincrement())
+  bronzeThreshold   Int      @default(0) @map("bronze_threshold")
+  silverThreshold   Int      @default(100) @map("silver_threshold")
+  goldThreshold     Int      @default(500) @map("gold_threshold")
+  platinumThreshold Int      @default(1000) @map("platinum_threshold")
+  pointsPerDollar   Float    @default(1.0) @map("points_per_dollar")
+  bronzeCashback    Float    @default(2.0) @map("bronze_cashback")
+  silverCashback    Float    @default(5.0) @map("silver_cashback")
+  goldCashback      Float    @default(10.0) @map("gold_cashback")
+  firstPrize        Float    @default(100.0) @map("first_prize")
+  secondPrize       Float    @default(50.0) @map("second_prize")
+  thirdPrize        Float    @default(25.0) @map("third_prize")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("club_config")
 }
