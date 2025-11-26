@@ -1,6 +1,8 @@
 import './globals.css';
 import './layout.css';
 import './modern-footer.css';
+import './mobile.css';
+import './responsive.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Link from 'next/link';
@@ -10,6 +12,7 @@ import { CurrencyProvider } from '@/context/CurrencyContext';
 import { getBcvRate } from '@/lib/currency';
 import React from 'react';
 import UserSession from '@/components/UserSession';
+import MobileMenu from '@/components/MobileMenu';
 import { APP_CONFIG } from '@/lib/constants';
 import dynamic from 'next/dynamic';
 import Script from 'next/script';
@@ -25,6 +28,12 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Casa Dulce Oriente - Repostería',
   description: 'Los mejores insumos para tus creaciones.',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+  },
+  themeColor: '#ec4899',
 };
 
 // --- Iconos para el pie de página ---
@@ -80,6 +89,7 @@ export default async function RootLayout({
                   <div className="layout-header-actions">
                     <CartIcon />
                     <UserSession />
+                    <MobileMenu />
                   </div>
                 </div>
               </div>

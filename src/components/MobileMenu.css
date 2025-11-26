@@ -1,0 +1,123 @@
+/* Mobile Menu Styles */
+
+.mobile-menu-button {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #374151;
+  transition: all 0.2s ease;
+  z-index: 10000;
+}
+
+.mobile-menu-button:hover {
+  color: #ec4899;
+}
+
+.mobile-menu-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  animation: fadeIn 0.2s ease;
+}
+
+.mobile-menu-nav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 80%;
+  max-width: 20rem;
+  background: white;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  padding: 5rem 0 2rem;
+  animation: slideIn 0.3s ease;
+  overflow-y: auto;
+  z-index: 9999;
+}
+
+.mobile-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+}
+
+.mobile-menu-link:hover,
+.mobile-menu-link:active {
+  background: linear-gradient(90deg, #fdf2f8 0%, transparent 100%);
+  border-left-color: #ec4899;
+  color: #ec4899;
+}
+
+.mobile-menu-link.ofertas:hover,
+.mobile-menu-link.ofertas:active {
+  background: linear-gradient(90deg, #fff7ed 0%, transparent 100%);
+  border-left-color: #f97316;
+  color: #f97316;
+}
+
+.mobile-menu-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #e5e7eb 50%, transparent 100%);
+  margin: 0.5rem 1.5rem;
+}
+
+.mobile-menu-link.logout {
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  color: #dc2626;
+}
+
+.mobile-menu-link.logout:hover,
+.mobile-menu-link.logout:active {
+  background: linear-gradient(90deg, #fef2f2 0%, transparent 100%);
+  border-left-color: #dc2626;
+  color: #dc2626;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-menu-button {
+    display: none !important;
+  }
+}
+
+

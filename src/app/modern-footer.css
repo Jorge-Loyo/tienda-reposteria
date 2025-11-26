@@ -30,19 +30,27 @@
   z-index: 10;
   max-width: 80rem;
   margin: 0 auto;
-  padding: 4rem 1.5rem 0;
+  padding: 2rem 1rem 0;
+}
+
+@media (min-width: 768px) {
+  .modern-footer-content {
+    padding: 4rem 1.5rem 0;
+  }
 }
 
 .modern-footer-main {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 3rem;
-  margin-bottom: 3rem;
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 
 @media (min-width: 768px) {
   .modern-footer-main {
     grid-template-columns: repeat(2, 1fr);
+    gap: 3rem;
+    margin-bottom: 3rem;
   }
 }
 
@@ -201,7 +209,13 @@
 
 .modern-footer-bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 2rem 0;
+  padding: 1.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .modern-footer-bottom {
+    padding: 2rem 0;
+  }
 }
 
 .modern-footer-bottom-content {
