@@ -1,0 +1,27 @@
+# Comandos para ejecutar en EC2 para permitir uploads grandes
+
+# 1. Editar configuración de Nginx
+sudo nano /etc/nginx/sites-available/casadulce
+
+# 2. Agregar esta línea dentro del bloque server { }:
+client_max_body_size 10M;
+
+# 3. Ejemplo de cómo debería verse:
+# server {
+#     listen 80;
+#     server_name 18.235.130.104;
+#     client_max_body_size 10M;  # <-- AGREGAR ESTA LÍNEA
+#     
+#     location / {
+#         proxy_pass http://localhost:3000;
+#         ...
+#     }
+# }
+
+# 4. Guardar y salir (Ctrl+O, Enter, Ctrl+X)
+
+# 5. Verificar configuración
+sudo nginx -t
+
+# 6. Reiniciar Nginx
+sudo systemctl restart nginx
