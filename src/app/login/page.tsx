@@ -20,16 +20,33 @@ export default function LoginPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
+        redirect: 'manual' // No seguir redirects automáticamente
       });
 
-      if (response.ok) {
-        // Usar window.location.replace para evitar CSP
-        window.location.replace('/perfil');
+      // Si es redirect (302), el login fue exitoso
+      if (response.type === 'opaqueredirect' || response.status === 0 || response.status === 302) {
+        window.location.href = '/perfil';
+        return;
+      }
+
+      // Si llegamos aquí, hubo un error
+      const url = new URL(response.url);
+      const errorParam = url.searchParams.get('error');
+      
+      if (errorParam) {
+        const errorMessages: Record<string, string> = {
+          'invalid_credentials': 'Email o contraseña incorrectos',
+          'account_disabled': 'Tu cuenta está deshabilitada',
+          'missing_fields': 'Por favor completa todos los campos',
+          'invalid_email': 'Email inválido',
+          'server_error': 'Error del servidor, intenta de nuevo'
+        };
+        setError(errorMessages[errorParam] || 'Error de login');
       } else {
-        const data = await response.json();
-        setError(data.error || 'Error de login');
+        setError('Error de login');
       }
     } catch (error) {
+      console.error('Login error:', error);
       setError('Error de conexión');
     } finally {
       setIsLoading(false);
