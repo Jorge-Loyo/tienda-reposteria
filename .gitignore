@@ -43,3 +43,14 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# Documentación con información sensible
+DOCUMENTACION_TECNICA.md
+
+# Archivos adicionales con secretos/tokens
+config/secrets.*
+credentials.*
+tokens.*
+*.key
+*.pem
+.secrets/
