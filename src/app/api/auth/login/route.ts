@@ -36,8 +36,8 @@ export async function POST(request: Request) {
       return NextResponse.redirect(new URL('/login?error=missing_fields', request.url));
     }
 
-    // Sanitizar y validar email
-    const sanitizedEmail = sanitizeText(email);
+    // Sanitizar y validar email (convertir a minúsculas)
+    const sanitizedEmail = sanitizeText(email).toLowerCase();
     if (!isValidEmail(sanitizedEmail)) {
       return NextResponse.redirect(new URL('/login?error=invalid_email', request.url));
     }
