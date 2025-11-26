@@ -23,6 +23,15 @@ interface HomeBannerProps {
 export default function HomeBanner({ images }: HomeBannerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Mejorar calidad de imágenes de Cloudinary
+  const optimizeCloudinaryUrl = (url: string) => {
+    if (url.includes('cloudinary.com')) {
+      // Agregar transformaciones para mejor calidad
+      return url.replace('/upload/', '/upload/q_auto:best,f_auto,w_1920,c_limit/');
+    }
+    return url;
+  };
+
   useEffect(() => {
     if (images.length <= 1) return;
 
@@ -57,11 +66,13 @@ export default function HomeBanner({ images }: HomeBannerProps) {
             }`}
           >
             <Image
-              src={image.src}
+              src={optimizeCloudinaryUrl(image.src)}
               alt={image.alt}
               fill
+              quality={100}
               style={{ objectFit: 'cover' }}
               priority={index === 0}
+              unoptimized
             />
             {/* CORRECCIÓN: El sombreado oscuro solo se aplica si hay un título */}
             {hasOverlay && (
