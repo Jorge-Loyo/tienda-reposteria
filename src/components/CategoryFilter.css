@@ -50,3 +50,23 @@
 .category-filter-button.inactive:hover {
   background: rgba(255, 255, 255, 0.8);
 }
+
+/* Mobile dropdown */
+.category-filter-mobile {
+  display: block;
+}
+
+.category-filter-buttons {
+  display: none;
+}
+
+/* Desktop buttons */
+@media (min-width: 768px) {
+  .category-filter-mobile {
+    display: none;
+  }
+  
+  .category-filter-buttons {
+    display: flex;
+  }
+}

@@ -35,9 +35,9 @@ export default function ProductCard({ product, bcvRate }: ProductCardProps) {
   }
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-2xl glass card-hover h-full">
+    <div className="group flex flex-col overflow-hidden rounded-2xl glass card-hover h-full product-card-mobile">
       <Link href={`/products/${product.id}`} className="block relative">
-        <div className="relative h-[250px] sm:h-[350px]">
+        <div className="relative h-[180px] sm:h-[250px] lg:h-[350px]">
           <Image
             src={product.imageUrl || '/placeholder.png'}
             alt={product.name || 'Imagen del producto'}
@@ -55,32 +55,32 @@ export default function ProductCard({ product, bcvRate }: ProductCardProps) {
         )}
       </Link>
 
-      <div className="relative p-4 flex flex-col flex-grow">
+      <div className="relative p-2 sm:p-4 flex flex-col flex-grow">
         <Link href={`/products/${product.id}`} className="block">
-            <h3 className="text-md font-semibold text-gray-800 group-hover:text-pink-600 transition-colors duration-300 truncate">
+            <h3 className="text-xs sm:text-md font-semibold text-gray-800 group-hover:text-pink-600 transition-colors duration-300 line-clamp-2">
                 {product.name || "Nombre del Producto"}
             </h3>
-            <div className="mt-2 flex items-baseline gap-2">
+            <div className="mt-1 sm:mt-2 flex items-baseline gap-1 sm:gap-2">
                 {/* 3. Mostramos el precio de oferta y el precio original tachado */}
-                <p className="tracking-wider gradient-text font-bold text-lg">
+                <p className="tracking-wider gradient-text font-bold text-sm sm:text-lg">
                     {formatCurrency(displayPrice || 0)} USD
                 </p>
                 {onSale && (
-                    <p className="tracking-wider text-gray-400 line-through text-sm">
+                    <p className="tracking-wider text-gray-400 line-through text-xs sm:text-sm">
                         {formatCurrency(product.priceUSD || 0)}
                     </p>
                 )}
             </div>
             {bcvRate && priceVes ? (
-                <p className="text-sm text-gray-600">o {formatCurrency(priceVes, 'VES')}</p>
+                <p className="text-xs sm:text-sm text-gray-600">o {formatCurrency(priceVes, 'VES')}</p>
             ) : (
-                <p className="text-xs text-amber-600 pt-1">Tasa Bs. no disponible</p>
+                <p className="text-xs text-amber-600 pt-1 hidden sm:block">Tasa Bs. no disponible</p>
             )}
         </Link>
         
         <div className="flex-grow"></div>
 
-        <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="mt-2 sm:mt-4 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
             <QuickAddToCart product={product} />
         </div>
       </div>

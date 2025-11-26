@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import './CategoryFilter.css';
 
 interface CategoryFilterProps {
@@ -27,6 +28,25 @@ export default function CategoryFilter({ categories }: CategoryFilterProps) {
   return (
     <div className="category-filter-container">
       <h2 className="category-filter-title gradient-text">Explora por Categorías</h2>
+      
+      {/* Desplegable para móviles */}
+      <div className="category-filter-mobile">
+        <Select value={currentCategory || 'all'} onValueChange={(value) => handleFilter(value === 'all' ? null : value)}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Selecciona una categoría" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">🏠 Todos</SelectItem>
+            {categories.map((category) => (
+              <SelectItem key={category.id} value={category.name}>
+                {getCategoryIcon(category.name)} {category.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Botones para desktop */}
       <div className="category-filter-buttons">
         <button
           className={cn(
