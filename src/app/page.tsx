@@ -14,6 +14,8 @@ import './homepage.css';
 
 const prisma = new PrismaClient();
 
+export const revalidate = 60; // Revalidar cada 60 segundos
+
 async function getFeaturedProducts() {
   try {
     const now = new Date();
