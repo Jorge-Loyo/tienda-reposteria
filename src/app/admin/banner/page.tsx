@@ -148,10 +148,12 @@ export default function BannerManagementPage() {
         <div className="banner-instructions">
           <h3 className="text-lg font-bold gradient-text mb-4">Instrucciones</h3>
           <ul className="banner-instructions-list">
-            <li>• Las imágenes deben tener una resolución mínima de 1920x1080px</li>
-            <li>• Formatos soportados: JPG, PNG, WebP</li>
-            <li>• Tamaño máximo: 5MB por imagen</li>
-            <li>• Se recomienda usar imágenes con relación de aspecto 16:9</li>
+            <li>• <strong>Dimensiones recomendadas:</strong> 1920 x 600 píxeles (relación 16:5)</li>
+            <li>• <strong>Dimensiones alternativas:</strong> 1920 x 800 píxeles (relación 12:5)</li>
+            <li>• <strong>Formatos soportados:</strong> JPG, PNG, WebP</li>
+            <li>• <strong>Tamaño máximo:</strong> 10MB por imagen</li>
+            <li>• <strong>Calidad:</strong> Máxima calidad (100%) - sin compresión</li>
+            <li>• <strong>Resolución:</strong> 72 DPI para web</li>
           </ul>
         </div>
       </div>
