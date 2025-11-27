@@ -6,6 +6,9 @@ import db from "@/db/db"
 import { ArrowLeft, FolderOpen, Package, Plus, Edit, Trash2, BarChart3 } from "lucide-react"
 import { CategoryManagementClient } from "@/components/CategoryManagementClient"
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 async function getCategories() {
   return db.category.findMany({
     select: {

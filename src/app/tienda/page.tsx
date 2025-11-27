@@ -5,6 +5,9 @@ import CategoryFilter from '@/components/CategoryFilter';
 import { ToastContainer } from '@/components/ui/toast';
 import './tienda.css';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const prisma = new PrismaClient();
 
 async function getProducts(categoryName?: string) {

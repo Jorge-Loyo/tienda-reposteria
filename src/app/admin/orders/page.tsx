@@ -8,6 +8,7 @@ import { OrderStatusFilter } from '@/components/OrderStatusFilter';
 
 // Forzamos el renderizado dinámico de la página
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const prisma = new PrismaClient();
 

@@ -5,6 +5,9 @@ import CreateUserForm from '@/components/CreateUserForm';
 import UsersTable from '@/components/UsersTable';
 import UserRoleFilter from '@/components/UserRoleFilter';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const prisma = new PrismaClient();
 
 // Definimos los roles como un tipo de unión de cadenas de texto

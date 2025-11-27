@@ -4,6 +4,7 @@ import { getBcvRate } from '@/lib/currency';
 import './ofertas.css';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const prisma = new PrismaClient();
 
