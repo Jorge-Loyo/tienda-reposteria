@@ -18,6 +18,7 @@ export async function PUT(
       data: {
         name: name.trim(),
         imageUrl: imageUrl || null,
+        icon: imageUrl || null, // Guardar el emoji en el campo icon
       },
     });
 
