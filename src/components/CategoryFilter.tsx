@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import './CategoryFilter.css';
 
 interface CategoryFilterProps {
-  categories: { id: number; name: string }[];
+  categories: { id: number; name: string; icon?: string | null }[];
 }
 
 export default function CategoryFilter({ categories }: CategoryFilterProps) {
@@ -39,7 +39,7 @@ export default function CategoryFilter({ categories }: CategoryFilterProps) {
             <SelectItem value="all">🏠 Todos</SelectItem>
             {categories.map((category) => (
               <SelectItem key={category.id} value={category.name}>
-                {getCategoryIcon(category.name)} {category.name}
+                {category.icon || getCategoryIcon(category.name)} {category.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -66,7 +66,7 @@ export default function CategoryFilter({ categories }: CategoryFilterProps) {
             )}
             onClick={() => handleFilter(category.name)}
           >
-            {getCategoryIcon(category.name)} {category.name}
+            {category.icon || getCategoryIcon(category.name)} {category.name}
           </button>
         ))}
       </div>

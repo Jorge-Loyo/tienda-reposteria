@@ -40,7 +40,10 @@ async function getProducts(categoryName?: string) {
 
 async function getCategories() {
   try {
-    return await prisma.category.findMany({ orderBy: { name: 'asc' } });
+    return await prisma.category.findMany({ 
+      select: { id: true, name: true, icon: true },
+      orderBy: { name: 'asc' } 
+    });
   } catch (error) {
     console.error("Error al obtener categorías:", error);
     return [];

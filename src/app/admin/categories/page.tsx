@@ -15,6 +15,7 @@ async function getCategories() {
       id: true,
       name: true,
       imageUrl: true,
+      icon: true,
       _count: { select: { products: true } },
     },
     orderBy: { name: "asc" },

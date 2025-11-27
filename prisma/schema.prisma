@@ -17,6 +17,7 @@ model Category {
   id       Int       @id @default(autoincrement())
   name     String    @unique
   imageUrl String? // URL de la imagen de la categoría
+  icon     String? // Emoji o icono de la categoría
   products Product[]
 }
 
